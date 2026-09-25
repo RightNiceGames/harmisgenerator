@@ -57,6 +57,17 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont): ChartP
     const meta = [pretty(song.grundtonart), song.taktart, song.stil, song.tempo ? `♩ = ${song.tempo}` : undefined].filter(Boolean).join('  •  ');
     fitText(L, y, meta, 8, R-L, false, GREY); y += 14;
     fitText(L, y, song.upphov || song.artist, 8, R-L, false, GREY);
+    if (song.spelordning) {
+      y += 19;
+      let current = 'Spelordning: ';
+      for (const step of [...song.spelordning.map(step => `${step.del}${step.ganger > 1 ? ' × '+step.ganger : ''}`), 'SLUT']) {
+        const next = current.endsWith(': ') ? current + step : current + ' → ' + step;
+        if (width(next, 8, true) > R-L && !current.endsWith(': ')) {
+          fitText(L,y,current+' →',8,R-L,true,ACCENT); y += 13; current = step;
+        } else current = next;
+      }
+      fitText(L,y,current,8,R-L,true,ACCENT);
+    }
     return y + 30;
   };
   let y = header();

@@ -29,3 +29,5 @@
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 .editing-column>*{flex-shrink:0}
 @media print{.editing-column{display:none!important}.library,.topbar,.song-header,.song-facts,.editor-panel,.panel-header,.preview-meta,.preview-footer,.sources-section,.bottom-status,.transpose-panel,.error-banner,.stale-message{display:none!important}.app-shell,.workspace,.main,.preview-panel,.paper-stack{display:block!important;height:auto!important;max-height:none!important;padding:0!important;margin:0!important;overflow:visible!important;border:0!important;background:white!important}.paper{width:210mm!important;height:297mm!important;margin:0!important;box-shadow:none!important;break-after:page}.paper:last-child{break-after:auto}@page{size:A4;margin:0}}
+
+.form-summary{padding:0 0 18px;font-size:10px;color:var(--green);line-height:1.8}.form-summary strong{font-size:9px}.form-summary p{overflow-wrap:anywhere}

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { isScalar, LineCounter, parseDocument } from 'yaml';
+import { isScalar, LineCounter, parseDocument, visit } from 'yaml';
 
 const notePattern = /^[A-G](?:#|b|♯|♭)?$/;
 const keyPattern = /^[A-G](?:#|b|♯|♭)?(?:m)?$/;
@@ -50,8 +50,19 @@ export const songSchema = z.strictObject({
   status: z.enum(['utkast', 'granskad']).default('utkast'),
   kallor: z.array(z.strictObject({ url: z.string().url(), beskrivning: z.string().max(600) })).max(20).optional(),
   anteckningar: z.array(z.string().max(1400)).max(30).optional(),
+  spelordning: z.array(z.strictObject({ del: z.string().min(1).max(80), ganger: z.number().int().min(1).max(16).default(1) })).min(1).max(60).optional(),
   delar: z.array(sectionSchema).min(1).max(60),
 }).superRefine((song, ctx) => {
+  if (song.spelordning) {
+    const names = song.delar.map(part => part.namn);
+    if (new Set(names).size !== names.length) ctx.addIssue({code:'custom',path:['delar'],message:'Låtdelarna måste ha unika namn när spelordning används.'});
+    song.spelordning.forEach((step,i) => {
+      if (!names.includes(step.del)) ctx.addIssue({code:'custom',path:['spelordning',i,'del'],message:`Låtdelen ${step.del} finns inte.`});
+    });
+    names.forEach((name,i) => {
+      if (!song.spelordning!.some(step=>step.del===name)) ctx.addIssue({code:'custom',path:['delar',i,'namn'],message:`Lägg till ${name} i spelordningen.`});
+    });
+  }
   let count = 0;
   let meter = song.taktart;
   song.delar.forEach((section, si) => section.takter.forEach((raw, bi) => {
@@ -100,7 +111,8 @@ export function ascii(value: string) { return value.replaceAll('♭', 'b').repla
 export function pretty(value: string) { return value.replaceAll('b', '♭').replaceAll('#', '♯'); }
 export type Chord = { root: string; extension: string; bass?: string; special?: boolean };
 export function parseChord(value: string): Chord {
-  if (['N.C.', '%', '-'].includes(value)) return { root: value, extension: '', special: true };
+  if (/^N\.?C\.?$/i.test(value)) return { root: 'N.C.', extension: '', special: true };
+  if (['%', '-'].includes(value)) return { root: value, extension: '', special: true };
   const match = ascii(value).match(/^([A-G][b#]?)(.*?)(?:\/([A-G][b#]?))?$/);
   if (!match || !/^(?:(?:maj|Maj|M|m|min|dim|aug|sus|add|alt|omit|no)|[0-9b#()+°ø/\-])*$/u.test(match[2])) throw new Error(`Ogiltigt ackord: ${value}`);
   return { root: match[1], extension: match[2], bass: match[3] };
@@ -123,10 +135,23 @@ export function transposeChord(chord: string, semitones: number, spelling: 'b' |
 export class SongError extends Error {
   constructor(message: string, public line = 1) { super(message); }
 }
+// Accept a bare bar-repeat marker without changing source offsets used by the editor.
+export function parseSongDocument(text: string, options: { lineCounter?: LineCounter; uniqueKeys?: boolean } = {}) {
+  const doc = parseDocument(text, options);
+  const percentOffsets = new Set<number>();
+  visit(doc, { Scalar(_key, node) {
+    if (node.range && text[node.range[0]] === '%' && node.value === '%') {
+      percentOffsets.add(node.range[0]);
+      node.type = 'QUOTE_DOUBLE';
+    }
+  }});
+  doc.errors = doc.errors.filter(error => !(error.code === 'BAD_SCALAR_START' && percentOffsets.has(error.pos[0])));
+  return doc;
+}
 export function readSong(text: string): Song {
   if (text.length > 200_000) throw new SongError('Låtfilen är för stor. Högst 200 kB.');
   const lineCounter = new LineCounter();
-  const doc = parseDocument(text, { lineCounter, uniqueKeys: true });
+  const doc = parseSongDocument(text, { lineCounter, uniqueKeys: true });
   if (doc.errors.length) {
     const error = doc.errors[0];
     throw new SongError(error.message.split('\n')[0], error.linePos?.[0].line ?? 1);
@@ -152,7 +177,7 @@ export function transposeText(text: string, target: string, spelling: 'b' | '#')
   if (!keyPattern.test(target)) throw new SongError('Ogiltig måltonart.');
   if (target.endsWith('m') !== song.grundtonart.endsWith('m')) throw new SongError('Transponering bevarar dur eller moll.');
   const distance = pitch(target.replace(/m$/, '')) - pitch(song.grundtonart.replace(/m$/, ''));
-  const doc = parseDocument(text);
+  const doc = parseSongDocument(text);
   const change = (path: (string | number)[], value: string) => {
     const node = doc.getIn(path, true);
     if (isScalar(node)) node.value = value; else doc.setIn(path, value);

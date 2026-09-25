@@ -1,7 +1,7 @@
 import { isMap, isSeq, parseDocument } from 'yaml';
-import { asBar, readSong } from './song';
+import { asBar, readSong, parseSongDocument } from './song';
 export function selectedBar(text: string, cursor: number): { section: number; bar: number } | undefined {
-  const doc = parseDocument(text);
+  const doc = parseSongDocument(text);
   const sections = doc.get('delar', true);
   if (!isSeq(sections)) return;
   let nearest: { section: number; bar: number } | undefined;
@@ -16,15 +16,18 @@ export function selectedBar(text: string, cursor: number): { section: number; ba
   });
   return nearest;
 }
-export type EditAction = 'takt' | 'del' | 'repris_start' | 'repris_slut' | 'hus1' | 'hus2' | 'hus_slut' | 'foruttag' | 'offbeat' | 'fermat' | 'break' | 'coda' | 'coda_hopp' | 'segno' | 'anvisning' | 'slut' | 'radbrytning' | 'sidbrytning' | 'nummer' | 'taktart' | 'tonart' | 'variant' | 'slag' | 'rytm';
+export type EditAction = 'takt' | 'del' | 'repris_start' | 'repris_slut' | 'hus1' | 'hus2' | 'hus_slut' | 'foruttag' | 'offbeat' | 'fermat' | 'break' | 'coda' | 'coda_hopp' | 'segno' | 'anvisning' | 'slut' | 'radbrytning' | 'sidbrytning' | 'nummer' | 'taktart' | 'tonart' | 'variant' | 'slag' | 'rytm' | 'nc' | 'repeat_bar';
 export function insertFeature(text: string, cursor: number, action: EditAction): { text: string; cursor: number } {
-  const song = readSong(text), doc = parseDocument(text);
+  const song = readSong(text), doc = parseSongDocument(text);
   const selected = selectedBar(text, cursor);
   let destination: (string | number)[];
   if (action === 'del') {
     const sections = doc.get('delar', true);
     if (!isSeq(sections)) throw new Error('Låtdelar saknas.');
-    sections.add(doc.createNode({ namn: 'Ny del', takter: ['C', 'C', 'F', 'G7'] }));
+    let name = 'Ny del';
+    for (let i=2; song.delar.some(part=>part.namn===name); i++) name = `Ny del ${i}`;
+    sections.add(doc.createNode({ namn: name, takter: ['C', 'C', 'F', 'G7'] }));
+    if (song.spelordning) doc.set('spelordning', [...song.spelordning, {del:name,ganger:1}]);
     destination = ['delar', song.delar.length, 'namn'];
   } else {
     if (!selected) throw new Error('Placera markören i den takt du vill ändra.');
@@ -43,6 +46,7 @@ export function insertFeature(text: string, cursor: number, action: EditAction):
     } else {
       const data = { ...asBar(song.delar[section].takter[bar]) };
       const values: Record<string, Record<string, unknown>> = {
+        nc: { ackord: 'N.C.' }, repeat_bar: { ackord: '%' },
         slag: { slag: data.slag ?? data.ackord.trim().split(/\s+/).map((_, i, chords) => 1 + Math.floor(i * (beats / chords.length) * 4) / 4) },
         rytm: { rytm: data.rytm ?? [0, 1, 3].map(offset => ({ slag: 1 + offset * denominator / 8, notvarde: 8 })).filter(note => note.slag + denominator / 8 <= beats + 1) },
         variant: { varianter: [...(data.varianter ?? []), { gang: Math.max(1, ...(data.varianter ?? []).map(v => v.gang)) + 1, ackord: data.ackord, ...(data.slag ? { slag: data.slag } : {}) }] },
@@ -58,6 +62,9 @@ export function insertFeature(text: string, cursor: number, action: EditAction):
       if ((action === 'foruttag' || action === 'offbeat') && data.rytm) throw new Error('Ta bort rytm-raderna innan du infogar en synkop.');
       let node = doc.getIn(destination, true);
       if (!isMap(node)) { const old = node; const replacement = doc.createNode(data); if (old && typeof old === 'object' && 'comment' in old) replacement.comment = old.comment as string; doc.setIn(destination, replacement); }
+      if (action === 'nc' || action === 'repeat_bar') {
+        for (const key of ['slag','synkop','fermat','rytm','varianter']) doc.deleteIn([...destination,key]);
+      }
       for (const [key, value] of Object.entries(fields)) doc.setIn([...destination, key], value);
       destination = [...destination, Object.keys(fields)[0]];
     }
@@ -67,4 +74,13 @@ export function insertFeature(text: string, cursor: number, action: EditAction):
   const updated = parseDocument(result).getIn(destination, true);
   const range = updated && typeof updated === 'object' && 'range' in updated ? (updated as { range?: number[] }).range : undefined;
   return { text: result, cursor: range?.[0] ?? cursor };
+}
+
+export function appendFormStep(text: string, part: string, times: number) {
+  const song = readSong(text), doc = parseSongDocument(text);
+  const steps = song.spelordning ?? song.delar.map(section=>({del:section.namn,ganger:1}));
+  doc.set('spelordning', [...steps, {del:part,ganger:times}]);
+  const result = doc.toString({lineWidth:110});
+  readSong(result);
+  return result;
 }

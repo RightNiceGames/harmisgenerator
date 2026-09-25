@@ -110,3 +110,21 @@ test('music buttons preserve the text viewport and edit the chosen bar',async({p
   await expect(page.locator('.parse-error')).toHaveCount(0);
   await expect(page.locator('.live-label')).toHaveText('Live');
 });
+test('reuse a section and insert N.C. and percent from the music toolbar',async({page})=>{
+ await page.goto('/');await page.getByRole('button',{name:/Webbläsartest/}).click();
+ const editor=page.getByRole('textbox',{name:'Låtfilens text'});await editor.fill(content);
+ await page.getByRole('button',{name:'Återanvänd del',exact:true}).click();
+ await page.getByLabel('Låtdel att återanvända').selectOption('Intro');
+ await page.getByLabel('Antal gånger').selectOption('2');
+ await page.getByRole('button',{name:'Lägg sist i formen'}).click();
+ await expect(page.getByLabel('Spelordning',{exact:true})).toContainText('Intro → Intro × 2 → SLUT');
+ await editor.evaluate((el:HTMLTextAreaElement)=>{const pos=el.value.indexOf('Abm6/9/Gb');el.focus();el.setSelectionRange(pos,pos);el.dispatchEvent(new Event('select',{bubbles:true}));});
+ await editor.press('ArrowRight');
+ await page.getByRole('button',{name:'Utan ackord',exact:true}).click();
+ await expect(editor).toHaveValue(/ackord: N\.C\./);
+ await expect(page.locator('.paper')).toContainText('N.C.');
+ await page.getByRole('button',{name:'Upprepa takt',exact:true}).click();
+ await expect(editor).toHaveValue(/ackord: ["']%["']/);
+ await expect(page.locator('.paper')).toContainText('%');
+ await expect(page.locator('.parse-error')).toHaveCount(0);
+});

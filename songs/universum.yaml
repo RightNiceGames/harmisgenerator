@@ -23,7 +23,6 @@ delar:
   - namn: Vers
     takter:
       - ackord: Ebmaj7
-        repris_start: true
       - ackord: Dbmaj7
         varianter:
           - gang: 2
@@ -54,7 +53,6 @@ delar:
           - slag: 2.5
             notvarde: 8
         anvisning: "Rytm: bas"
-    anvisning: Spelas 2 gånger via reprisen efter refrängen
 
   - namn: Refräng
     takter:
@@ -74,4 +72,14 @@ delar:
       - Ebm Ebm/Db
       - Db Fm/C
       - ackord: Bbm
-        repris_slut: true
+spelordning:
+  - del: Intro
+    ganger: 1
+  - del: Vers
+    ganger: 1
+  - del: Refräng
+    ganger: 1
+  - del: Vers
+    ganger: 1
+  - del: Refräng
+    ganger: 2

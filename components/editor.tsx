@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowDownToLine, ArrowUpDown, Check, ChevronDown, CircleHelp, FileMusic, FolderOpen, ListMusic, LoaderCircle, Maximize2, Music2, Plus, RefreshCw, RotateCcw, RotateCw, Save, Search, X } from 'lucide-react';
 import { readSong, pretty, SongError, transposeText } from '@/lib/song';
-import { EditAction, insertFeature, selectedBar } from '@/lib/edit';
+import { EditAction, insertFeature, selectedBar, appendFormStep } from '@/lib/edit';
 import type { SongEntry } from '@/lib/storage';
 
 type Props = { initialSongs: SongEntry[]; initialId: string; initial: { text: string; revision: string } };
@@ -12,6 +12,7 @@ const musicalTools: { action: EditAction; mark: string; label: string }[] = [
   { action: 'hus1', mark: '1.', label: 'Första hus' }, { action: 'hus2', mark: '2.', label: 'Andra hus' }, { action: 'hus_slut', mark: '⌝', label: 'Hus slut' },
   { action: 'foruttag', mark: '♪⌒', label: 'Föruttag' }, { action: 'offbeat', mark: '♪♩', label: 'Synkop' },
   { action: 'variant', mark: '2:a', label: 'Variantackord' }, { action: 'slag', mark: '1–4', label: 'Ackordslag' }, { action: 'rytm', mark: '♫', label: 'Egen rytm' },
+  { action: 'nc', mark: 'N.C.', label: 'Utan ackord' }, { action: 'repeat_bar', mark: '%', label: 'Upprepa takt' },
   { action: 'fermat', mark: '◠', label: 'Fermat' }, { action: 'break', mark: 'Br', label: 'BREAK' },
   { action: 'coda', mark: '⊕', label: 'Coda' }, { action: 'coda_hopp', mark: '→⊕', label: 'Till coda' },
   { action: 'segno', mark: '𝄋', label: 'Segno' }, { action: 'anvisning', mark: 'Aa', label: 'Anvisning' },
@@ -30,6 +31,7 @@ export function Editor({ initialSongs, initialId, initial }: Props) {
   const [search, setSearch] = useState(''), [pages, setPages] = useState<string[]>([]), [previewText, setPreviewText] = useState('');
   const [saving, setSaving] = useState(false), [loading, setLoading] = useState(false), [exporting, setExporting] = useState(false), [rendering, setRendering] = useState(false);
   const [notice, setNotice] = useState(''), [requestError, setRequestError] = useState(''), [renderError, setRenderError] = useState('');
+  const [formOpen, setFormOpen] = useState(false), [formPart, setFormPart] = useState(''), [formTimes, setFormTimes] = useState(1);
   const [cursor, setCursor] = useState(0), [help, setHelp] = useState(false), [sources, setSources] = useState(false), [transpose, setTranspose] = useState(false);
   const [target, setTarget] = useState('C'), [spelling, setSpelling] = useState<'b' | '#'>('b'), [wide, setWide] = useState(false);
   const [zoom, setZoom] = useState('fit');
@@ -155,6 +157,12 @@ export function Editor({ initialSongs, initialId, initial }: Props) {
     }
     catch (e) { setRequestError(e instanceof Error ? e.message : 'Kunde inte infoga.'); }
   }
+  function appendPart() {
+    try {
+      edit(appendFormStep(text, formPart, formTimes));
+      setFormOpen(false);
+    } catch (e) { setRequestError(e instanceof Error ? e.message : 'Kunde inte återanvända delen.'); }
+  }
   function doTranspose() {
     try {
       const minor = parsed.song?.grundtonart.endsWith('m') ? 'm' : '';
@@ -190,9 +198,11 @@ export function Editor({ initialSongs, initialId, initial }: Props) {
       <div className="editing-column">
       <header className="topbar"><div className="breadcrumb"><ListMusic size={16}/><span>Bibliotek</span><span className="breadcrumb-slash">/</span><span>Ackordblad</span></div><button className="text-button" onClick={() => setHelp(true)}><CircleHelp size={16}/>Så fungerar det</button></header>
       <section className="song-header"><div><div className="eyebrow">REDIGERA & SPELA</div><h1>{parsed.song?.titel || current?.title || 'Ditt nästa ackordblad'}</h1><p>{parsed.song?.artist || current?.artist || 'Lägg en låtfil i songs-mappen för att börja.'}{parsed.song?.version && <span className="version-label">{parsed.song.version}</span>}</p></div>
-        <div className="header-actions"><button className="button secondary" onClick={() => { setTarget((parsed.song?.grundtonart || 'C').replace(/m$/,'')); setTranspose(!transpose); }} disabled={!parsed.song || busy}><ArrowUpDown size={16}/>Transponera</button><button className="button primary" onClick={exportPdf} disabled={!parsed.song || busy || exporting}>{exporting ? <LoaderCircle size={16} className="spin"/> : <ArrowDownToLine size={16}/>}Exportera PDF</button></div>
+        <div className="header-actions"><button className="button secondary" disabled={!parsed.song || busy} onClick={() => { setFormPart(parsed.song?.delar[0]?.namn ?? ''); setFormTimes(1); setFormOpen(!formOpen); }}><Plus size={16}/>Återanvänd del</button><button className="button secondary" onClick={() => { setTarget((parsed.song?.grundtonart || 'C').replace(/m$/,'')); setTranspose(!transpose); }} disabled={!parsed.song || busy}><ArrowUpDown size={16}/>Transponera</button><button className="button primary" onClick={exportPdf} disabled={!parsed.song || busy || exporting}>{exporting ? <LoaderCircle size={16} className="spin"/> : <ArrowDownToLine size={16}/>}Exportera PDF</button></div>
       </section>
       <div className="song-facts"><span><i>TONART</i><b>{parsed.song ? pretty(parsed.song.grundtonart) : '—'}</b></span><span><i>TAKTART</i><b>{parsed.song?.taktart || '—'}</b></span><span><i>TEMPO</i><b>{parsed.song?.tempo ? `${parsed.song.tempo} bpm` : '—'}</b></span><span><i>FORM</i><b>{parsed.song?.delar.length ?? '—'} delar</b></span><span className="draft-status"><span className={`status-dot ${parsed.song?.status === 'granskad' ? 'reviewed' : ''}`}/>{parsed.song?.status === 'granskad' ? 'Granskad' : 'Arbetsutkast'}</span></div>
+      {parsed.song?.spelordning && <div className="form-summary" aria-label="Spelordning"><strong>Spelordning</strong><p>{parsed.song.spelordning.map(step=>`${step.del}${step.ganger>1 ? ` × ${step.ganger}` : ''}`).join(' → ')} → SLUT</p></div>}
+      {formOpen && <section className="transpose-panel" aria-label="Återanvänd låtdel"><div><strong>Lägg till en återkomst</strong><p>Delen läggs sist i spelordningen. Du kan ändra ordningen i låtfilens spelordning.</p></div><label>Låtdel<select aria-label="Låtdel att återanvända" value={formPart} onChange={e=>setFormPart(e.target.value)}>{parsed.song?.delar.map((part,i)=><option key={i} value={part.namn}>{part.namn}</option>)}</select></label><label>Antal gånger<select aria-label="Antal gånger" value={formTimes} onChange={e=>setFormTimes(Number(e.target.value))}>{Array.from({length:16},(_,i)=><option key={i+1} value={i+1}>{i+1}</option>)}</select></label><button className="button primary" onClick={appendPart} disabled={!parsed.song || busy}>Lägg sist i formen</button><button className="icon-button" aria-label="Stäng återanvändning" onClick={()=>setFormOpen(false)}><X size={18}/></button></section>}
       {transpose && <section className="transpose-panel" aria-label="Transponera låten"><div><strong>Välj ny tonart</strong><p>Ackorden och tonarten ändras i texten. Spara för att uppdatera låtfilen.</p></div><label>Måltonart<select aria-label="Måltonart" value={target} onChange={e => setTarget(e.target.value)}>{['C','Db','C#','D','Eb','D#','E','F','Gb','F#','G','Ab','G#','A','Bb','A#','B'].map(n => <option key={n} value={n}>{pretty(n)}{parsed.song?.grundtonart.endsWith('m') ? 'm' : ''}</option>)}</select></label><label>Förtecken<select aria-label="Förtecken" value={spelling} onChange={e => setSpelling(e.target.value as 'b'|'#')}><option value="b">♭ B-förtecken</option><option value="#">♯ Korsförtecken</option></select></label><button className="button primary" onClick={doTranspose}>Transponera</button><button className="icon-button" aria-label="Stäng transponering" onClick={() => setTranspose(false)}><X size={18}/></button></section>}
       {requestError && <div className="error-banner" role="alert">{requestError}<button className="icon-button" aria-label="Stäng felmeddelande" onClick={() => setRequestError('')}><X size={16}/></button></div>}
         <section className="editor-panel" aria-label="Låtfil">
