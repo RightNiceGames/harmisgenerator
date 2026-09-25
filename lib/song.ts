@@ -8,6 +8,7 @@ const beatSchema = z.number().min(1).max(64).multipleOf(0.25);
 const startsSchema = z.array(beatSchema).min(1).max(4);
 const rhythmSchema = z.array(z.strictObject({
   slag: beatSchema,
+  text: z.string().max(80).optional(),
   notvarde: z.union([z.literal(1), z.literal(2), z.literal(4), z.literal(8), z.literal(16)]).default(8),
 })).min(1).max(32);
 const variantSchema = z.strictObject({

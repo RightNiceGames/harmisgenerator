@@ -27,6 +27,27 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont): ChartP
   const width = (s: string, size: number, strong = false) => (strong ? bold : regular).widthOfTextAtSize(s, size);
   const text = (x: number, y: number, value: string, size = 9, strong = false, col = INK) => ops.push({ kind: 'text', x, y, text: value, size, bold: strong, color: col });
   const fitText = (x: number, y: number, value: string, size: number, max: number, strong = false, col = INK) => text(x, y, value, Math.min(size, size * max / Math.max(1, width(value, size, strong))), strong, col);
+  // Keep each annotation in its note's horizontal slot, wrapping before the next note.
+  const rhythmTexts = (bar: Bar, beats: number) => (bar.rytm ?? []).map((event, index, events) => {
+    const offset = 7 + (event.slag - 1) * (CW - 14) / beats;
+    const next = events[index + 1];
+    const right = next ? 7 + (next.slag - 1) * (CW - 14) / beats - 4 : CW - 5;
+    const maxWidth = Math.max(1, right - (offset - 2));
+    const lines: string[] = [];
+    for (const paragraph of (event.text ?? '').trim().split(/\r?\n/)) {
+      let current = '';
+      for (const word of paragraph.trim().split(/\s+/).filter(Boolean)) {
+        if (current && width(current + ' ' + word, 6) <= maxWidth) { current += ' ' + word; continue; }
+        if (current) { lines.push(current); current = ''; }
+        for (const char of word) {
+          if (current && width(current + char, 6) > maxWidth) { lines.push(current); current = ''; }
+          current += char;
+        }
+      }
+      if (current) lines.push(current);
+    }
+    return { offset: offset - 2, maxWidth, lines };
+  });
   const line = (x: number, y: number, x2: number, y2: number, w = .65, col = '#aaaaaa') => ops.push({ kind: 'line', x, y, x2, y2, width: w, color: col });
   const curve = (d: string, w = .7, col = INK) => ops.push({ kind: 'path', d, width: w, color: col });
   const ellipse = (x: number, y: number, rx: number, ry: number, fill = INK, stroke = INK, w = .7) => ops.push({ kind: 'ellipse', x, y, rx, ry, fill, color: stroke, width: w });
@@ -131,7 +152,10 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont): ChartP
       const overhead = hasHouse ? 8 : 0;
       const labelSpace = first ? 7 : 0;
       const rhythmLabelSpace = row.cells.some(({ bar }) => bar.rytm && bar.anvisning) ? 10 : 0;
-      const rhythmExtra = (row.cells.some(({ bar }) => bar.rytm || bar.slag) ? 18 : 0) + rhythmLabelSpace;
+      const annotations = new Map(row.cells.map(cell => [cell.barIndex, rhythmTexts(cell.bar, cell.beats)]));
+      const textLines = Math.max(0, ...[...annotations.values()].flatMap(notes => notes.map(note => note.lines.length)));
+      const rhythmTextSpace = textLines ? textLines * 7 + 3 : 0;
+      const rhythmExtra = (row.cells.some(({ bar }) => bar.rytm || bar.slag) ? 18 : 0) + rhythmLabelSpace + rhythmTextSpace;
       const variantCount = Math.max(0, ...row.cells.map(({ bar }) => bar.varianter?.length ?? 0));
       const extra = rhythmExtra + variantCount * 32;
       const cellBottom = 32 + extra;
@@ -208,6 +232,9 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont): ChartP
           }
           const durations = {1:'whole',2:'half',4:'quarter',8:'eighth',16:'sixteenth'} as const;
           for (const event of bar.rytm) note(beatX(event.slag), y+27+rhythmLabelSpace, durations[event.notvarde]);
+          for (const annotation of annotations.get(barIndex)!) {
+            annotation.lines.forEach((value, index) => fitText(x + annotation.offset, y + 36 + rhythmLabelSpace + index * 7, value, 6, annotation.maxWidth, false, ACCENT));
+          }
           if (bar.break) text(x+6,y+39+extra,'BREAK',6.3,true,ACCENT);
         }
         if (bar.synkop) {
