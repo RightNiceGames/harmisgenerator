@@ -12,7 +12,8 @@ type LineOp = { kind: 'line'; x: number; y: number; x2: number; y2: number; widt
 type RectOp = { kind: 'rect'; x: number; y: number; w: number; h: number; color: string };
 type EllipseOp = { kind: 'ellipse'; x: number; y: number; rx: number; ry: number; fill: string; color: string; width: number };
 type PathOp = { kind: 'path'; d: string; color: string; width: number };
-export type DrawOp = TextOp | LineOp | RectOp | EllipseOp | PathOp;
+type ChordHitOp = { kind: 'chord-hit'; x: number; y: number; w: number; h: number; section: number; bar: number; chord: number; variant?: number; label: string };
+export type DrawOp = ChordHitOp | TextOp | LineOp | RectOp | EllipseOp | PathOp;
 export type ChartPage = DrawOp[];
 let fontBytes: Promise<Buffer[]> | undefined;
 function fonts() { return fontBytes ??= Promise.all(['DejaVuSans.ttf', 'DejaVuSans-Bold.ttf'].map(name => readFile(path.join(process.cwd(), 'fonts', name)))); }
@@ -76,19 +77,19 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont): ChartP
   let house: string | undefined;
   const nextPage = () => { ops = []; pages.push(ops); y = header(true); };
 
-  for (const section of song.delar) {
-    type Cell = { bar: Bar; number: number; col: number; beats: number };
+  for (const [sectionIndex, section] of song.delar.entries()) {
+    type Cell = { bar: Bar; number: number; col: number; beats: number; barIndex: number };
     const rows: { cells: Cell[]; pageBreak: boolean }[] = [];
     let row: Cell[] = [], col = 0, pageBreak = !!section.sidbrytning;
     const flush = () => { if (row.length) rows.push({ cells: row, pageBreak }); row = []; col = 0; pageBreak = false; };
-    for (const raw of section.takter) {
+    for (const [barIndex, raw] of section.takter.entries()) {
       const bar = asBar(raw);
       if (bar.radbrytning || bar.sidbrytning || col === 4 || (bar.kolumn !== undefined && bar.kolumn < col)) flush();
       if (bar.sidbrytning) pageBreak = true;
       if (bar.kolumn !== undefined) col = bar.kolumn;
       number = bar.nummer ?? number;
       meter = bar.taktart ?? meter;
-      row.push({ bar, number: number++, col: col++, beats: Number(meter.split('/')[0]) });
+      row.push({ bar, number: number++, col: col++, beats: Number(meter.split('/')[0]), barIndex });
     }
     flush();
     let first = true;
@@ -115,14 +116,14 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont): ChartP
         line(x, y - 2, right, y - 2, .7, INK); line(x, y - 2, x, y + 3, .7, INK);
         text(x + 4, y - 5, label, 6.8, true);
       };
-      for (const { bar, number: n, col: column, beats } of row.cells) {
+      for (const { bar, number: n, col: column, beats, barIndex } of row.cells) {
         const x = L + column * CW;
         if (bar.hus) { if (house && column > houseStart) drawHouse(houseStart, column, house); house = bar.hus; houseStart = column; }
         if (section.skuggad) ops.push({ kind: 'rect', x, y, w: CW, h: cellBottom, color: '#f0f3f4' });
         line(x, y + 4, x, y + cellBottom);
         text(x + 5, y + 8, String(n), 6.8, false, GREY);
         const beatX = (beat: number) => x + 7 + (beat - 1) * (CW - 14) / beats;
-        const drawChords = (value: string, baseline: number, starts: number[] | undefined, baseScale = 1, main = false) => {
+        const drawChords = (value: string, baseline: number, starts: number[] | undefined, baseScale = 1, main = false, variant?: number) => {
           const chords = value.trim().split(/\s+/).map(parseChord);
           const factors = chords.map((_, i) => main && (bar.synkop?.ackord === i + 1 || (bar.break && !bar.synkop && !bar.rytm && i === 0)) ? .6 : 1);
           const widths = chords.map(c => width(pretty(c.root), 23, true) + width(pretty(c.extension), 10) + (c.bass ? width('/'+pretty(c.bass), 13, true) : 0) + 2);
@@ -142,6 +143,9 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont): ChartP
             if (chord.bass) text(xx + rw + (width(ext,10)+1)*factor, baseline, '/'+pretty(chord.bass), 13*factor, true);
             if (main && bar.fermat === i+1) fermata(xx + widths[i]*factor/2, baseline-19);
             if (starts && main && !bar.rytm) text(xx, baseline-19, String(starts[i]).replace('.5', 'å'), 5.5, false, GREY);
+            ops.push({kind:'chord-hit',x:xx-1,y:baseline-23*factor,w:widths[i]*factor+2,h:26*factor,
+              section:sectionIndex,bar:barIndex,chord:i,variant,
+              label:`Ändra ${value.trim().split(/\s+/)[i]}, ${section.namn}, takt ${n}${variant === undefined ? '' : ', variant '+(variant+1)}`});
             xx += (widths[i]*factors[i]+gap)*scale;
           });
           return positions;
@@ -151,7 +155,7 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont): ChartP
           const label = `${variant.gang}${variant.gang === 2 ? ':a' : ':e'} gången${variant.stamma ? ' · '+variant.stamma : ''}${variant.slag ? ' · slag '+variant.slag.join(', ') : ''}`;
           const base = y + rhythmExtra + i*32;
           fitText(x+7, base+43, label, 6.4, CW-14, false, ACCENT);
-          drawChords(variant.ackord, base+61, variant.slag, .7);
+          drawChords(variant.ackord, base+61, variant.slag, .7, false, i);
         });
         if (bar.rytm) {
           if (bar.anvisning) fitText(x+6,y+17,bar.anvisning,6.3,CW-12,false,ACCENT);
@@ -205,6 +209,7 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont): ChartP
 export function pageSvg(page: ChartPage) {
   const content = page.map(op => {
     switch(op.kind) {
+      case 'chord-hit': return `<rect class="chord-hit" x="${op.x}" y="${op.y}" width="${op.w}" height="${op.h}" fill="transparent" role="button" tabindex="0" aria-label="${xml(op.label)}" data-section="${op.section}" data-bar="${op.bar}" data-chord="${op.chord}"${op.variant === undefined ? '' : ` data-variant="${op.variant}"`}><title>${xml(op.label)}</title></rect>`;
       case 'text': return `<text x="${op.x}" y="${op.y}" font-family="Harmis" font-size="${op.size}" font-weight="${op.bold ? 700 : 400}" fill="${op.color}" style="font-kerning:none;font-variant-ligatures:none">${xml(op.text)}</text>`;
       case 'line': return `<line x1="${op.x}" y1="${op.y}" x2="${op.x2}" y2="${op.y2}" stroke="${op.color}" stroke-width="${op.width}"/>`;
       case 'rect': return `<rect x="${op.x}" y="${op.y}" width="${op.w}" height="${op.h}" fill="${op.color}"/>`;
@@ -212,7 +217,7 @@ export function pageSvg(page: ChartPage) {
       case 'path': return `<path d="${op.d}" fill="none" stroke="${op.color}" stroke-width="${op.width}"/>`;
     }
   }).join('');
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${PAGE_WIDTH} ${PAGE_HEIGHT}" role="img" aria-label="Ackordblad"><rect width="100%" height="100%" fill="white"/>${content}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${PAGE_WIDTH} ${PAGE_HEIGHT}" role="group" aria-label="Ackordblad"><rect width="100%" height="100%" fill="white"/>${content}</svg>`;
 }
 
 export async function renderChart(song: Song, format: 'svg' | 'pdf' = 'svg') {
@@ -225,6 +230,7 @@ export async function renderChart(song: Song, format: 'svg' | 'pdf' = 'svg') {
     const page = pdf.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
     for (const op of commands) {
       switch(op.kind) {
+        case 'chord-hit': break; // Interactive targets are only part of the screen preview.
         case 'text': page.drawText(op.text,{ x:op.x,y:PAGE_HEIGHT-op.y,size:op.size,font:op.bold?bold:regular,color:color(op.color) }); break;
         case 'line': page.drawLine({start:{x:op.x,y:PAGE_HEIGHT-op.y},end:{x:op.x2,y:PAGE_HEIGHT-op.y2},thickness:op.width,color:color(op.color)}); break;
         case 'rect': page.drawRectangle({x:op.x,y:PAGE_HEIGHT-op.y-op.h,width:op.w,height:op.h,color:color(op.color)}); break;

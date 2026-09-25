@@ -1,5 +1,5 @@
-import { isMap, isSeq, parseDocument } from 'yaml';
-import { asBar, readSong, parseSongDocument } from './song';
+import { isMap, isSeq, isScalar, parseDocument } from 'yaml';
+import { asBar, readSong, parseSongDocument, parseChord } from './song';
 export function selectedBar(text: string, cursor: number): { section: number; bar: number } | undefined {
   const doc = parseSongDocument(text);
   const sections = doc.get('delar', true);
@@ -80,6 +80,35 @@ export function appendFormStep(text: string, part: string, times: number) {
   const song = readSong(text), doc = parseSongDocument(text);
   const steps = song.spelordning ?? song.delar.map(section=>({del:section.namn,ganger:1}));
   doc.set('spelordning', [...steps, {del:part,ganger:times}]);
+  const result = doc.toString({lineWidth:110});
+  readSong(result);
+  return result;
+}
+
+export type ChordTarget = { section: number; bar: number; chord: number; variant?: number };
+export function replaceExistingChord(text: string, target: ChordTarget, replacement: string) {
+  const song = readSong(text), doc = parseSongDocument(text);
+  const indexes = [target.section, target.bar, target.chord, ...(target.variant === undefined ? [] : [target.variant])];
+  if (indexes.some(i=>!Number.isInteger(i)||i<0)) throw new Error('Ogiltig ackordposition.');
+  const raw = song.delar[target.section]?.takter[target.bar];
+  if (raw === undefined) throw new Error('Takten finns inte längre.');
+  const bar = asBar(raw);
+  const path: (string|number)[] = ['delar',target.section,'takter',target.bar];
+  let value = bar.ackord;
+  if (target.variant !== undefined) {
+    const variant = bar.varianter?.[target.variant];
+    if (!variant) throw new Error('Varianten finns inte längre.');
+    value = variant.ackord; path.push('varianter',target.variant,'ackord');
+  } else if (typeof raw !== 'string') path.push('ackord');
+  const tokens = [...value.matchAll(/\S+/g)];
+  const token = tokens[target.chord];
+  if (!token) throw new Error('Ackordet finns inte längre.');
+  const next = replacement.trim();
+  if (!next || /\s/.test(next)) throw new Error('Ange ett enda ackord, till exempel Bb7, C/G, N.C. eller %.');
+  parseChord(next);
+  const node = doc.getIn(path,true);
+  if (!isScalar(node)) throw new Error('Ackordfältet kan inte redigeras.');
+  node.value = value.slice(0,token.index) + next + value.slice(token.index!+token[0].length);
   const result = doc.toString({lineWidth:110});
   readSong(result);
   return result;

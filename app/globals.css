@@ -31,3 +31,16 @@
 @media print{.editing-column{display:none!important}.library,.topbar,.song-header,.song-facts,.editor-panel,.panel-header,.preview-meta,.preview-footer,.sources-section,.bottom-status,.transpose-panel,.error-banner,.stale-message{display:none!important}.app-shell,.workspace,.main,.preview-panel,.paper-stack{display:block!important;height:auto!important;max-height:none!important;padding:0!important;margin:0!important;overflow:visible!important;border:0!important;background:white!important}.paper{width:210mm!important;height:297mm!important;margin:0!important;box-shadow:none!important;break-after:page}.paper:last-child{break-after:auto}@page{size:A4;margin:0}}
 
 .form-summary{padding:0 0 18px;font-size:10px;color:var(--green);line-height:1.8}.form-summary strong{font-size:9px}.form-summary p{overflow-wrap:anywhere}
+
+.chord-hit{cursor:pointer;stroke:transparent;stroke-width:.8;rx:2}
+.chord-hit:hover,.chord-hit:focus-visible{fill:#28564a15;stroke:#528f79;outline:none}
+.preview-readonly .chord-hit{pointer-events:none;cursor:default}
+.chord-dialog{border:1px solid var(--line);border-radius:9px;padding:25px;background:var(--paper);color:var(--ink);width:min(380px,calc(100vw - 32px));box-shadow:0 20px 70px #152c2433}
+.chord-dialog::backdrop{background:#192b2555}
+.chord-dialog h2{font-size:18px;margin-bottom:10px}
+.chord-dialog p{font-size:11px;line-height:1.6;margin-bottom:16px}
+.chord-dialog label{display:block;font-size:11px;margin-bottom:7px}
+.chord-dialog input{width:100%;padding:10px;border:1px solid #a4b69b;border-radius:4px;background:white;font-size:20px;color:var(--ink)}
+.chord-dialog form>div{display:flex;justify-content:flex-end;gap:9px;margin-top:20px}
+.chord-dialog #chord-error{color:#994f3d;margin-top:10px}
+@media print{.chord-hit,.chord-dialog{display:none!important}}

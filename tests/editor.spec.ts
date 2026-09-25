@@ -128,3 +128,25 @@ test('reuse a section and insert N.C. and percent from the music toolbar',async(
  await expect(page.locator('.paper')).toContainText('%');
  await expect(page.locator('.parse-error')).toHaveCount(0);
 });
+test('edit an existing preview chord, validate input, undo and protect stale previews',async({page})=>{
+ await page.goto('/');await page.getByRole('button',{name:/Webbläsartest/}).click();
+ const editor=page.getByRole('textbox',{name:'Låtfilens text'});await editor.fill(content);
+ await expect(page.locator('.live-label')).toHaveText('Live');
+ await page.getByRole('button',{name:'Ändra Abm6/9/Gb, Intro, takt 1',exact:true}).click();
+ const dialog=page.getByRole('dialog',{name:'Ändra ackord',exact:true});
+ await expect(dialog.getByLabel('Ackord',{exact:true})).toHaveValue('Abm6/9/Gb');
+ await dialog.getByLabel('Ackord',{exact:true}).fill('C G7');
+ await dialog.getByRole('button',{name:'Ändra ackord',exact:true}).click();
+ await expect(dialog.getByRole('alert')).toContainText('ett enda ackord');
+ await dialog.getByLabel('Ackord',{exact:true}).fill('Bb7/F');
+ await dialog.getByLabel('Ackord',{exact:true}).press('Enter');
+ await expect(dialog).toHaveCount(0);await expect(editor).toHaveValue(/- Bb7\/F/);
+ await expect(page.getByRole('button',{name:'Ändra Bb7/F, Intro, takt 1',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Ångra',exact:true}).click();await expect(editor).toHaveValue(content);
+ await expect(page.locator('.live-label')).toHaveText('Live');
+ await page.getByRole('button',{name:'Ändra Abm6/9/Gb, Intro, takt 1',exact:true}).focus();
+ await page.keyboard.press('Enter');await expect(dialog).toBeVisible();await page.keyboard.press('Escape');await expect(dialog).toHaveCount(0);
+ await editor.fill(content+'invalid: true\n');
+ await page.locator('.chord-hit').first().dispatchEvent('click');
+ await expect(dialog).toHaveCount(0);
+});
