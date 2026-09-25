@@ -138,9 +138,9 @@ test('edit an existing preview chord, validate input, undo and protect stale pre
  await page.getByRole('button',{name:'Ändra Abm6/9/Gb, Intro, takt 1',exact:true}).click();
  const dialog=page.getByRole('dialog',{name:'Ändra ackord',exact:true});
  await expect(dialog.getByLabel('Ackord',{exact:true})).toHaveValue('Abm6/9/Gb');
- await dialog.getByLabel('Ackord',{exact:true}).fill('C G7');
+ await dialog.getByLabel('Ackord',{exact:true}).fill('H7');
  await dialog.getByRole('button',{name:'Ändra ackord',exact:true}).click();
- await expect(dialog.getByRole('alert')).toContainText('ett enda ackord');
+ await expect(dialog.getByRole('alert')).toContainText('Ogiltigt ackord');
  await dialog.getByLabel('Ackord',{exact:true}).fill('Bb7/F');
  await dialog.getByLabel('Ackord',{exact:true}).press('Enter');
  await expect(dialog).toHaveCount(0);await expect(editor).toHaveValue(/- Bb7\/F/);
@@ -200,4 +200,19 @@ test('toggle parentheses around an existing preview chord and undo',async({page}
  await dialog.getByRole('button',{name:'Ändra ackord',exact:true}).click();
  await expect(editor).not.toHaveValue(/\(Abm6\/9\/Gb\)/);
  await page.getByRole('button',{name:'Ångra',exact:true}).click();await expect(editor).toHaveValue(/\(Abm6\/9\/Gb\)/);
+});
+
+test('add chords within the selected bar from preview without replacing its other chords',async({page})=>{
+ await page.goto('/');await page.getByRole('button',{name:/Webbläsartest/}).click();
+ const editor=page.getByRole('textbox',{name:'Låtfilens text'});await editor.fill(content.replace('      - Abm6/9/Gb','      - Abm6/9/Gb Eb7'));
+ await page.getByRole('button',{name:'Ändra Abm6/9/Gb, Intro, takt 1',exact:true}).click();
+ const dialog=page.getByRole('dialog',{name:'Ändra ackord',exact:true});
+ await dialog.getByLabel('Ackord',{exact:true}).fill('Cm F7');
+ await dialog.getByLabel('Ackord inom parentes').check();
+ await expect(dialog.getByLabel('Ackord',{exact:true})).toHaveValue('(Cm) (F7)');
+ await dialog.getByRole('button',{name:'Ändra ackord',exact:true}).click();
+ await expect(editor).toHaveValue(/- \(Cm\) \(F7\) Eb7/);
+ await expect(page.getByRole('button',{name:'Ändra (F7), Intro, takt 1',exact:true})).toBeVisible();
+ await expect(page.getByRole('button',{name:'Ändra Eb7, Intro, takt 1',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Ångra',exact:true}).click();await expect(editor).toHaveValue(/- Abm6\/9\/Gb Eb7/);
 });

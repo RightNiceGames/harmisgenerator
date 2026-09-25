@@ -108,9 +108,36 @@ export function replaceExistingChord(text: string, target: ChordTarget, replacem
   const tokens = [...value.matchAll(/\S+/g)];
   const token = tokens[target.chord];
   if (!token) throw new Error('Ackordet finns inte längre.');
-  const next = replacement.trim();
-  if (!next || /\s/.test(next)) throw new Error('Ange ett enda ackord, till exempel Bb7, C/G, N.C. eller %.');
-  parseChord(next);
+  const replacements = replacement.trim().split(/\s+/).filter(Boolean);
+  if (!replacements.length) throw new Error('Ange minst ett ackord.');
+  if (tokens.length-1+replacements.length>4) throw new Error('Högst fyra ackord per takt.');
+  replacements.forEach(parseChord);
+  const next = replacements.join(' ');
+  const added = replacements.length-1;
+  if (added) {
+    const fields = target.variant === undefined ? bar : bar.varianter![target.variant];
+    const fieldPath = ['delar',target.section,'takter',target.bar,...(target.variant===undefined?[]:['varianter',target.variant])];
+    if (fields.slag) {
+      let meter=song.taktart;
+      const endMeters=new Map<string,string>();
+      song.delar.slice(0,target.section+1).forEach((part,si)=>{
+        if(part.ateranvand){meter=endMeters.get(part.ateranvand)??meter;return;}
+        part.takter.forEach((raw,bi)=>{if(si<target.section||bi<=target.bar)meter=asBar(raw).taktart??meter;});
+        endMeters.set(part.namn,meter);
+      });
+      const start=fields.slag[target.chord], end=fields.slag[target.chord+1]??(Number(meter.split('/')[0])+1);
+      const slots=Math.round((end-start)*4);
+      if(slots<replacements.length)throw new Error('Ackorden ryms inte mellan de befintliga slagen. Ändra slagplaceringen i låtfilen först.');
+      const starts=[...fields.slag];
+      starts.splice(target.chord,1,...replacements.map((_,i)=>start+Math.floor(i*slots/replacements.length)/4));
+      doc.setIn([...fieldPath,'slag'],starts);
+    }
+    if(target.variant===undefined){
+      const base=['delar',target.section,'takter',target.bar];
+      if(bar.fermat && bar.fermat>target.chord+1)doc.setIn([...base,'fermat'],bar.fermat+added);
+      if(bar.synkop && bar.synkop.ackord>target.chord+1)doc.setIn([...base,'synkop','ackord'],bar.synkop.ackord+added);
+    }
+  }
   const node = doc.getIn(path,true);
   if (!isScalar(node)) throw new Error('Ackordfältet kan inte redigeras.');
   node.value = value.slice(0,token.index) + next + value.slice(token.index!+token[0].length);

@@ -30,8 +30,8 @@ test('preview edit changes exactly one existing token, preserving comments and m
  const percent=readSong(replaceExistingChord(text,{section:0,bar:0,chord:0},'%'));
  assert.equal(percent.delar[0].takter[0],'% G7');
 });
-test('preview edit rejects extra chords, invalid chords and missing targets',()=>{
- for (const chord of ['C G7','','H7']) assert.throws(()=>replaceExistingChord(text,{section:0,bar:0,chord:0},chord));
+test('preview edit rejects too many chords, invalid chords and missing targets',()=>{
+ for (const chord of ['C D E F','','H7']) assert.throws(()=>replaceExistingChord(text,{section:0,bar:0,chord:0},chord));
  for (const target of [{section:0,bar:0,chord:2},{section:4,bar:0,chord:0},{section:0,bar:1,chord:0,variant:3},{section:0,bar:-1,chord:0}]) assert.throws(()=>replaceExistingChord(text,target,'C'));
 });
 test('SVG includes one accessible target per existing chord with correct source indexes',async()=>{
@@ -40,4 +40,18 @@ test('SVG includes one accessible target per existing chord with correct source 
  assert.ok(svg.includes('data-section="0" data-bar="1" data-chord="1" data-variant="0"'));
  assert.ok(svg.includes('aria-label="Ändra G7, Vers, takt 2"'));
  assert.ok((await renderChart(readSong(text),'pdf')).pdf!.length>1000);
+});
+
+test('multiple replacements preserve following chords, timing, rhythm and marker targets',()=>{
+ const source=text.replace('slag: [1, 4]','slag: [1, 4]\n        fermat: 2\n        synkop: {typ: offbeat, ackord: 2}').replace('        rytm: [{slag: 1, notvarde: 8}]\n','');
+ const song=readSong(replaceExistingChord(source,{section:0,bar:1,chord:0},'C F'));
+ const bar=asBar(song.delar[0].takter[1]);
+ assert.equal(bar.ackord,'C F G7');assert.deepEqual(bar.slag,[1,2.5,4]);assert.equal(bar.fermat,3);assert.equal(bar.synkop?.ackord,3);
+ const plain=readSong(replaceExistingChord(text,{section:0,bar:0,chord:1},'(Dm7) G7'));
+ assert.equal(plain.delar[0].takter[0],'C (Dm7) G7');
+ const variantSource=text.replace('ackord: C/E F','ackord: C/E F\n            slag: [1, 3]');
+ const variant=asBar(readSong(replaceExistingChord(variantSource,{section:0,bar:1,chord:0,variant:0},'C/E Dm')).delar[0].takter[1]);
+ assert.equal(variant.ackord,'C G7');assert.deepEqual(variant.varianter![0].slag,[1,2,3]);assert.equal(variant.varianter![0].ackord,'C/E Dm F');
+ const tight=text.replace('slag: [1, 4]','slag: [1, 1.25]');
+ assert.throws(()=>replaceExistingChord(tight,{section:0,bar:1,chord:0},'C F'),/ryms inte/);
 });
