@@ -34,3 +34,16 @@ test('all remaining reused sections get blocks in performance order by default',
  song.spelordning[2].visa_block=false;
  assert.ok(!(await renderChart(song)).pages!.join('').includes('Se Vers, takt'));
 });
+test('instructions belong to the specific return and survive renaming and pagination',async()=>{
+ const song=readSong(text);
+ song.spelordning![2].anvisning='Instrumentalt (solo). Utan bas till takt 8 i versen. Bas in på II–V–I.';
+ const changed=readSong(renameSection(stringify(song),1,'Ref'));
+ assert.equal(changed.spelordning![1].anvisning,undefined);
+ assert.equal(changed.spelordning![2].anvisning,song.spelordning![2].anvisning);
+ assert.equal(changed.delar[1].anvisning,undefined);
+ const svg=(await renderChart(changed)).pages!.join('');
+ assert.ok(svg.includes('Instrumentalt (solo).'));assert.ok(svg.includes('II–V–I.'));
+ changed.spelordning=Array.from({length:20},()=>({del:'Ref',ganger:1,visa_block:true,anvisning:'En lång anvisning om instrumentalt solo och basens insats. '.repeat(3)}));
+ const pages=(await renderChart(changed)).pages!;assert.ok(pages.length>1);
+ for(const page of pages)for(const m of page.matchAll(/<text x="[\d.]+" y="([\d.]+)"/g))assert.ok(Number(m[1])<830);
+});

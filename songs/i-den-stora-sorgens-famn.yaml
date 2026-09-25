@@ -23,45 +23,49 @@ delar:
       - Dm/A
       - Ebmaj/G
       - ackord: Bb
-        repris_slut: true
-  - namn: B
+      - ackord: Bb
+      - Dm/A
+      - Ebmaj/G
+      - ackord: Bb
+        varianter:
+          - gang: 2
+            ackord: Bb Cm F7
+            slag:
+              - 1
+              - 3
+              - 4
+            och_foljande: true
+    anvisning: Reprisen gäller första Vers + Ref. Följ sedan spelordningen.
+  - namn: Ref
     takter:
       - Cm
       - F7sus4
       - Cm
       - F7sus4 F7
       - Gm
+      - Bbmaj/F
       - Eb
+      - Bb/D
       - Eb
-      - Bb Cm
-      - F
-      - Bb
-      - F
-  - namn: Vers 2
+      - Bb/D
+      - Fadd4
+      - ackord: Fadd4
+        repris_slut: true
+  - namn: Instrumentaldel
     takter:
+      - Bb
+      - Dm/A
+      - Ebmaj/G
+      - Eb
       - Bb
       - F/A
       - Gm
       - Eb
-      - Bb
-      - F/A
-      - Gm
-      - Eb
-  - namn: B / avslut
-    takter:
       - Cm
       - F
       - Cm
-      - F
-      - Dm
-      - Gm
-      - Eb
-      - Eb
-      - Bb Cm
-      - F
-      - Bb
-      - ackord: Bb
-        slut: true
+      - ackord: F
+        break: true
 kallor:
   - url: https://chordu.com/chords-tabs-lisa-nilsson-02-i-den-stora-sorgens-famn-id_S_i73Tn7Q1A
     beskrivning: "Lisa-versionens identifierade ackordfamilj: Bb, Eb, F, Dm och Gm."
@@ -72,3 +76,34 @@ anteckningar:
     begränsade versionskällan.
   - Taktindelning, antal omtagningar och vissa övergångar är agentens arbetsbedömning, inte en verifierad
     transkription. Kontrollera mot inspelningen och korrigera efter gehör.
+spelordning:
+  - del: Intro
+    ganger: 1
+  - del: Vers
+    ganger: 1
+  - del: Ref
+    ganger: 1
+  - del: Vers
+    ganger: 1
+    visa_block: true
+    anvisning: Andra varianterna gäller från denna omgång och resten av låten. Variant i versens takt 8.
+  - del: Ref
+    ganger: 1
+    visa_block: true
+  - del: Instrumentaldel
+    ganger: 1
+  - del: Vers
+    ganger: 1
+    visa_block: true
+    anvisning: BREAK i början. Utan bas till takt 8 i versen; bas in på II–V.
+  - del: Ref
+    ganger: 1
+    visa_block: true
+  - del: Vers
+    ganger: 1
+    visa_block: true
+    anvisning: Slutkläm.
+  - del: Intro
+    ganger: 1
+    visa_block: true
+    anvisning: Utan bas.

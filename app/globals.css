@@ -44,3 +44,5 @@
 .chord-dialog form>div{display:flex;justify-content:flex-end;gap:9px;margin-top:20px}
 .chord-dialog #chord-error{color:#994f3d;margin-top:10px}
 @media print{:is(.chord-hit,.section-hit),.chord-dialog{display:none!important}}
+
+.form-instruction{flex-basis:100%}.form-instruction input{width:100%;padding:9px;border:1px solid #d0dcc4;border-radius:3px;background:white;color:var(--ink)}

@@ -51,3 +51,9 @@ test('expanded variant rows paginate with every text inside the page',async()=>{
   assert.equal(pages.join('').split('2:a gången · bas').length-1,60);
   for(const page of pages) for(const m of page.matchAll(/<text x="[\d.]+" y="([\d.]+)"/g)) assert.ok(Number(m[1])<830);
 });
+test('continuing variants display their scope and retain it through transposition',async()=>{
+ const value={...bar,varianter:[{...bar.varianter[0],och_foljande:true}]};
+ const text=source(value),song=readSong(transposeText(text,'F','b'));
+ assert.equal(asBar(song.delar[0].takter[0]).varianter![0].och_foljande,true);
+ assert.ok((await renderChart(song)).pages![0].includes('Fr.o.m. 2:a gången'));
+});

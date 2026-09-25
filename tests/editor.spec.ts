@@ -116,7 +116,9 @@ test('reuse a section and insert N.C. and percent from the music toolbar',async(
  await page.getByRole('button',{name:'Återanvänd del',exact:true}).click();
  await page.getByLabel('Låtdel att återanvända').selectOption('Intro');
  await page.getByLabel('Antal gånger').selectOption('2');
+ await page.getByLabel('Anvisning för denna återkomst').fill('Instrumentalt (solo)');
  await page.getByRole('button',{name:'Lägg sist i formen'}).click();
+ await expect(page.locator('.paper')).toContainText('Instrumentalt (solo)');
  await expect(page.getByLabel('Spelordning',{exact:true})).toContainText('Intro → Intro × 2 → SLUT');
  await editor.evaluate((el:HTMLTextAreaElement)=>{const pos=el.value.indexOf('Abm6/9/Gb');el.focus();el.setSelectionRange(pos,pos);el.dispatchEvent(new Event('select',{bubbles:true}));});
  await editor.press('ArrowRight');

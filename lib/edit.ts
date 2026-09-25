@@ -76,10 +76,10 @@ export function insertFeature(text: string, cursor: number, action: EditAction):
   return { text: result, cursor: range?.[0] ?? cursor };
 }
 
-export function appendFormStep(text: string, part: string, times: number) {
+export function appendFormStep(text: string, part: string, times: number, instruction = '') {
   const song = readSong(text), doc = parseSongDocument(text);
   const steps = song.spelordning ?? song.delar.map(section=>({del:section.namn,ganger:1}));
-  doc.set('spelordning', [...steps, {del:part,ganger:times,visa_block:true}]);
+  doc.set('spelordning', [...steps, {del:part,ganger:times,visa_block:true,...(instruction.trim() ? {anvisning:instruction.trim()} : {})}]);
   const result = doc.toString({lineWidth:110});
   readSong(result);
   return result;
