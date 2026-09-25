@@ -78,8 +78,38 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont): ChartP
   let house: string | undefined;
   const nextPage = () => { ops = []; pages.push(ops); y = header(true); };
 
+  const endMeters=new Map<string,string>();
   const sectionRanges = new Map<string, number[]>();
+  const drawReuse = (step: {del:string;ganger:number;anvisning?:string}, last:boolean) => {
+    const instructionLines: string[] = [];
+    if (step.anvisning) {
+      let current = '';
+      for (const word of step.anvisning.split(/\s+/)) {
+        const next = current ? current+' '+word : word;
+        if (current && width(next,9,true)>R-L-20) { instructionLines.push(current);current=word; }
+        else current=next;
+      }
+      if(current)instructionLines.push(current);
+    }
+    const extra = instructionLines.length*14;
+    if (y+77+extra > PAGE_HEIGHT-30) nextPage();
+    const section = song.delar.findIndex(part=>part.namn===step.del);
+    const range = sectionRanges.get(step.del)!;
+    ops.push({kind:'rect',x:L,y:y-5,w:R-L,h:66+extra,color:'#f0f3f4'});
+    text(L+10,y+7,`ÅTERANVÄND DEL · ${last ? 'AVSLUTNING' : 'ÅTERKOMST'}`,6.5,true,ACCENT);
+    fitText(L+10,y+29,`${step.del}${step.ganger>1 ? ' × '+step.ganger : ''}`,15,R-L-20,true,ACCENT);
+    ops.push({kind:'section-hit',x:L+8,y:y+14,w:Math.min(R-L-16,width(step.del,15,true)+8),h:19,section,label:`Ändra delnamn: ${step.del}`});
+    fitText(L+10,y+48,`Se ${step.del}, takt ${range[0]}–${range.at(-1)}. Spela ${step.ganger} ${step.ganger===1?'gång':'gånger'}${last ? ', sedan SLUT.' : '.'}`,8,R-L-20,false,GREY);
+    instructionLines.forEach((value,i)=>fitText(L+10,y+64+i*14,value,9,R-L-20,true,ACCENT));
+    y+=77+extra;
+  };
   for (const [sectionIndex, section] of song.delar.entries()) {
+    if (section.ateranvand) {
+      if(section.sidbrytning)nextPage();
+      drawReuse({del:section.ateranvand,ganger:section.ganger,anvisning:section.anvisning},sectionIndex===song.delar.length-1);
+      meter=endMeters.get(section.ateranvand)??meter;
+      continue;
+    }
     type Cell = { bar: Bar; number: number; col: number; beats: number; barIndex: number };
     const rows: { cells: Cell[]; pageBreak: boolean }[] = [];
     let row: Cell[] = [], col = 0, pageBreak = !!section.sidbrytning;
@@ -205,32 +235,11 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont): ChartP
       y += 44 + extra;
     }
     y += 12;
+    endMeters.set(section.namn,meter);
   }
-  song.spelordning?.forEach((step, index) => {
-    const reused = song.spelordning!.slice(0,index).some(previous=>previous.del===step.del) || step.ganger > 1 || !!step.anvisning;
-    if (!(step.visa_block ?? reused)) return;
-    const instructionLines: string[] = [];
-    if (step.anvisning) {
-      let current = '';
-      for (const word of step.anvisning.split(/\s+/)) {
-        const next = current ? current+' '+word : word;
-        if (current && width(next,9,true)>R-L-20) { instructionLines.push(current);current=word; }
-        else current=next;
-      }
-      if(current)instructionLines.push(current);
-    }
-    const extra = instructionLines.length*14;
-    if (y+77+extra > PAGE_HEIGHT-30) nextPage();
-    const last = index === song.spelordning!.length-1;
-    const section = song.delar.findIndex(part=>part.namn===step.del);
-    const range = sectionRanges.get(step.del)!;
-    ops.push({kind:'rect',x:L,y:y-5,w:R-L,h:66+extra,color:'#f0f3f4'});
-    text(L+10,y+7,`ÅTERANVÄND DEL · ${last ? 'AVSLUTNING' : 'STEG '+(index+1)+' I SPELORDNINGEN'}`,6.5,true,ACCENT);
-    fitText(L+10,y+29,`${step.del}${step.ganger>1 ? ' × '+step.ganger : ''}`,15,R-L-20,true,ACCENT);
-    ops.push({kind:'section-hit',x:L+8,y:y+14,w:Math.min(R-L-16,width(step.del,15,true)+8),h:19,section,label:`Ändra delnamn: ${step.del}`});
-    fitText(L+10,y+48,`Se ${step.del}, takt ${range[0]}–${range.at(-1)}. Spela ${step.ganger} ${step.ganger===1?'gång':'gånger'}${last ? ', sedan SLUT.' : '.'}`,8,R-L-20,false,GREY);
-    instructionLines.forEach((value,i)=>fitText(L+10,y+64+i*14,value,9,R-L-20,true,ACCENT));
-    y+=77+extra;
+  song.spelordning?.forEach((step,index)=>{
+    const reused=song.spelordning!.slice(0,index).some(previous=>previous.del===step.del)||step.ganger>1||!!step.anvisning;
+    if(step.visa_block??reused)drawReuse(step,index===song.spelordning!.length-1);
   });
   pages.forEach((page, i) => page.push({kind:'text', x:R-30, y:PAGE_HEIGHT-16,text:`${i+1} / ${pages.length}`,size:6.5,bold:false,color:GREY}));
   return pages;

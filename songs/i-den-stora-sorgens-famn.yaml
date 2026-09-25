@@ -35,7 +35,7 @@ delar:
               - 3
               - 4
             och_foljande: true
-    anvisning: Reprisen gäller första Vers + Ref. Följ sedan spelordningen.
+    anvisning: Spela Vers + Ref två gånger via reprisen, fortsätt sedan till Instrumentaldel.
   - namn: Ref
     takter:
       - Cm
@@ -66,6 +66,13 @@ delar:
       - Cm
       - ackord: F
         break: true
+  - ateranvand: Vers
+    anvisning: BREAK i början. Utan bas till takt 8 i versen; bas in på II–V.
+  - ateranvand: Ref
+  - ateranvand: Vers
+    anvisning: Slutkläm.
+  - ateranvand: Intro
+    anvisning: Utan bas.
 kallor:
   - url: https://chordu.com/chords-tabs-lisa-nilsson-02-i-den-stora-sorgens-famn-id_S_i73Tn7Q1A
     beskrivning: "Lisa-versionens identifierade ackordfamilj: Bb, Eb, F, Dm och Gm."
@@ -76,34 +83,3 @@ anteckningar:
     begränsade versionskällan.
   - Taktindelning, antal omtagningar och vissa övergångar är agentens arbetsbedömning, inte en verifierad
     transkription. Kontrollera mot inspelningen och korrigera efter gehör.
-spelordning:
-  - del: Intro
-    ganger: 1
-  - del: Vers
-    ganger: 1
-  - del: Ref
-    ganger: 1
-  - del: Vers
-    ganger: 1
-    visa_block: true
-    anvisning: Andra varianterna gäller från denna omgång och resten av låten. Variant i versens takt 8.
-  - del: Ref
-    ganger: 1
-    visa_block: true
-  - del: Instrumentaldel
-    ganger: 1
-  - del: Vers
-    ganger: 1
-    visa_block: true
-    anvisning: BREAK i början. Utan bas till takt 8 i versen; bas in på II–V.
-  - del: Ref
-    ganger: 1
-    visa_block: true
-  - del: Vers
-    ganger: 1
-    visa_block: true
-    anvisning: Slutkläm.
-  - del: Intro
-    ganger: 1
-    visa_block: true
-    anvisning: Utan bas.

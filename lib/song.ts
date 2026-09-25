@@ -38,9 +38,11 @@ export const barSchema = z.strictObject({
 });
 export type Bar = z.infer<typeof barSchema>;
 const sectionSchema = z.strictObject({
-  namn: z.string().min(1).max(80), anvisning: shortText.optional(),
+  namn: z.string().max(80).default(''), anvisning: shortText.optional(),
+  ateranvand: z.string().min(1).max(80).optional(),
+  ganger: z.number().int().min(1).max(16).default(1),
   skuggad: z.boolean().optional(), sidbrytning: z.boolean().optional(),
-  takter: z.array(z.union([z.string().min(1).max(180), barSchema])).min(1).max(300),
+  takter: z.array(z.union([z.string().min(1).max(180), barSchema])).max(300).default([]),
 });
 export const songSchema = z.strictObject({
   format: z.literal(1), titel: z.string().min(1).max(120), artist: shortText,
@@ -54,6 +56,21 @@ export const songSchema = z.strictObject({
   spelordning: z.array(z.strictObject({ del: z.string().min(1).max(80), ganger: z.number().int().min(1).max(16).default(1), visa_block: z.boolean().optional(), anvisning: shortText.optional() })).min(1).max(60).optional(),
   delar: z.array(sectionSchema).min(1).max(60),
 }).superRefine((song, ctx) => {
+  const defined = new Set<string>();
+  const hasReuse = song.delar.some(part=>part.ateranvand);
+  if (hasReuse && song.spelordning) ctx.addIssue({code:'custom',path:['spelordning'],message:'Blanda inte spelordning med återanvändning direkt i delar.'});
+  song.delar.forEach((part,i)=>{
+    const issue=(message:string)=>ctx.addIssue({code:'custom',path:['delar',i],message});
+    if (part.ateranvand) {
+      if (!defined.has(part.ateranvand)) issue(`Låtdelen ${part.ateranvand} måste vara utskriven tidigare i låten.`);
+      if (part.namn || part.takter.length || part.skuggad !== undefined) issue('En återanvänd del har bara ateranvand, ganger, anvisning och eventuell sidbrytning.');
+    } else {
+      if (!part.namn || !part.takter.length) issue('En utskriven del behöver namn och minst en takt.');
+      if (part.ganger !== 1) issue('Ange ganger på en återanvänd del. Använd repris för en utskriven del.');
+      if (hasReuse && defined.has(part.namn)) issue('Utskrivna delar måste ha unika namn när delar återanvänds.');
+      defined.add(part.namn);
+    }
+  });
   if (song.spelordning) {
     const names = song.delar.map(part => part.namn);
     if (new Set(names).size !== names.length) ctx.addIssue({code:'custom',path:['delar'],message:'Låtdelarna måste ha unika namn när spelordning används.'});
@@ -66,7 +83,10 @@ export const songSchema = z.strictObject({
   }
   let count = 0;
   let meter = song.taktart;
-  song.delar.forEach((section, si) => section.takter.forEach((raw, bi) => {
+  const endMeters=new Map<string,string>();
+  song.delar.forEach((section, si) => {
+    if(section.ateranvand){meter=endMeters.get(section.ateranvand)??meter;return;}
+    section.takter.forEach((raw, bi) => {
     count++;
     const bar = asBar(raw);
     meter = bar.taktart ?? meter;
@@ -102,7 +122,9 @@ export const songSchema = z.strictObject({
       if (seen.has(identity)) error(['varianter', i], 'Samma omgång och stämma får bara ha en variant per takt.');
       seen.add(identity);
     });
-  }));
+    });
+    endMeters.set(section.namn,meter);
+  });
   if (count > 500) ctx.addIssue({ code: 'custom', path: ['delar'], message: 'Högst 500 skrivna takter per låt.' });
 });
 export type Song = z.infer<typeof songSchema>;

@@ -72,16 +72,6 @@ delar:
       - Ebm Ebm/Db
       - Db Fm/C
       - ackord: Bbm
-spelordning:
-  - del: Intro
-    ganger: 1
-  - del: Vers
-    ganger: 1
-  - del: Refräng
-    ganger: 1
-  - del: Vers
-    ganger: 1
-    visa_block: true
-  - del: Refräng
+  - ateranvand: Vers
+  - ateranvand: Refräng
     ganger: 2
-    visa_block: true

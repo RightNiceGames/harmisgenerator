@@ -20,7 +20,7 @@ test('reference remains one A4 with all printed bars and original chord size',as
 });
 test('long charts page break without shrinking chords or losing bars',async()=>{
   const song=structuredClone(reference);
-  song.delar=[{namn:'Lång del',takter:Array.from({length:120},()=> 'C')}];
+  song.delar=[{namn:'Lång del',ganger:1,takter:Array.from({length:120},()=> 'C')}];
   const result=await renderChart(song);
   assert.ok(result.pages!.length>=2);
   const all=result.pages!.join('');
@@ -29,7 +29,7 @@ test('long charts page break without shrinking chords or losing bars',async()=>{
 });
 test('explicit page breaks and unsafe title text are rendered safely',async()=>{
   const song=structuredClone(reference);song.titel='<script>alert(1)</script>';
-  song.delar=[{namn:'A',takter:['C']},{namn:'B',sidbrytning:true,takter:['F']}];
+  song.delar=[{namn:'A',ganger:1,takter:['C']},{namn:'B',ganger:1,sidbrytning:true,takter:['F']}];
   const result=await renderChart(song);
   assert.equal(result.pages!.length,2);
   assert.ok(!result.pages!.join('').includes('<script>'));
