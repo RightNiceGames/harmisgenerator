@@ -79,7 +79,7 @@ export function insertFeature(text: string, cursor: number, action: EditAction):
 export function appendFormStep(text: string, part: string, times: number) {
   const song = readSong(text), doc = parseSongDocument(text);
   const steps = song.spelordning ?? song.delar.map(section=>({del:section.namn,ganger:1}));
-  doc.set('spelordning', [...steps, {del:part,ganger:times}]);
+  doc.set('spelordning', [...steps, {del:part,ganger:times,visa_block:true}]);
   const result = doc.toString({lineWidth:110});
   readSong(result);
   return result;
@@ -112,4 +112,17 @@ export function replaceExistingChord(text: string, target: ChordTarget, replacem
   const result = doc.toString({lineWidth:110});
   readSong(result);
   return result;
+}
+
+export function renameSection(text: string, index: number, name: string) {
+  const song = readSong(text), doc = parseSongDocument(text);
+  if (!Number.isInteger(index) || index < 0 || !song.delar[index]) throw new Error('Låtdelen finns inte längre.');
+  const next = name.trim();
+  if (!next || next.length > 80 || /[\r\n]/.test(next)) throw new Error('Ange ett delnamn på 1–80 tecken, på en rad.');
+  if (song.delar.some((part,i)=>i!==index && part.namn===next)) throw new Error('En annan låtdel har redan det namnet.');
+  const previous = song.delar[index].namn;
+  const change = (path:(string|number)[]) => { const node = doc.getIn(path,true); if(isScalar(node))node.value=next; };
+  change(['delar',index,'namn']);
+  song.spelordning?.forEach((step,i)=>{if(step.del===previous)change(['spelordning',i,'del']);});
+  const result=doc.toString({lineWidth:110});readSong(result);return result;
 }

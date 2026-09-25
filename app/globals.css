@@ -32,9 +32,9 @@
 
 .form-summary{padding:0 0 18px;font-size:10px;color:var(--green);line-height:1.8}.form-summary strong{font-size:9px}.form-summary p{overflow-wrap:anywhere}
 
-.chord-hit{cursor:pointer;stroke:transparent;stroke-width:.8;rx:2}
-.chord-hit:hover,.chord-hit:focus-visible{fill:#28564a15;stroke:#528f79;outline:none}
-.preview-readonly .chord-hit{pointer-events:none;cursor:default}
+:is(.chord-hit,.section-hit){cursor:pointer;stroke:transparent;stroke-width:.8;rx:2}
+:is(.chord-hit,.section-hit):hover,:is(.chord-hit,.section-hit):focus-visible{fill:#28564a15;stroke:#528f79;outline:none}
+.preview-readonly :is(.chord-hit,.section-hit){pointer-events:none;cursor:default}
 .chord-dialog{border:1px solid var(--line);border-radius:9px;padding:25px;background:var(--paper);color:var(--ink);width:min(380px,calc(100vw - 32px));box-shadow:0 20px 70px #152c2433}
 .chord-dialog::backdrop{background:#192b2555}
 .chord-dialog h2{font-size:18px;margin-bottom:10px}
@@ -43,4 +43,4 @@
 .chord-dialog input{width:100%;padding:10px;border:1px solid #a4b69b;border-radius:4px;background:white;font-size:20px;color:var(--ink)}
 .chord-dialog form>div{display:flex;justify-content:flex-end;gap:9px;margin-top:20px}
 .chord-dialog #chord-error{color:#994f3d;margin-top:10px}
-@media print{.chord-hit,.chord-dialog{display:none!important}}
+@media print{:is(.chord-hit,.section-hit),.chord-dialog{display:none!important}}

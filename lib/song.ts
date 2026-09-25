@@ -50,7 +50,7 @@ export const songSchema = z.strictObject({
   status: z.enum(['utkast', 'granskad']).default('utkast'),
   kallor: z.array(z.strictObject({ url: z.string().url(), beskrivning: z.string().max(600) })).max(20).optional(),
   anteckningar: z.array(z.string().max(1400)).max(30).optional(),
-  spelordning: z.array(z.strictObject({ del: z.string().min(1).max(80), ganger: z.number().int().min(1).max(16).default(1) })).min(1).max(60).optional(),
+  spelordning: z.array(z.strictObject({ del: z.string().min(1).max(80), ganger: z.number().int().min(1).max(16).default(1), visa_block: z.boolean().optional() })).min(1).max(60).optional(),
   delar: z.array(sectionSchema).min(1).max(60),
 }).superRefine((song, ctx) => {
   if (song.spelordning) {

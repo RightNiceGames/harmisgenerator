@@ -8,7 +8,7 @@ const source=stringify({format:1,titel:'Test',artist:'Test',grundtonart:'C',takt
 test('form references existing parts, survives transposition and renders music only once',async()=>{
  const text=appendFormStep(appendFormStep(source,'Vers',1),'Refräng',2);
  const song=readSong(text);
- assert.deepEqual(song.spelordning,[{del:'Vers',ganger:1},{del:'Refräng',ganger:1},{del:'Vers',ganger:1},{del:'Refräng',ganger:2}]);
+ assert.deepEqual(song.spelordning,[{del:'Vers',ganger:1},{del:'Refräng',ganger:1},{del:'Vers',ganger:1,visa_block:true},{del:'Refräng',ganger:2,visa_block:true}]);
  assert.deepEqual(readSong(transposeText(text,'D','#')).spelordning,song.spelordning);
  const svg=(await renderChart(song)).pages!.join('');
  assert.ok(svg.includes('Refräng × 2 → SLUT'));assert.ok(svg.includes('>4</text>'));assert.ok(!svg.includes('>5</text>'));

@@ -83,3 +83,4 @@ spelordning:
     ganger: 1
   - del: Refräng
     ganger: 2
+    visa_block: true

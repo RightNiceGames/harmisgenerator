@@ -13,7 +13,8 @@ type RectOp = { kind: 'rect'; x: number; y: number; w: number; h: number; color:
 type EllipseOp = { kind: 'ellipse'; x: number; y: number; rx: number; ry: number; fill: string; color: string; width: number };
 type PathOp = { kind: 'path'; d: string; color: string; width: number };
 type ChordHitOp = { kind: 'chord-hit'; x: number; y: number; w: number; h: number; section: number; bar: number; chord: number; variant?: number; label: string };
-export type DrawOp = ChordHitOp | TextOp | LineOp | RectOp | EllipseOp | PathOp;
+type SectionHitOp = {kind:'section-hit';x:number;y:number;w:number;h:number;section:number;label:string};
+export type DrawOp = SectionHitOp | ChordHitOp | TextOp | LineOp | RectOp | EllipseOp | PathOp;
 export type ChartPage = DrawOp[];
 let fontBytes: Promise<Buffer[]> | undefined;
 function fonts() { return fontBytes ??= Promise.all(['DejaVuSans.ttf', 'DejaVuSans-Bold.ttf'].map(name => readFile(path.join(process.cwd(), 'fonts', name)))); }
@@ -77,6 +78,7 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont): ChartP
   let house: string | undefined;
   const nextPage = () => { ops = []; pages.push(ops); y = header(true); };
 
+  const sectionRanges = new Map<string, number[]>();
   for (const [sectionIndex, section] of song.delar.entries()) {
     type Cell = { bar: Bar; number: number; col: number; beats: number; barIndex: number };
     const rows: { cells: Cell[]; pageBreak: boolean }[] = [];
@@ -88,6 +90,7 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont): ChartP
       if (bar.sidbrytning) pageBreak = true;
       if (bar.kolumn !== undefined) col = bar.kolumn;
       number = bar.nummer ?? number;
+      sectionRanges.set(section.namn,[...(sectionRanges.get(section.namn) ?? []),number]);
       meter = bar.taktart ?? meter;
       row.push({ bar, number: number++, col: col++, beats: Number(meter.split('/')[0]), barIndex });
     }
@@ -106,6 +109,7 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont): ChartP
       if ((row.pageBreak && ops.length > 4) || y + labelSpace + overhead + 39 + extra > PAGE_HEIGHT-30) { nextPage(); continued = !first; }
       if (first || continued) {
         fitText(L, y, section.namn + (continued ? ' (forts.)' : ''), 10, 260, true, ACCENT);
+        ops.push({kind:'section-hit',x:L-2,y:y-11,w:Math.min(262,width(section.namn+(continued ? ' (forts.)' : ''),10,true)+5),h:14,section:sectionIndex,label:`Ändra delnamn: ${section.namn}`});
         if (section.anvisning) fitText(L + 275, y, section.anvisning, 7.1, R-L-275, false, GREY);
         y += 7; first = false;
       }
@@ -202,6 +206,19 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont): ChartP
     }
     y += 12;
   }
+  song.spelordning?.forEach((step, index) => {
+    if (!step.visa_block) return;
+    if (y+77 > PAGE_HEIGHT-30) nextPage();
+    const last = index === song.spelordning!.length-1;
+    const section = song.delar.findIndex(part=>part.namn===step.del);
+    const range = sectionRanges.get(step.del)!;
+    ops.push({kind:'rect',x:L,y:y-5,w:R-L,h:66,color:'#f0f3f4'});
+    text(L+10,y+7,`ÅTERANVÄND DEL · ${last ? 'AVSLUTNING' : 'STEG '+(index+1)+' I SPELORDNINGEN'}`,6.5,true,ACCENT);
+    fitText(L+10,y+29,`${step.del}${step.ganger>1 ? ' × '+step.ganger : ''}`,15,R-L-20,true,ACCENT);
+    ops.push({kind:'section-hit',x:L+8,y:y+14,w:Math.min(R-L-16,width(step.del,15,true)+8),h:19,section,label:`Ändra delnamn: ${step.del}`});
+    fitText(L+10,y+48,`Se ${step.del}, takt ${range[0]}–${range.at(-1)}. Spela ${step.ganger} ${step.ganger===1?'gång':'gånger'}${last ? ', sedan SLUT.' : '.'}`,8,R-L-20,false,GREY);
+    y+=77;
+  });
   pages.forEach((page, i) => page.push({kind:'text', x:R-30, y:PAGE_HEIGHT-16,text:`${i+1} / ${pages.length}`,size:6.5,bold:false,color:GREY}));
   return pages;
 }
@@ -209,6 +226,7 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont): ChartP
 export function pageSvg(page: ChartPage) {
   const content = page.map(op => {
     switch(op.kind) {
+      case 'section-hit': return `<rect class="section-hit" x="${op.x}" y="${op.y}" width="${op.w}" height="${op.h}" fill="transparent" role="button" tabindex="0" aria-label="${xml(op.label)}" data-section="${op.section}"><title>${xml(op.label)}</title></rect>`;
       case 'chord-hit': return `<rect class="chord-hit" x="${op.x}" y="${op.y}" width="${op.w}" height="${op.h}" fill="transparent" role="button" tabindex="0" aria-label="${xml(op.label)}" data-section="${op.section}" data-bar="${op.bar}" data-chord="${op.chord}"${op.variant === undefined ? '' : ` data-variant="${op.variant}"`}><title>${xml(op.label)}</title></rect>`;
       case 'text': return `<text x="${op.x}" y="${op.y}" font-family="Harmis" font-size="${op.size}" font-weight="${op.bold ? 700 : 400}" fill="${op.color}" style="font-kerning:none;font-variant-ligatures:none">${xml(op.text)}</text>`;
       case 'line': return `<line x1="${op.x}" y1="${op.y}" x2="${op.x2}" y2="${op.y2}" stroke="${op.color}" stroke-width="${op.width}"/>`;
@@ -230,6 +248,7 @@ export async function renderChart(song: Song, format: 'svg' | 'pdf' = 'svg') {
     const page = pdf.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
     for (const op of commands) {
       switch(op.kind) {
+        case 'section-hit':
         case 'chord-hit': break; // Interactive targets are only part of the screen preview.
         case 'text': page.drawText(op.text,{ x:op.x,y:PAGE_HEIGHT-op.y,size:op.size,font:op.bold?bold:regular,color:color(op.color) }); break;
         case 'line': page.drawLine({start:{x:op.x,y:PAGE_HEIGHT-op.y},end:{x:op.x2,y:PAGE_HEIGHT-op.y2},thickness:op.width,color:color(op.color)}); break;

@@ -150,3 +150,17 @@ test('edit an existing preview chord, validate input, undo and protect stale pre
  await page.locator('.chord-hit').first().dispatchEvent('click');
  await expect(dialog).toHaveCount(0);
 });
+test('rename a section from its reuse block and update the form references',async({page})=>{
+ await page.goto('/');await page.getByRole('button',{name:/Webbläsartest/}).click();
+ const editor=page.getByRole('textbox',{name:'Låtfilens text'});await editor.fill(content);
+ await page.getByRole('button',{name:'Återanvänd del',exact:true}).click();
+ await page.getByLabel('Antal gånger').selectOption('2');await page.getByRole('button',{name:'Lägg sist i formen'}).click();
+ await expect(page.locator('.paper')).toContainText('ÅTERANVÄND DEL · AVSLUTNING');
+ await page.getByRole('button',{name:'Ändra delnamn: Intro',exact:true}).last().click();
+ const dialog=page.getByRole('dialog',{name:'Ändra delnamn',exact:true});
+ await dialog.getByLabel('Delnamn',{exact:true}).fill('Mellanspel');await dialog.getByLabel('Delnamn',{exact:true}).press('Enter');
+ await expect(editor).toHaveValue(/namn: Mellanspel/);await expect(editor).not.toHaveValue(/del: Intro/);
+ await expect(page.getByLabel('Spelordning',{exact:true})).toContainText('Mellanspel → Mellanspel × 2 → SLUT');
+ await expect(page.getByRole('button',{name:'Ändra delnamn: Mellanspel',exact:true})).toHaveCount(2);
+ await page.getByRole('button',{name:'Ångra',exact:true}).click();await expect(editor).toHaveValue(/namn: Intro/);
+});
