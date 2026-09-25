@@ -132,8 +132,18 @@ export type Section = Song['delar'][number];
 export function asBar(raw: string | Bar): Bar { return typeof raw === 'string' ? { ackord: raw } : raw; }
 export function ascii(value: string) { return value.replaceAll('♭', 'b').replaceAll('♯', '#'); }
 export function pretty(value: string) { return value.replaceAll('b', '♭').replaceAll('#', '♯'); }
-export type Chord = { root: string; extension: string; bass?: string; special?: boolean };
+export type Chord = { root: string; extension: string; bass?: string; special?: boolean; parenthesized?: boolean };
 export function parseChord(value: string): Chord {
+  if (value.startsWith('(')) {
+    if (!value.endsWith(')') || value[1] === '(') throw new Error(`Ogiltigt ackord: ${value}`);
+    return {...parseChord(value.slice(1,-1)),parenthesized:true};
+  }
+  let depth=0;
+  for(const char of value){
+    if(char==='(')depth++;
+    if(char===')' && --depth<0)throw new Error(`Ogiltigt ackord: ${value}`);
+  }
+  if(depth!==0)throw new Error(`Ogiltigt ackord: ${value}`);
   if (/^N\.?C\.?$/i.test(value)) return { root: 'N.C.', extension: '', special: true };
   if (['%', '-'].includes(value)) return { root: value, extension: '', special: true };
   const match = ascii(value).match(/^([A-G][b#]?)(.*?)(?:\/([A-G][b#]?))?$/);
@@ -153,7 +163,8 @@ export function transposeChord(chord: string, semitones: number, spelling: 'b' |
   if (parsed.special) return chord;
   const names = spelling === 'b' ? flats : sharps;
   const shift = (n: string) => names[((pitch(n) + semitones) % 12 + 12) % 12];
-  return shift(parsed.root) + parsed.extension + (parsed.bass ? '/' + shift(parsed.bass) : '');
+  const result = shift(parsed.root) + parsed.extension + (parsed.bass ? '/' + shift(parsed.bass) : '');
+  return parsed.parenthesized ? '('+result+')' : result;
 }
 export class SongError extends Error {
   constructor(message: string, public line = 1) { super(message); }

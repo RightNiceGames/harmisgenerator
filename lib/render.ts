@@ -160,7 +160,7 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont): ChartP
         const drawChords = (value: string, baseline: number, starts: number[] | undefined, baseScale = 1, main = false, variant?: number) => {
           const chords = value.trim().split(/\s+/).map(parseChord);
           const factors = chords.map((_, i) => main && (bar.synkop?.ackord === i + 1 || (bar.break && !bar.synkop && !bar.rytm && i === 0)) ? .6 : 1);
-          const widths = chords.map(c => width(pretty(c.root), 23, true) + width(pretty(c.extension), 10) + (c.bass ? width('/'+pretty(c.bass), 13, true) : 0) + 2);
+          const widths = chords.map(c => width(pretty(c.root), 23, true) + width(pretty(c.extension), 10) + (c.bass ? width('/'+pretty(c.bass), 13, true) : 0) + (c.parenthesized ? width('()',20) : 0) + 2);
           const gap = chords.length > 1 ? 12 : 0;
           const scale = Math.min(baseScale, (CW - 15) / (widths.reduce((sum, w, i) => sum + w*factors[i], 0) + gap * (chords.length-1)));
           let xx = x + 7;
@@ -171,10 +171,15 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont): ChartP
             const available = starts ? (i+1 < starts.length ? beatX(starts[i+1])-4 : x+CW-7) - xx : Infinity;
             const factor = starts ? Math.min(baseScale * factors[i], available / widths[i]) : scale * factors[i];
             const root = pretty(chord.root), ext = pretty(chord.extension);
-            text(xx, baseline, root, 23 * factor, true);
+            const rootX = xx + (chord.parenthesized ? width('(',20)*factor : 0);
+            if(chord.parenthesized){
+              text(xx,baseline,'(',20*factor);
+              text(xx+(widths[i]-width(')',20))*factor,baseline,')',20*factor);
+            }
+            text(rootX, baseline, root, 23 * factor, true);
             const rw = width(root, 23, true) * factor;
-            text(xx + rw + .5*factor, baseline - 5*factor, ext, 10*factor);
-            if (chord.bass) text(xx + rw + (width(ext,10)+1)*factor, baseline, '/'+pretty(chord.bass), 13*factor, true);
+            text(rootX + rw + .5*factor, baseline - 5*factor, ext, 10*factor);
+            if (chord.bass) text(rootX + rw + (width(ext,10)+1)*factor, baseline, '/'+pretty(chord.bass), 13*factor, true);
             if (main && bar.fermat === i+1) fermata(xx + widths[i]*factor/2, baseline-19);
             if (starts && main && !bar.rytm) text(xx, baseline-19, String(starts[i]).replace('.5', 'å'), 5.5, false, GREY);
             ops.push({kind:'chord-hit',x:xx-1,y:baseline-23*factor,w:widths[i]*factor+2,h:26*factor,

@@ -46,3 +46,5 @@
 @media print{:is(.chord-hit,.section-hit),.chord-dialog{display:none!important}}
 
 .form-instruction{flex-basis:100%}.form-instruction input{width:100%;padding:9px;border:1px solid #d0dcc4;border-radius:3px;background:white;color:var(--ink)}
+
+.chord-dialog .parenthesis-option{display:flex;align-items:center;gap:9px;margin-top:14px;font-size:12px}.chord-dialog .parenthesis-option input{width:16px;height:16px;accent-color:var(--green)}

@@ -184,3 +184,20 @@ test('insert a reuse before later music, then add a new written section after th
  const result=await editor.inputValue();expect(result.indexOf('namn: Ny del')).toBeGreaterThan(result.indexOf('ateranvand: Intro'));expect(result.indexOf('namn: Ny del')).toBeLessThan(result.indexOf('namn: Coda'));
  await expect(page.locator('.paper')).toContainText('Ny del');await expect(page.locator('.parse-error')).toHaveCount(0);
 });
+test('toggle parentheses around an existing preview chord and undo',async({page})=>{
+ await page.goto('/');await page.getByRole('button',{name:/Webbläsartest/}).click();
+ const editor=page.getByRole('textbox',{name:'Låtfilens text'});await editor.fill(content);
+ await page.getByRole('button',{name:'Ändra Abm6/9/Gb, Intro, takt 1',exact:true}).click();
+ let dialog=page.getByRole('dialog',{name:'Ändra ackord',exact:true});
+ await dialog.getByLabel('Ackord inom parentes').check();
+ await expect(dialog.getByLabel('Ackord',{exact:true})).toHaveValue('(Abm6/9/Gb)');
+ await dialog.getByRole('button',{name:'Ändra ackord',exact:true}).click();
+ await expect(editor).toHaveValue(/\(Abm6\/9\/Gb\)/);
+ await page.getByRole('button',{name:'Ändra (Abm6/9/Gb), Intro, takt 1',exact:true}).click();
+ dialog=page.getByRole('dialog',{name:'Ändra ackord',exact:true});
+ await expect(dialog.getByLabel('Ackord inom parentes')).toBeChecked();
+ await dialog.getByLabel('Ackord inom parentes').uncheck();
+ await dialog.getByRole('button',{name:'Ändra ackord',exact:true}).click();
+ await expect(editor).not.toHaveValue(/\(Abm6\/9\/Gb\)/);
+ await page.getByRole('button',{name:'Ångra',exact:true}).click();await expect(editor).toHaveValue(/\(Abm6\/9\/Gb\)/);
+});
