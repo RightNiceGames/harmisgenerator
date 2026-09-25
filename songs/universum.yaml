@@ -81,6 +81,7 @@ spelordning:
     ganger: 1
   - del: Vers
     ganger: 1
+    visa_block: true
   - del: Refräng
     ganger: 2
     visa_block: true

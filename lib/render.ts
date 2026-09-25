@@ -207,7 +207,8 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont): ChartP
     y += 12;
   }
   song.spelordning?.forEach((step, index) => {
-    if (!step.visa_block) return;
+    const reused = song.spelordning!.slice(0,index).some(previous=>previous.del===step.del) || step.ganger > 1;
+    if (!(step.visa_block ?? reused)) return;
     if (y+77 > PAGE_HEIGHT-30) nextPage();
     const last = index === song.spelordning!.length-1;
     const section = song.delar.findIndex(part=>part.namn===step.del);

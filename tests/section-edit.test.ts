@@ -23,3 +23,14 @@ test('reuse block refers to existing bars and has a clickable section name',asyn
  for(const page of result.pages!)for(const m of page.matchAll(/<text x="[\d.]+" y="([\d.]+)"/g))assert.ok(Number(m[1])<830);
  assert.ok((await renderChart(song,'pdf')).pdf!.length>1000);
 });
+
+test('all remaining reused sections get blocks in performance order by default',async()=>{
+ const song=readSong(text);
+ song.spelordning=[{del:'Vers',ganger:1},{del:'Refräng',ganger:1},{del:'Vers',ganger:1},{del:'Refräng',ganger:2}];
+ const svg=(await renderChart(song)).pages!.join('');
+ assert.ok(svg.includes('Se Vers, takt 1–1. Spela 1 gång.'));
+ assert.ok(svg.indexOf('Se Vers, takt')<svg.indexOf('Se Refräng, takt'));
+ assert.equal((svg.match(/ÅTERANVÄND DEL/g)||[]).length,2);
+ song.spelordning[2].visa_block=false;
+ assert.ok(!(await renderChart(song)).pages!.join('').includes('Se Vers, takt'));
+});
