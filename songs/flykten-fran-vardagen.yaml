@@ -1,0 +1,131 @@
+# Harmis format 1. En listpost under takter = en skriven takt.
+# Flera ackord i en takt separeras med mellanslag.
+format: 1
+titel: Flykten från vardagen
+artist: Amanda Ginsburg
+upphov: Amanda Ginsburg & Andy Fite
+grundtonart: Abm
+taktart: 4/4
+tempo: 112
+stil: Medium swing
+status: granskad
+delar:
+  - namn: Intro
+    takter:
+      - ackord: Abm6 Abm6/Gb
+        radbrytning: true
+      - E6/9 Eb7alt
+      - Abm6/9 D13#11
+      - Db9#11
+      - ackord: Dbm7
+        radbrytning: true
+      - Gb9sus Gb9
+      - B6 E13
+      - ackord: Eb7#9#5
+        synkop:
+          typ: foruttag
+          ackord: 1
+        break: true
+  - namn: A
+    takter:
+      - ackord: Abm6/9
+        radbrytning: true
+        repris_start: true
+      - Abm6/9/Gb
+      - Fø7
+      - E9 Eb9
+      - ackord: Dbm7
+        radbrytning: true
+      - ackord: Abm6/B
+        hus: "1."
+      - Bbø7
+      - ackord: Eb7#9#5
+        repris_slut: true
+        hus_slut: true
+        break: true
+      - ackord: Gb13
+        radbrytning: true
+        kolumn: 1
+        nummer: 22
+        hus: "2."
+      - B6/9
+      - ackord: Ebm7 Ab7b9
+        hus_slut: true
+  - namn: B
+    takter:
+      - ackord: Dbm7
+        radbrytning: true
+      - Gb13
+      - B6/9
+      - A13#11 Ab7b9
+      - ackord: Dbm7
+        radbrytning: true
+      - Eb7
+      - Abm7 Gm7
+      - Gbm7 B7
+      - ackord: Emaj13
+        radbrytning: true
+      - Eb7b9#5
+      - ackord: Abm7 D7#11
+        synkop:
+          typ: offbeat
+          ackord: 2
+      - Db13#11
+      - ackord: Dbm7
+        radbrytning: true
+      - Gb9sus Gb13b9
+      - Bmaj9 B6/9
+      - ackord: Eb7#9#5
+        synkop:
+          typ: foruttag
+          ackord: 1
+        break: true
+  - namn: Sista A
+    takter:
+      - ackord: Abm6/9
+        radbrytning: true
+      - Abm6/9/Gb
+      - Fø7
+      - E9 Eb9
+      - ackord: Dbm7
+        radbrytning: true
+      - ackord: Gb13
+        coda: hopp
+      - ackord: Bmaj7 E7
+        synkop:
+          typ: offbeat
+          ackord: 2
+      - ackord: Bb7 Ebm7
+        synkop:
+          typ: offbeat
+          ackord: 2
+  - namn: Coda · walking
+    takter:
+      - ackord: Eb7
+        radbrytning: true
+        kolumn: 1
+        coda: mal
+      - Abm7 G°7
+      - Gbm9 B7
+      - ackord: Emaj7
+        radbrytning: true
+      - Eb7
+      - ackord: Abm Abm/Gb
+        synkop:
+          typ: offbeat
+          ackord: 2
+      - ackord: Fø7 E7
+        synkop:
+          typ: offbeat
+          ackord: 2
+      - ackord: Eb7
+        radbrytning: true
+        break: true
+      - ackord: Abm(maj9)
+        slut: true
+    skuggad: true
+anteckningar:
+  - Överförd från den befintliga generatorns version 11. Ackord, taktnummer, repriser, hus, synkoper, coda och
+    BREAK är bevarade.
+  - Takterna 17–21 ingår i reprisen av 9–13. Andra huset börjar därför på 22. Coda är en spelanvisning; appen
+    spelar inte upp låten.

@@ -1,0 +1,89 @@
+# Harmis format 1. En listpost under takter = en skriven takt.
+# Flera ackord i en takt separeras med mellanslag.
+format: 1
+titel: Tro
+artist: Marie Fredriksson
+version: Grundarrangemang
+grundtonart: D
+taktart: 4/4
+tempo: 72
+stil: ""
+status: utkast
+delar:
+  - namn: Intro
+    takter:
+      - D
+      - A
+      - Bm
+      - G
+  - namn: Refräng
+    takter:
+      - D
+      - D
+      - A
+      - A
+      - Bm
+      - Bm
+      - G
+      - G
+      - D
+      - D
+      - A
+      - A
+      - Em
+      - G
+      - D
+      - D
+  - namn: Vers
+    takter:
+      - C
+      - G
+      - D
+      - A
+      - C
+      - G
+      - A
+      - A
+      - C
+      - G
+      - D
+      - A
+      - C
+      - G
+      - A G
+      - A
+  - namn: Refräng / repris
+    takter:
+      - ackord: D
+        repris_start: true
+      - D
+      - A
+      - A
+      - Em
+      - Em
+      - G
+      - G
+      - D
+      - D
+      - A
+      - A
+      - Em
+      - G
+      - D
+      - ackord: D
+        repris_slut: true
+  - namn: Avslut
+    takter:
+      - Em
+      - G
+      - D
+      - ackord: D
+        slut: true
+kallor:
+  - url: https://www.e-chords.com/chords/marie-fredriksson/tro
+    beskrivning: Ackordskiss i D med refräng och vers. Underlag för huvudharmoniken.
+anteckningar:
+  - Tempot 72 BPM och antalet takter per ackord är egna bedömningar. Första refrängen använder Bm där den
+    senare använder Em, enligt ackordskissen.
+  - Taktindelning, antal omtagningar och vissa övergångar är agentens arbetsbedömning, inte en verifierad
+    transkription. Kontrollera mot inspelningen och korrigera efter gehör.

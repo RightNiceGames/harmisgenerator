@@ -1,0 +1,3 @@
+# Endast för --png via den kompatibla Python-CLI:n. Webbappen behöver inte Python.
+pypdfium2==5.13.0
+Pillow>=10.0

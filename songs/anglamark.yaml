@@ -1,0 +1,95 @@
+# Harmis format 1. En listpost under takter = en skriven takt.
+# Flera ackord i en takt separeras med mellanslag.
+format: 1
+titel: Änglamark
+artist: Lisa Nilsson
+version: Så mycket bättre · 2015
+grundtonart: Bb
+taktart: 4/4
+tempo: 103
+stil: ""
+status: utkast
+delar:
+  - namn: Intro
+    takter:
+      - Bb
+      - Bb
+  - namn: A
+    takter:
+      - ackord: Bb
+        repris_start: true
+      - Cm/Bb
+      - F/Bb
+      - Bb
+      - Bb
+      - Cm/Bb
+      - F/Bb
+      - ackord: Bb
+        repris_slut: true
+  - namn: B
+    takter:
+      - Eb/Bb Cm/Bb
+      - F/Bb Bb
+      - Eb/Bb Cm/Bb
+      - F/Bb Bb
+      - Eb/Bb Cm/Bb
+      - F/Bb Bb
+      - Eb/Bb Cm/Bb
+      - F/Bb Bb
+  - namn: C
+    takter:
+      - ackord: Gm
+        repris_start: true
+      - D7/F#
+      - Gm
+      - Gm
+      - Gm
+      - D7/F#
+      - Gmmaj7
+      - ackord: Gm
+        repris_slut: true
+  - namn: A / variation
+    takter:
+      - Bb Bb/D
+      - Eb6/Bb
+      - Cm
+      - F Gm F/A
+      - Ebm/Bb Bb
+      - Bb Bb/D
+      - Eb6/Bb Cm
+      - F7sus4 F
+      - Gm F/A
+      - Adim/Bb Bb
+  - namn: Mellanspel
+    takter:
+      - Eb Cm
+      - F Bb
+      - Eb Cm
+      - F Gm F/A Bb
+      - Eb Cm
+      - F F/A Bb
+      - Eb Cm
+      - F/A D7/F#
+  - namn: C / avslut
+    takter:
+      - Gm
+      - D7/G
+      - Gm
+      - Gm
+      - Gm
+      - D7/F#
+      - Gm F
+      - Ebmaj7 D7
+      - Gm
+      - ackord: Bb
+        slut: true
+kallor:
+  - url: https://www.chords-and-tabs.net/song/name/lisa-nilsson-anglamark
+    beskrivning: Versionsspecifik ackordskiss med Bb-pedal, A/B/C-delar och mellanspel.
+  - url: https://chordify.net/chords/lisa-nilsson-songs/anglamark-chords
+    beskrivning: "Kompletterande analys: Bb-dur och 103 BPM."
+anteckningar:
+  - Den sista A-återkomsten är förenklad till avslut i detta arbetsblad. Kontrollera framför allt formen efter
+    mellanspelet.
+  - Taktindelning, antal omtagningar och vissa övergångar är agentens arbetsbedömning, inte en verifierad
+    transkription. Kontrollera mot inspelningen och korrigera efter gehör.

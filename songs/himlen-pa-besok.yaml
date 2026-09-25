@@ -1,0 +1,98 @@
+# Harmis format 1. En listpost under takter = en skriven takt.
+# Flera ackord i en takt separeras med mellanslag.
+format: 1
+titel: Himlen på besök
+artist: Clas Vårdstedt, Michael Ruff
+version: Mitt hjärta hos dig · 2017
+grundtonart: D
+taktart: 4/4
+tempo: 72
+stil: ""
+status: utkast
+delar:
+  - namn: Intro
+    takter:
+      - Dadd9
+      - A/C#
+      - Bm7
+      - Gmaj7
+  - namn: Vers 1
+    takter:
+      - D
+      - A/C#
+      - Bm7
+      - F#m7
+      - Gmaj7
+      - D/F#
+      - Em7
+      - Asus4 A
+      - D
+      - A/C#
+      - Bm7
+      - F#m7
+      - G
+      - Em7
+      - Asus4
+      - A
+  - namn: Refräng
+    takter:
+      - G
+      - A
+      - D/F#
+      - Bm7
+      - Em7
+      - A
+      - D
+      - D
+      - G
+      - A
+      - F#m7
+      - Bm7
+      - Em7
+      - Asus4 A
+      - D
+      - D
+  - namn: Vers 2
+    takter:
+      - D
+      - A/C#
+      - Bm7
+      - F#m7
+      - Gmaj7
+      - D/F#
+      - Em7
+      - Asus4 A
+  - namn: Sista refräng
+    takter:
+      - G
+      - A
+      - D/F#
+      - Bm7
+      - Em7
+      - A
+      - D
+      - D
+      - G
+      - A
+      - F#m7
+      - Bm7
+      - Em7
+      - Asus4 A
+      - D
+      - D
+  - namn: Outro
+    takter:
+      - Gmaj7
+      - A
+      - Dadd9
+      - ackord: Dadd9
+        slut: true
+kallor:
+  - url: https://songdata.io/track/3342mYdY7Z5HHhUNj5fJ6A/Himlen-p-besk-by-Clas-Vrdstedt-Michael-Ruff
+    beskrivning: Identifierar inspelningen på Mitt hjärta hos dig och anger D-dur samt 143 BPM.
+anteckningar:
+  - Ingen ackord- eller formkälla hittades. Samtliga ackord, låtdelar och taktantal i detta blad är en egen
+    harmonisk gissning i D-dur, inte avlyssnade från inspelningen. Tempot är satt till halvtid 72 BPM. Detta
+    är låten som behöver mest gehörskorrigering.
+  - Taktindelning, antal omtagningar och vissa övergångar är agentens arbetsbedömning, inte en verifierad
+    transkription. Kontrollera mot inspelningen och korrigera efter gehör.

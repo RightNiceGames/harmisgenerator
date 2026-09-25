@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+outputs/
+node_modules/
+.next/
+*.tsbuildinfo
+work/cache/
+playwright-report/
+test-results/
+work/backups/

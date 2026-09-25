@@ -1,0 +1,86 @@
+# Harmis format 1. En listpost under takter = en skriven takt.
+# Flera ackord i en takt separeras med mellanslag.
+format: 1
+titel: Det som göms i snö
+artist: Robert Broberg
+version: 1991 · Höjdare
+grundtonart: C
+taktart: 4/4
+tempo: 130
+stil: ""
+status: utkast
+delar:
+  - namn: Intro
+    takter:
+      - C
+      - Dm
+      - G
+      - C
+      - Am
+      - Dm
+      - G
+      - N.C.
+  - namn: A
+    takter:
+      - ackord: C
+        repris_start: true
+      - F
+      - G
+      - C
+      - Am
+      - Dm
+      - G
+      - ackord: N.C.
+        repris_slut: true
+  - namn: A / variation
+    takter:
+      - C
+      - Dm7
+      - G
+      - C
+      - Am
+      - Dm7
+      - G
+      - N.C.
+  - namn: B
+    takter:
+      - C
+      - F
+      - G
+      - C
+      - Am
+      - Dm F
+      - G
+      - N.C.
+  - namn: A / återkomst
+    takter:
+      - ackord: C
+        repris_start: true
+      - Dm
+      - G
+      - C
+      - Am
+      - Dm7
+      - G
+      - ackord: N.C.
+        repris_slut: true
+  - namn: Slut
+    takter:
+      - C
+      - F
+      - G
+      - C
+      - Am
+      - Dm
+      - G
+      - G
+      - ackord: C
+        slut: true
+kallor:
+  - url: https://chordify.net/es/chords/robert-broberg-songs/det-som-goms-i-sno-chords
+    beskrivning: Ackordöversikt märkt 1991, med C-dur, 130 BPM och återkommande pauser.
+anteckningar:
+  - Sektionsnamn och komprimerade repriser är arbetsförslag. Pauslängderna behöver kontrolleras mot
+    inspelningen.
+  - Taktindelning, antal omtagningar och vissa övergångar är agentens arbetsbedömning, inte en verifierad
+    transkription. Kontrollera mot inspelningen och korrigera efter gehör.

@@ -1,0 +1,111 @@
+# Harmis format 1. En listpost under takter = en skriven takt.
+# Flera ackord i en takt separeras med mellanslag.
+format: 1
+titel: Euforia
+artist: Helen Sjöholm
+version: Så mycket bättre · 2020
+grundtonart: G
+taktart: 4/4
+tempo: 115
+stil: ""
+status: utkast
+delar:
+  - namn: Intro
+    takter:
+      - Em
+      - D
+      - G
+      - C
+  - namn: Vers
+    takter:
+      - ackord: Em
+        repris_start: true
+      - Em
+      - D
+      - C
+      - Em
+      - Em
+      - D
+      - ackord: G
+        repris_slut: true
+  - namn: Refräng
+    takter:
+      - ackord: G
+        repris_start: true
+      - C
+      - Em
+      - D
+      - G
+      - C
+      - Em
+      - ackord: D
+        repris_slut: true
+  - namn: Mellanspel
+    takter:
+      - G
+      - D
+      - G
+      - D
+  - namn: Vers 2
+    takter:
+      - Em
+      - Em
+      - D
+      - C
+      - Em
+      - Em
+      - D
+      - G
+  - namn: Refräng 2
+    takter:
+      - ackord: G
+        repris_start: true
+      - C
+      - Em
+      - D
+      - G
+      - C
+      - Em
+      - ackord: D
+        repris_slut: true
+  - namn: Stick
+    takter:
+      - Bm
+      - Bm
+      - A
+      - A
+      - Em
+      - Em
+      - D
+      - D
+  - namn: Sista refräng
+    takter:
+      - ackord: G
+        repris_start: true
+      - C
+      - Em
+      - D
+      - G
+      - C
+      - Em
+      - ackord: D
+        repris_slut: true
+  - namn: Outro
+    takter:
+      - G
+      - G
+      - C
+      - C
+      - G
+      - C
+      - C
+      - ackord: C
+        slut: true
+kallor:
+  - url: https://chordify.net/chords/euforia-sa-mycket-battre-2020-helen-sjoholm-topic
+    beskrivning: "Analys av Så mycket bättre-versionen: G-dur, 115 BPM och ackordöversikt."
+anteckningar:
+  - Detta är 2020-tolkningen av Loreens Euphoria, inte Helen Sjöholms låt med samma titel från Billy
+    Joel-albumet 2010. Intro, form och repriser är förenklade egna bedömningar.
+  - Taktindelning, antal omtagningar och vissa övergångar är agentens arbetsbedömning, inte en verifierad
+    transkription. Kontrollera mot inspelningen och korrigera efter gehör.

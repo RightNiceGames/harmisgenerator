@@ -1,0 +1,97 @@
+# Harmis format 1. En listpost under takter = en skriven takt.
+# Flera ackord i en takt separeras med mellanslag.
+format: 1
+titel: Sluta aldrig gå
+artist: Sonja Aldén
+version: Melodifestivalen · 2020
+grundtonart: D
+taktart: 4/4
+tempo: 79
+stil: ""
+status: utkast
+delar:
+  - namn: Intro
+    takter:
+      - G
+      - A
+      - D
+      - G
+  - namn: Vers 1
+    takter:
+      - G
+      - D
+      - G
+      - D
+      - Bm
+      - Em
+      - G
+      - A
+  - namn: Brygga
+    takter:
+      - Em D
+      - A
+      - Em D
+      - A
+  - namn: Refräng
+    takter:
+      - G
+      - A
+      - D
+      - G D
+      - Em
+      - A
+      - D
+      - G D
+      - Em
+      - G A
+      - D
+      - D
+  - namn: Vers 2
+    takter:
+      - G
+      - D
+      - G
+      - D
+      - Bm
+      - Em
+      - G
+      - A
+  - namn: Refräng 2
+    takter:
+      - G
+      - A
+      - D
+      - G D
+      - Em
+      - A
+      - D
+      - G D
+      - Em
+      - G A
+  - namn: Sista refräng
+    takter:
+      - ackord: Bb
+        tonart: F
+      - C
+      - F
+      - Bb F
+      - Gm
+      - C
+      - F
+      - Bb F
+      - Gm
+      - C
+      - F
+      - ackord: F
+        slut: true
+kallor:
+  - url: https://www.cifraclub.com/sonja-alden/sluta-aldrig-ga/
+    beskrivning: Ackordskiss med höjning från D till F i sista refrängen. Källans Dm-etikett stämmer inte med den
+      utskrivna D-durharmoniken.
+  - url: https://chordify.net/nl/chords/sonja-alden-songs/sluta-aldrig-ga-chords
+    beskrivning: Kompletterande analys anger D-dur och 79 BPM.
+anteckningar:
+  - Modulationen i sista refrängen är utskriven i ackorden; den flyttas tillsammans med resten vid
+    transponering.
+  - Taktindelning, antal omtagningar och vissa övergångar är agentens arbetsbedömning, inte en verifierad
+    transkription. Kontrollera mot inspelningen och korrigera efter gehör.

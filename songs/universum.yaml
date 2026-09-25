@@ -1,0 +1,77 @@
+# Harmis format 1. En listpost under takter = en skriven takt.
+# Flera ackord i en takt separeras med mellanslag.
+format: 1
+titel: Universum
+artist: Ted Gärdestad
+version: Ted · 1973
+grundtonart: Eb
+taktart: 4/4
+tempo: 79
+stil: ""
+status: utkast
+delar:
+  - namn: Intro
+    takter:
+      - Bbm Bbm/Ab
+      - Eb/G Ab
+      - Eb/G Fm
+      - Fm
+      - Emaj7
+      - Ebm Ebm7/Db
+      - Db Ab/C
+      - Bbm
+  - namn: Vers
+    takter:
+      - ackord: Ebmaj7
+        repris_start: true
+      - ackord: Dbmaj7
+        varianter:
+          - gang: 2
+            ackord: Eb11
+            stamma: bas
+      - Ebmaj7
+      - ackord: Dbmaj7
+        varianter:
+          - gang: 2
+            ackord: Eb11
+            stamma: bas
+      - Ebmaj7
+      - Dbmaj7
+      - Ebmaj7
+      - Bmaj7
+      - Bmaj7
+      - Bmaj7
+      - Bbsus4
+      - ackord: Bbsus4 Bb7
+        slag:
+          - 1
+          - 4
+        rytm:
+          - slag: 1
+            notvarde: 8
+          - slag: 1.5
+            notvarde: 8
+          - slag: 2.5
+            notvarde: 8
+        anvisning: "Rytm: bas"
+    anvisning: Spelas 2 gånger via reprisen efter refrängen
+
+  - namn: Refräng
+    takter:
+      - ackord: Ebm Ebm/Db
+      - Ab/C Db
+      - Ab/C Bbm
+      - Bbm
+      - B
+      - Bbm Bbm/Ab
+      - Ab Cm/G
+      - Fm
+      - Bbm Bbm/Ab
+      - Eb/G Ab
+      - Cm/G Fm
+      - Fm
+      - E
+      - Ebm Ebm/Db
+      - Db Fm/C
+      - ackord: Bbm
+        repris_slut: true

@@ -1,0 +1,93 @@
+# Harmis format 1. En listpost under takter = en skriven takt.
+# Flera ackord i en takt separeras med mellanslag.
+format: 1
+titel: Du måste finnas
+artist: Newkid
+version: Så mycket bättre · 2020
+grundtonart: Eb
+taktart: 4/4
+tempo: 73
+stil: ""
+status: utkast
+delar:
+  - namn: Intro
+    takter:
+      - Eb
+      - Bb/D
+      - Cm
+      - Fm Ab
+      - Bb
+      - Bbsus4
+  - namn: Vers 1
+    takter:
+      - Eb
+      - Bb
+      - Cm Ab
+      - Bb
+      - Gm
+      - Cm
+      - Ab
+      - Fm Bb
+  - namn: Refräng 1
+    takter:
+      - Eb Bb
+      - Cm Gm
+      - Fm Eb/G
+      - Bb
+      - Eb Bb
+      - Cm Ab
+      - Fm Ab
+      - Bb Eb
+  - namn: Vers 2
+    takter:
+      - Eb
+      - Bb
+      - Cm Ab
+      - Bb
+      - Gm
+      - Cm Bb
+      - Ab
+      - Fm Bb
+  - namn: Refräng 2
+    takter:
+      - Eb Bb
+      - Ab Fm
+      - Eb
+      - Bb Eb
+      - Eb Bb
+      - Ab Fm
+      - Ab
+      - Bb Cm
+  - namn: Stick
+    takter:
+      - Cm Bb
+      - Ab
+      - G7
+      - Fm Bb
+  - namn: Sista refräng
+    takter:
+      - Eb Bb/D
+      - Ab Fm
+      - Eb
+      - Bb Eb
+      - Eb Bb/D
+      - Ab Fm
+      - Ab
+      - Bb Eb
+  - namn: Outro
+    takter:
+      - Eb Bb/D
+      - Ab Fm
+      - Eb
+      - Bb
+      - ackord: Eb
+        slut: true
+kallor:
+  - url: https://guitartuna.com/chords/du-maste-finnas-newkid-easy-guitar-chords-61e2adf5b13b759e79eef9a9
+    beskrivning: Ackordskiss i D-grepp med capo 1. Här anges klingande ackord i Eb.
+  - url: https://chordify.net/fr/chords/newkid-du-maste-finnas-lyrics-lyric-video-234
+    beskrivning: "Kompletterande versionsanalys: Eb-dur och 73 BPM."
+anteckningar:
+  - Arbetsformen och ackordens placering i takterna är uppskattade. Gitarrkällans capo är redan inräknat.
+  - Taktindelning, antal omtagningar och vissa övergångar är agentens arbetsbedömning, inte en verifierad
+    transkription. Kontrollera mot inspelningen och korrigera efter gehör.

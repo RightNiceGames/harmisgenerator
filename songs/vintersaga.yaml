@@ -1,0 +1,105 @@
+# Harmis format 1. En listpost under takter = en skriven takt.
+# Flera ackord i en takt separeras med mellanslag.
+format: 1
+titel: Vintersaga
+artist: Sarah Dawn Finer
+version: Grundunderlag från Ted Ströms original
+grundtonart: Em
+taktart: 4/4
+tempo: 94
+stil: ""
+status: utkast
+delar:
+  - namn: Intro
+    takter:
+      - Em
+      - Em
+      - D
+      - Em
+  - namn: Vers
+    takter:
+      - ackord: Em
+        repris_start: true
+      - G
+      - Am
+      - Em
+      - Em
+      - Bm
+      - Am
+      - Em
+      - Em
+      - G
+      - Am
+      - Em
+      - Em
+      - Bm
+      - Am
+      - ackord: Em
+        repris_slut: true
+  - namn: Refräng
+    takter:
+      - C
+      - D
+      - Em
+      - Em
+      - C
+      - D
+      - Em
+      - Em
+  - namn: Mellanspel
+    takter:
+      - Em
+      - G
+      - Am
+      - Em
+      - Em
+      - Bm
+      - Am
+      - Em
+  - namn: Vers 3
+    takter:
+      - Em
+      - G
+      - Am
+      - Em
+      - Em
+      - Bm
+      - Am
+      - Em
+      - Em
+      - G
+      - Am
+      - Em
+      - Em
+      - Bm
+      - Am
+      - Em
+  - namn: Sista refräng
+    takter:
+      - ackord: C
+        repris_start: true
+      - D
+      - Em
+      - Em
+      - C
+      - D
+      - Em
+      - ackord: Em
+        repris_slut: true
+  - namn: Outro
+    takter:
+      - C
+      - D
+      - Em
+      - ackord: Em
+        slut: true
+kallor:
+  - url: https://chordu.com/chords-tabs-ted-str%C3%B6m-vintersaga-id_D1oN97OMyW4
+    beskrivning: "Underlag från Ted Ströms original: E-moll, omkring 94 BPM och harmoniska huvuddrag."
+  - url: https://open.spotify.com/track/3qIPzLuZNTTMeFaoXW5J7G
+    beskrivning: Identifierar den önskade Sarah Dawn Finer-inspelningen på Vinterland, 2014. Ingen ackordkälla.
+anteckningar:
+  - Versionsspecifikt ackordunderlag för Sarah Dawn Finer hittades inte. Detta blad utgår därför från
+    originalet enligt överenskommelsen. Tonart, tempo och form är inte verifierade mot hennes inspelning.
+  - Taktindelning, antal omtagningar och vissa övergångar är agentens arbetsbedömning, inte en verifierad
+    transkription. Kontrollera mot inspelningen och korrigera efter gehör.

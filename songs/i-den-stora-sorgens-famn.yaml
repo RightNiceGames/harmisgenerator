@@ -1,0 +1,74 @@
+# Harmis format 1. En listpost under takter = en skriven takt.
+# Flera ackord i en takt separeras med mellanslag.
+format: 1
+titel: I den stora sorgens famn
+artist: Lisa Nilsson
+version: Lisa Nilssons version
+grundtonart: Bb
+taktart: 4/4
+tempo: 106
+stil: ""
+status: utkast
+delar:
+  - namn: Intro
+    takter:
+      - Bb
+      - Dm/A
+      - Ebmaj/G
+      - Bb
+  - namn: Vers
+    takter:
+      - ackord: Bb
+        repris_start: true
+      - Dm/A
+      - Ebmaj/G
+      - ackord: Bb
+        repris_slut: true
+  - namn: B
+    takter:
+      - Cm
+      - F7sus4
+      - Cm
+      - F7sus4 F7
+      - Gm
+      - Eb
+      - Eb
+      - Bb Cm
+      - F
+      - Bb
+      - F
+  - namn: Vers 2
+    takter:
+      - Bb
+      - F/A
+      - Gm
+      - Eb
+      - Bb
+      - F/A
+      - Gm
+      - Eb
+  - namn: B / avslut
+    takter:
+      - Cm
+      - F
+      - Cm
+      - F
+      - Dm
+      - Gm
+      - Eb
+      - Eb
+      - Bb Cm
+      - F
+      - Bb
+      - ackord: Bb
+        slut: true
+kallor:
+  - url: https://chordu.com/chords-tabs-lisa-nilsson-02-i-den-stora-sorgens-famn-id_S_i73Tn7Q1A
+    beskrivning: "Lisa-versionens identifierade ackordfamilj: Bb, Eb, F, Dm och Gm."
+  - url: https://songbpm.com/%40lisa-nilsson/i-den-stora-sorgens-famn-I-N88NUyC8
+    beskrivning: Tempoanalys för Lisa Nilssons inspelning, 106 BPM.
+anteckningar:
+  - Bb-dur, slashbasar och den fullständiga ackordföljden är här en harmonisk rekonstruktion från den
+    begränsade versionskällan.
+  - Taktindelning, antal omtagningar och vissa övergångar är agentens arbetsbedömning, inte en verifierad
+    transkription. Kontrollera mot inspelningen och korrigera efter gehör.

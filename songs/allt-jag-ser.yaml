@@ -1,0 +1,109 @@
+# Harmis format 1. En listpost under takter = en skriven takt.
+# Flera ackord i en takt separeras med mellanslag.
+format: 1
+titel: Allt jag ser
+artist: Sonja Aldén
+version: Under mitt tak · 2008
+grundtonart: G
+taktart: 4/4
+tempo: 81
+stil: ""
+status: utkast
+delar:
+  - namn: Intro
+    takter:
+      - Em
+      - G
+      - Em
+      - G
+  - namn: Vers
+    takter:
+      - ackord: Em
+        repris_start: true
+      - G
+      - Em
+      - G
+      - C
+      - Am
+      - C
+      - ackord: D
+        repris_slut: true
+  - namn: Refräng
+    takter:
+      - ackord: G
+        repris_start: true
+      - C
+      - Am
+      - D
+      - G
+      - C
+      - Am
+      - ackord: D
+        repris_slut: true
+  - namn: Mellanspel
+    takter:
+      - C
+      - C
+  - namn: Vers 2
+    takter:
+      - Em
+      - G
+      - Em
+      - G
+      - C
+      - Am
+      - C
+      - D
+  - namn: Refräng 2
+    takter:
+      - G
+      - C
+      - Am
+      - D
+      - G
+      - C
+      - Am
+      - D
+  - namn: Stick
+    takter:
+      - Em
+      - C
+      - G
+      - D
+      - Em
+      - C
+      - Am
+      - D
+  - namn: Sista refräng
+    takter:
+      - G
+      - C
+      - Am
+      - D
+      - G
+      - C
+      - Am
+      - D
+  - namn: Outro
+    takter:
+      - Em
+      - C
+      - G
+      - D
+      - Em
+      - C
+      - Am
+      - D
+      - C
+      - C
+      - G
+      - ackord: G
+        slut: true
+kallor:
+  - url: https://chordify.net/es/chords/sonja-alden-songs/allt-jag-ser-chords
+    beskrivning: "Automatisk ackordöversikt för Sonja Aldéns inspelning: G-dur, 81 BPM. Översikten ligger till
+      grund för ackordföljden."
+anteckningar:
+  - Sektionsnamnen och reprisplaceringen är egna förslag.
+  - Taktindelning, antal omtagningar och vissa övergångar är agentens arbetsbedömning, inte en verifierad
+    transkription. Kontrollera mot inspelningen och korrigera efter gehör.

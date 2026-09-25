@@ -1,0 +1,96 @@
+# Harmis format 1. En listpost under takter = en skriven takt.
+# Flera ackord i en takt separeras med mellanslag.
+format: 1
+titel: Vilken värld det ska bli
+artist: Carola, Per-Erik Hallin
+version: Duett · underlag i F
+grundtonart: F
+taktart: 4/4
+tempo: 86
+stil: ""
+status: utkast
+delar:
+  - namn: Intro
+    takter:
+      - F
+      - Bb/F
+      - F
+      - F
+  - namn: Vers
+    takter:
+      - ackord: F
+        repris_start: true
+      - Gm
+      - F/A
+      - Bb
+      - F/C A7/C#
+      - Dm
+      - Asus4 A7
+      - Dm
+      - Gsus4
+      - G
+      - Db7b5
+      - Db7b5
+      - F/C
+      - Bb/C
+      - C7
+      - ackord: F
+        repris_slut: true
+  - namn: Refräng
+    takter:
+      - Bbm7
+      - Eb7
+      - Abmaj7 Gm7
+      - Fm7
+      - Bbm7
+      - Eb7
+      - Abmaj7
+      - Abmaj7
+      - Gm7
+      - C7
+      - Am
+      - Dm
+      - Gsus4
+      - G
+      - C11
+      - C7
+  - namn: Vers / solo
+    takter:
+      - F
+      - Gm
+      - F/A
+      - Bb
+      - F/C A7/C#
+      - Dm
+      - Asus4 A7
+      - Dm
+      - Gsus4
+      - G
+      - Db7b5
+      - Db7b5
+      - F/C
+      - Bb/C
+      - C7
+      - F
+  - namn: Coda
+    takter:
+      - Dm7
+      - G7sus4/D G7/D
+      - G7/Db Bbm7/Db
+      - F/C
+      - Bb/C
+      - C7
+      - F
+      - ackord: F
+        slut: true
+    skuggad: true
+kallor:
+  - url: https://www.guitartabsexplorer.com/carola/vilken-varld-det-ska-bli-chords
+    beskrivning: Detaljerad ackordskiss i F med vers, refräng, solo och avslut.
+  - url: https://chordify.net/fr/chords/carola-per-erik-hallin-songs/vilken-varld-det-skall-bli-chords
+    beskrivning: Duettanalys i F, 86 BPM. Avser en utgåva på Sexton duetter med svenska artister.
+anteckningar:
+  - Exakt Rättviks kyrka-version kunde inte säkerställas. Här används tillgängligt duettunderlag i F. Solo och
+    sista vers delar ackordform i arbetsbladet.
+  - Taktindelning, antal omtagningar och vissa övergångar är agentens arbetsbedömning, inte en verifierad
+    transkription. Kontrollera mot inspelningen och korrigera efter gehör.

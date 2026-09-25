@@ -1,0 +1,97 @@
+# Harmis format 1. En listpost under takter = en skriven takt.
+# Flera ackord i en takt separeras med mellanslag.
+format: 1
+titel: Jag vet att du kan höra mig
+artist: Sonja Aldén
+version: Under mitt tak · 2008
+grundtonart: Eb
+taktart: 4/4
+tempo: 125
+stil: ""
+status: utkast
+delar:
+  - namn: Intro
+    takter:
+      - Eb
+      - Ab
+      - Eb
+      - Bb
+  - namn: Vers 1
+    takter:
+      - Eb
+      - Bb/D
+      - Cm
+      - Ab
+      - Eb/G
+      - Ab
+      - Fm
+      - Bb
+      - Eb
+      - Bb/D
+      - Cm
+      - Ab
+      - Fm
+      - Ab
+      - Bb
+      - Bb
+  - namn: Refräng
+    takter:
+      - Ab
+      - Bb
+      - Eb
+      - Eb
+      - Ab
+      - Bb
+      - Cm
+      - Cm
+      - Ab
+      - Bb
+      - Eb/G
+      - Cm
+      - F
+      - F
+      - Bb
+      - Bb
+  - namn: Vers 2
+    takter:
+      - Eb
+      - Bb/D
+      - Cm
+      - Ab
+      - Eb/G
+      - Ab
+      - Fm
+      - Bb
+  - namn: Refräng 2
+    takter:
+      - Ab
+      - Bb
+      - Eb
+      - Eb
+      - Ab
+      - Bb
+      - Cm
+      - Cm
+      - Ab
+      - Bb
+      - Eb/G
+      - Cm
+      - F
+      - F
+      - Bb
+      - Bb
+  - namn: Outro
+    takter:
+      - Ab
+      - Bb
+      - Eb
+      - ackord: Eb
+        slut: true
+kallor:
+  - url: https://chordify.net/fr/chords/sonja-alden-songs/jag-vet-att-du-kan-hora-mig-chords
+    beskrivning: Begränsad analys anger Eb-dur, 125 BPM och ackorden Ab, Bb, Eb och F.
+anteckningar:
+  - Källan visar ingen komplett ackordföljd. Form, slashbasar, mollackord och ackordplaceringar är egna
+    harmoniska gissningar. Kontrollera särskilt F-dur och versernas harmonik.
+  - Taktindelning, antal omtagningar och vissa övergångar är agentens arbetsbedömning, inte en verifierad
+    transkription. Kontrollera mot inspelningen och korrigera efter gehör.
