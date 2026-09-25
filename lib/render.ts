@@ -85,7 +85,8 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont): ChartP
       const hasHouse = !!house || row.cells.some(({ bar }) => bar.hus);
       const overhead = hasHouse ? 8 : 0;
       const labelSpace = first ? 7 : 0;
-      const rhythmExtra = row.cells.some(({ bar }) => bar.rytm || bar.slag) ? 18 : 0;
+      const rhythmLabelSpace = row.cells.some(({ bar }) => bar.rytm && bar.anvisning) ? 10 : 0;
+      const rhythmExtra = (row.cells.some(({ bar }) => bar.rytm || bar.slag) ? 18 : 0) + rhythmLabelSpace;
       const variantCount = Math.max(0, ...row.cells.map(({ bar }) => bar.varianter?.length ?? 0));
       const extra = rhythmExtra + variantCount * 32;
       const cellBottom = 32 + extra;
@@ -142,16 +143,17 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont): ChartP
           drawChords(variant.ackord, base+61, variant.slag, .7);
         });
         if (bar.rytm) {
+          if (bar.anvisning) fitText(x+6,y+17,bar.anvisning,6.3,CW-12,false,ACCENT);
           const beatLabels = new Set([...Array.from({length:beats},(_,i)=>i+1), ...bar.rytm.map(n=>n.slag)]);
           for (const beat of [...beatLabels].sort((a,b)=>a-b)) {
             const bx = beatX(beat);
             const whole = Math.floor(beat), fraction = beat-whole;
             const label = fraction === .5 ? `${whole}å` : fraction === 0 ? String(whole) : String(beat).replace('.', ',');
-            text(bx-2,y+17,label,5,false,GREY);
-            line(bx,y+20,bx,y+32,.3,'#dddddd');
+            text(bx-2,y+17+rhythmLabelSpace,label,5,false,GREY);
+            line(bx,y+20+rhythmLabelSpace,bx,y+32+rhythmLabelSpace,.3,'#dddddd');
           }
           const durations = {1:'whole',2:'half',4:'quarter',8:'eighth',16:'sixteenth'} as const;
-          for (const event of bar.rytm) note(beatX(event.slag), y+27, durations[event.notvarde]);
+          for (const event of bar.rytm) note(beatX(event.slag), y+27+rhythmLabelSpace, durations[event.notvarde]);
           if (bar.break) text(x+6,y+39+extra,'BREAK',6.3,true,ACCENT);
         }
         if (bar.synkop) {
@@ -169,7 +171,7 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont): ChartP
             if (bar.break) text(x+6,y+39+extra,'BREAK',6.3,true,ACCENT);
           }
         } else if (bar.break && !bar.rytm) { note(x+19,y+13.5,'quarter'); text(x+31,y+12.5,'BREAK',6.2,true,ACCENT); }
-        const instructions = [bar.anvisning, bar.tonart ? pretty(bar.tonart) : '', bar.taktart, bar.slut ? 'SLUT' : ''].filter(Boolean).join(' · ');
+        const instructions = [bar.rytm ? undefined : bar.anvisning, bar.tonart ? pretty(bar.tonart) : '', bar.taktart, bar.slut ? 'SLUT' : ''].filter(Boolean).join(' · ');
         if (instructions) fitText(x+6,y+39+extra,instructions,6.3,CW-12,false,ACCENT);
         if (bar.coda) { coda(x+CW-13,y+9); if (bar.coda === 'hopp') text(x+CW-48,y+8,'Till',5.5,false,ACCENT); }
         if (bar.segno) { text(x+CW-26,y+12,'S',12,true,ACCENT); line(x+CW-28,y+14,x+CW-14,y,.8,ACCENT); circle(x+CW-28,y+4,1,ACCENT); circle(x+CW-14,y+12,1,ACCENT); }
