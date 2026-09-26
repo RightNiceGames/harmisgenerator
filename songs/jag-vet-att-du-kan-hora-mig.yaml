@@ -123,26 +123,29 @@ delar:
       - Gm
       - C
       - ackord: Dm C
-        rytm:
-          - slag: 1
-            notvarde: 4
-          - slag: 3
-            notvarde: 4
         slag:
           - 1
           - 3
-        anvisning: MARKERINGAR
       - ackord: Gm/Bb F/A
         slag:
           - 1
           - 3
+        anvisning: MARKERINGAR
         rytm:
           - slag: 1
             notvarde: 4
           - slag: 3
             notvarde: 4
-      - Gm
-      - F/C C
+      - ackord: Gm
+        rytm:
+          - slag: 1
+            notvarde: 4
+            text: Break
+      - ackord: F/C C
+        rytm:
+          - slag: 1
+            notvarde: 4
+            text: ritardando
       - ackord: F
         anvisning: Break (låt klinga) - (Intro Piano)
 

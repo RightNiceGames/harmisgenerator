@@ -158,40 +158,41 @@ delar:
         repris_start: true
       - ackord: E
       - ackord: F#m
-      - ackord: F#m
+      - ackord: (B11)
         repris_slut: true
         anvisning: Vidare på cue (Breaka på 4e takt!)
         break: true
   - namn: Du måste finnas · Refräng
-    anvisning: Direkt in · bas och keys
+    anvisning: Direkt in · Keys
     sidbrytning: true
     takter:
-      - ackord: Eb Bb/D
+      - ackord: E B/D#
         tonart: Eb
         taktart: 4/4
-      - ackord: Ab Eb/G
+      - ackord: A E/G#
         anvisning: Ab/C i Intro
-      - ackord: Fm Fm7/Eb
-      - ackord: Bb/D Eb Bb/D
+      - ackord: F#m F#m7/E
+      - ackord: B/D# E B/D#
         slag: [ 1, 3, 4 ]
-      - ackord: Eb Bb/D
-      - ackord: Ab Eb/G
+      - ackord: E B/D#
+      - ackord: A E/G#
         anvisning: Ab/C i Intro
-      - ackord: Fm Fm7/Eb
-      - ackord: Bb/D Bb/D
-      - ackord: Eb
-      - ackord: Eb
+      - ackord: F#m F#m7/E
+      - ackord: B/D# B/D#
+      - ackord: E
+      - ackord: E
   - namn: Du måste finnas · Vers
     anvisning: Trummor in · Vem skulle känna min ånger
     takter:
-      - ackord: Eb
-      - ackord: Bb
-      - ackord: Cm Ab
-      - ackord: Bb
-      - ackord: Gm
-      - ackord: Cm Bb
-      - ackord: Ab Cm/G
-      - ackord: Fm N.C
+      - ackord: E
+        anvisning: BAS IN
+      - ackord: B
+      - ackord: C#m A
+      - ackord: B
+      - ackord: G#m
+      - ackord: C#m B
+      - ackord: A C#m/G#
+      - ackord: F#m N.C
         slag: [ 1, 3 ]
         anvisning: BREAK på N.C
 
@@ -201,10 +202,10 @@ delar:
   - namn: Du måste finnas · Gitarrövergång
     anvisning: Bara gitarr · direkt vidare till Tro
     takter:
-      - Cm Bb
-      - Ab
-      - G7
-      - Fm Bb7
+      - C#m B
+      - A
+      - G#7
+      - F#m B7
   - namn: Tro · Refräng
     anvisning: Tro, jag vill känna tro
     sidbrytning: true
@@ -240,7 +241,7 @@ delar:
       - ackord: G/B A/C#
         taktart: 2/4
   - ateranvand: Tro · Refräng
-    ganger: 2
+    ganger: 1
     anvisning: "Därefter stick/solo."
   - namn: Tro · Stick / solo
     anvisning: Na, na, na … · 8 takter, harmonik som förslag
