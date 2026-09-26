@@ -23,6 +23,7 @@ delar:
   - namn: Vers
     takter:
       - ackord: Ebmaj7
+        anvisning: Bas In
       - ackord: Dbmaj7
         varianter:
           - gang: 2
@@ -48,10 +49,13 @@ delar:
         rytm:
           - slag: 1
             notvarde: 8
+            text: Bb
           - slag: 1.5
             notvarde: 8
+            text: F
           - slag: 2.5
             notvarde: 8
+            text: Bb
         anvisning: "Rytm: bas"
 
   - namn: Refräng
@@ -59,7 +63,20 @@ delar:
       - ackord: Ebm Ebm/Db
       - Ab/C Db
       - Ab/C Bbm
-      - Bbm
+      - ackord: Bbm
+        rytm:
+          - slag: 3
+            notvarde: 8
+            text: Bb
+          - slag: 3.5
+            notvarde: 8
+            text: C
+          - slag: 4
+            notvarde: 8
+            text: Db
+          - slag: 4.5
+            notvarde: 8
+            text: Eb
       - B
       - Bbm Bbm/Ab
       - Ab Cm/G
@@ -67,7 +84,20 @@ delar:
       - Bbm Bbm/Ab
       - Eb/G Ab
       - Cm/G Fm
-      - Fm
+      - ackord: Fm
+        rytm:
+          - slag: 3
+            notvarde: 8
+            text: F
+          - slag: 3.5
+            notvarde: 8
+            text: Bb
+          - slag: 4
+            notvarde: 8
+            text: G
+          - slag: 4.5
+            notvarde: 8
+            text: F
       - E
       - Ebm Ebm/Db
       - Db Fm/C

@@ -4,7 +4,7 @@ format: 1
 titel: Euforia
 artist: Helen Sjöholm
 version: Så mycket bättre · 2020
-grundtonart: G
+grundtonart: C
 taktart: 4/4
 tempo: 115
 stil: ""
@@ -12,95 +12,71 @@ status: utkast
 delar:
   - namn: Intro
     takter:
-      - Em
-      - D
-      - G
-      - C
+      - C G F
   - namn: Vers
     takter:
-      - ackord: Em
+      - ackord: Am
         repris_start: true
-      - Em
-      - D
-      - C
-      - Em
-      - Em
-      - D
-      - ackord: G
+      - G F
+      - Am
+      - ackord: G/B C
         repris_slut: true
   - namn: Refräng
     takter:
-      - ackord: G
+      - ackord: Em D
         repris_start: true
-      - C
-      - Em
-      - D
-      - G
-      - C
-      - Em
-      - ackord: D
+      - G G/B C
+      - Em D
+      - ackord: G D C
         repris_slut: true
+        hus: "1."
+        hus_slut: true
   - namn: Mellanspel
     takter:
-      - G
-      - D
-      - G
-      - D
+      - ackord: G D/G C/G
+        anvisning: BAS IN
   - namn: Vers 2
     takter:
+      - ackord: Em
+        anvisning: Komp
+      - D C
       - Em
+      - D/F# G
       - Em
-      - D
-      - C
-      - Em
-      - Em
-      - D
-      - G
+      - D C
+      - ackord: Em
+        rytm:
+          - slag: 4
+            notvarde: 4
+            text: F#
+      - G D C
   - namn: Refräng 2
     takter:
-      - ackord: G
+      - ackord: Em D
         repris_start: true
-      - C
-      - Em
-      - D
-      - G
-      - C
-      - Em
-      - ackord: D
+      - G G/B C
+      - Em D
+      - ackord: G D C
         repris_slut: true
+        fermat: 3
   - namn: Stick
     takter:
-      - Bm
-      - Bm
-      - A
-      - A
-      - Em
-      - Em
-      - D
-      - D
-  - namn: Sista refräng
-    takter:
-      - ackord: G
-        repris_start: true
-      - C
-      - Em
-      - D
-      - G
-      - C
-      - Em
-      - ackord: D
-        repris_slut: true
+      - D A/D G/D
+      - "%"
+      - "%"
+      - "%"
+      - Bm A
+  - ateranvand: Refräng
+    anvisning: Första refrängen (kortare)
+
   - namn: Outro
     takter:
-      - G
-      - G
-      - C
-      - C
-      - G
-      - C
-      - C
-      - ackord: C
+      - G D/G C/G
+      - G D/G C/G
+      - G D/G C/G
+      - ackord: G D/G C/G
         slut: true
+        fermat: 3
 kallor:
   - url: https://chordify.net/chords/euforia-sa-mycket-battre-2020-helen-sjoholm-topic
     beskrivning: "Analys av Så mycket bättre-versionen: G-dur, 115 BPM och ackordöversikt."

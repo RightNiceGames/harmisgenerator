@@ -15,75 +15,62 @@ delar:
       - F
       - Bb/F
       - F
-      - F
+      - C11
   - namn: Vers
     takter:
       - ackord: F
         repris_start: true
-      - Gm
+      - Gm7
       - F/A
       - Bb
-      - F/C A7/C#
-      - Dm
-      - Asus4 A7
-      - Dm
-      - Gsus4
-      - G
-      - Db7b5
-      - Db7b5
-      - F/C
-      - Bb/C
-      - C7
-      - ackord: F
+      - F/C A7/C# Dm
+      - Em7b5 A7#5 Dm
+      - ackord: Gsus4
+        coda: mal
+      - ackord: G Db7b5
+        varianter:
+          - gang: 4
+            ackord: G7 Bdim7
+      - F/C Dm7
+      - ackord: Gm7 C7
+        anvisning: --------------------------Börjar om här 3e
+
+      - F
+      - ackord: C11
         repris_slut: true
+        hus: "1."
+        hus_slut: true
+      - ackord: F F/A
+        kolumn: 3
+        hus: "2."
+        hus_slut: true
   - namn: Refräng
     takter:
-      - Bbm7
-      - Eb7
-      - Abmaj7 Gm7
-      - Fm7
-      - Bbm7
-      - Eb7
+      - Bbm7 Eb7
+      - Abmaj7 Fm7
+      - Bbm7 Bbm7/Eb Eb7
       - Abmaj7
-      - Abmaj7
-      - Gm7
-      - C7
-      - Am
-      - Dm
-      - Gsus4
-      - G
+      - Gm7 Gm11 Gm7
+      - F Am7 Dm7
+      - G11 G7
       - C11
-      - C7
-  - namn: Vers / solo
+      - C11
+  - ateranvand: Vers
+    ganger: 2
+    anvisning: 1:a gången, börja om efter takt 14. Andra gången med Piano nice med special dim ackord och sång
+  - namn: Ny del
     takter:
       - F
-      - Gm
-      - F/A
-      - Bb
-      - F/C A7/C#
-      - Dm
-      - Asus4 A7
-      - Dm
-      - Gsus4
-      - G
-      - Db7b5
-      - Db7b5
-      - F/C
-      - Bb/C
-      - C7
-      - F
-  - namn: Coda
-    takter:
-      - Dm7
-      - G7sus4/D G7/D
-      - G7/Db Bbm7/Db
-      - F/C
-      - Bb/C
-      - C7
-      - F
-      - ackord: F
+      - Dm6
+      - Dm11 G7
+      - ackord: Db7b5 C7sus4
+        fermat: 2
+      - F/C Dm7
+      - Gm7 C11 C7
+      - ackord: Fadd9
         slut: true
-    skuggad: true
+        fermat: 1
+
 kallor:
   - url: https://www.guitartabsexplorer.com/carola/vilken-varld-det-ska-bli-chords
     beskrivning: Detaljerad ackordskiss i F med vers, refräng, solo och avslut.

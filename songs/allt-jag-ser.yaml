@@ -20,6 +20,7 @@ delar:
     takter:
       - ackord: Em
         repris_start: true
+        anvisning: Bas in på 2a
       - G
       - Em
       - G
@@ -34,36 +35,17 @@ delar:
         repris_start: true
       - C
       - Am
-      - D
-      - G
-      - C
-      - Am
       - ackord: D
         repris_slut: true
   - namn: Mellanspel
     takter:
       - C
-      - C
-  - namn: Vers 2
-    takter:
-      - Em
-      - G
-      - Em
-      - G
-      - C
-      - Am
-      - C
-      - D
-  - namn: Refräng 2
-    takter:
-      - G
-      - C
-      - Am
-      - D
-      - G
-      - C
-      - Am
-      - D
+      - ackord: C
+        break: true
+  - ateranvand: Vers
+    anvisning: Utan Repeat
+  - ateranvand: Refräng
+    anvisning: Med Repeat
   - namn: Stick
     takter:
       - Em
@@ -74,16 +56,9 @@ delar:
       - C
       - Am
       - D
-  - namn: Sista refräng
-    takter:
-      - G
-      - C
-      - Am
-      - D
-      - G
-      - C
-      - Am
-      - D
+  - ateranvand: Refräng
+    anvisning: Sista (med Repeat)
+
   - namn: Outro
     takter:
       - Em

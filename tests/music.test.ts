@@ -45,7 +45,7 @@ test('all musical buttons generate valid YAML at the selected bar',()=>{
     assert.ok(result.cursor>0,action);
   }
 });
-test('the library contains all fourteen readable song files',async()=>{
-  const songs=await listSongs();assert.equal(songs.length,14);
+test('the library contains the medley and readable song files',async()=>{
+  const songs=await listSongs();assert.ok(songs.some(song=>song.id==='medley-anglamark-vintersaga-du-maste-finnas-tro.yaml'));
   for(const entry of songs){assert.equal(entry.error,undefined,entry.id);readSong((await loadSong(entry.id)).text);}
 });

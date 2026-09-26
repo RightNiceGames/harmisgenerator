@@ -4,7 +4,7 @@ format: 1
 titel: Himlen på besök
 artist: Clas Vårdstedt, Michael Ruff
 version: Mitt hjärta hos dig · 2017
-grundtonart: D
+grundtonart: G
 taktart: 4/4
 tempo: 72
 stil: ""
@@ -12,81 +12,204 @@ status: utkast
 delar:
   - namn: Intro
     takter:
-      - Dadd9
-      - A/C#
-      - Bm7
-      - Gmaj7
+      - ackord: Em D/F#
+        anvisning: Piano och Bas
+      - G G/B C
+      - Am G/B
+      - Cmaj7 D
+      - G
   - namn: Vers 1
     takter:
-      - D
-      - A/C#
-      - Bm7
-      - F#m7
-      - Gmaj7
-      - D/F#
-      - Em7
-      - Asus4 A
-      - D
-      - A/C#
-      - Bm7
-      - F#m7
-      - G
-      - Em7
-      - Asus4
-      - A
+      - ackord: G C
+        anvisning: Piano
+      - Dsus4 D
+      - G C
+      - Dsus4 D
+      - Em Bm
+      - ackord: C Em/B
+        slag:
+          - 1
+          - 4
+      - Am7 G/B
+      - Dsus4 D
+      - ackord: G C
+        anvisning: Bas in
+      - ackord: D C/E D/F#
+        slag:
+          - 1
+          - 3
+          - 4
+      - G C
+      - Dsus4 D7
+      - Em Bm
+      - ackord: C Em/B
+        slag:
+          - 1
+          - 4.5
+      - Am7 G/B
+      - Dsus4 D
   - namn: Refräng
     takter:
+      - C/E D/F#
       - G
-      - A
-      - D/F#
-      - Bm7
-      - Em7
-      - A
-      - D
-      - D
+      - Am7 G/B
+      - C
+      - D C/E
+      - ackord: D/F#
+        rytm:
+          - slag: 3.5
+            notvarde: 8
+            text: F#
+          - slag: 4
+            notvarde: 8
+            text: G
+          - slag: 4.5
+            notvarde: 8
+            text: F#
+      - ackord: C Dsus4 D
+        slag:
+          - 1
+          - 3
+          - 4
       - G
-      - A
-      - F#m7
-      - Bm7
-      - Em7
-      - Asus4 A
-      - D
-      - D
   - namn: Vers 2
     takter:
-      - D
-      - A/C#
-      - Bm7
-      - F#m7
-      - Gmaj7
-      - D/F#
-      - Em7
-      - Asus4 A
+      - ackord: G C
+        anvisning: Piano
+      - Dsus4 D
+      - G C
+      - Dsus4 D
+      - Em Bm
+      - ackord: C E/G#
+        slag:
+          - 1
+          - 4.5
+      - Am7 G/B A/C#
+      - Dsus4 D
+      - ackord: G C
+        anvisning: Bas in
+      - ackord: D
+        anvisning: ----------------------------basfill
+      - G C
+      - Dsus4 D7
+      - Em Bm
+      - ackord: C Em/B
+        slag:
+          - 1
+          - 4.5
+      - Am7 D
+      - ackord: G
+        rytm:
+          - slag: 2
+            notvarde: 8
+            text: Am7
+          - slag: 2.5
+            notvarde: 8
+            text: G/B
+          - slag: 3
+            notvarde: 8
+            text: C
+          - slag: 3.5
+            notvarde: 8
+            text: D
+          - slag: 4
+            notvarde: 8
+            text: C/E
+          - slag: 4.5
+            notvarde: 8
+            text: D/F#
   - namn: Sista refräng
     takter:
+      - C/E D/F#
+      - ackord: G
+        anvisning: -----------------------------Fill
+      - Am7 G/B
+      - C
+      - D C/E
+      - ackord: D/F#
+      - ackord: C Dsus4 D
+        slag:
+          - 1
+          - 3
+          - 4
       - G
-      - A
-      - D/F#
-      - Bm7
-      - Em7
-      - A
-      - D
-      - D
-      - G
-      - A
-      - F#m7
-      - Bm7
-      - Em7
-      - Asus4 A
-      - D
-      - D
   - namn: Outro
     takter:
-      - Gmaj7
-      - A
-      - Dadd9
-      - ackord: Dadd9
+      - ackord: Cmaj7
+        anvisning: Piano
+      - G/B
+      - Am D
+      - ackord: Gadd9 G/B
+        slag:
+          - 1
+          - 4
+      - Cmaj7
+      - G/B
+      - ackord: Am D B/D#
+        anvisning: Bas in
+        slag:
+          - 1
+          - 3
+          - 4
+      - ackord: Em
+        rytm:
+          - slag: 3
+            notvarde: 8
+            text: G
+          - slag: 3.5
+            notvarde: 8
+            text: F#
+          - slag: 4
+            notvarde: 8
+            text: E
+          - slag: 4.5
+            notvarde: 8
+            text: D
+      - ackord: C D
+        rytm:
+          - slag: 1.5
+            notvarde: 8
+            text: B
+          - slag: 2
+            notvarde: 8
+            text: A
+          - slag: 2.5
+            notvarde: 8
+            text: G
+        slag:
+          - 1
+          - 3
+      - Gsus4 G
+  - namn: Slutvers
+    takter:
+      - ackord: G C
+        anvisning: Piano
+      - Dsus4 D
+      - G C
+      - Dsus4 D/F#
+      - ackord: Em Bm
+        anvisning: BAS IN
+      - ackord: C
+      - ackord: C D/F#
+        anvisning: Piano
+      - ackord: Em Bm
+        slag: [ 1, 4 ]
+        anvisning: Basfill
+      - ackord: Am G
+        anvisning: Bas med
+      - ackord: C Dsus4 D
+        slag:
+          - 1
+          - 3
+          - 4
+        fermat: 3
+      - ackord: Em C Am D
+        fermat: 4
+        anvisning: Bas och Piano
+      - ackord: G
+        fermat: 1
         slut: true
+
 kallor:
   - url: https://songdata.io/track/3342mYdY7Z5HHhUNj5fJ6A/Himlen-p-besk-by-Clas-Vrdstedt-Michael-Ruff
     beskrivning: Identifierar inspelningen på Mitt hjärta hos dig och anger D-dur samt 143 BPM.

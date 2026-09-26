@@ -1,0 +1,275 @@
+# Medleyutkast. Varje post är en takt, utom gitarrintro och fritt slut som är ackordrutor i fri tid.
+format: 1
+titel: Medley · Änglamark / Vintersaga / Du måste finnas / Tro
+artist: Medley
+grundtonart: Bb
+taktart: 6/8
+status: utkast
+version: Repetitionsutkast efter angiven text och form
+anteckningar:
+  - "Tonarter: Änglamark Bb, Vintersaga Fm, Du måste finnas Eb, Tro D. Änglamark i 6/8 enligt användaren;
+    därefter 4/4 enligt de befintliga låtfilerna. Taktartsbytet anges vid Vintersagas rubatointro; fast puls
+    börjar vid versen."
+  - Formen följer användarens text. Taktgränser och ackordplacering utgår från projektets uppskattade låtfiler
+    och är inte en verifierad transkription. Kontrollera på repetition, särskilt Änglamarks frasering i 6/8.
+  - "Änglamark: A en gång (8 takter), B (8), C två gånger utskrivet (16), A / variation (10). Inget
+    ursprungligt intro, mellanspel eller C-avslut. Textkopplingen kontrollerad mot ackordskissen."
+  - "Vintersaga: originalunderlaget transponerat Em till Fm. Rubatointrots fyra ackordrutor anger fri tid,
+    inte fyra pulsbundna takter. Vers 1 (16), refräng (8), vers 2 (16), refräng två gånger (8+8), sista fyra
+    takterna i sololoop tills cue."
+  - "Du måste finnas: samma refrängharmonik i båda återkomsterna, hämtad från Sista refräng i underlaget (8
+    takter). Vers 2 används till Vem skulle känna min ånger (8 takter). Textkoppling och taktgränser är
+    uppskattade. Gitarrövergångens fyra takter är exakt de användaren angav."
+  - "Tro: refräng (16), vers (16), refräng två gånger (16+16), stick/solo (8), hel sista refräng (16),
+    förkortat andra varv (8) och break med fritt slut. Soloharmoniken och avslutets två ackordrutor är
+    förslag. Första refrängens Bm följer lokalfilen, senare refränger använder Em; kontrollera mot ert
+    arrangemang."
+kallor:
+  - url: https://www.chords-and-tabs.net/song/name/lisa-nilsson-anglamark
+    beskrivning: Textkoppling för Änglamarks A-, B- och C-delar. Taktantal från lokalfilen.
+delar:
+  - namn: Änglamark · Refräng
+    anvisning: Kalla den änglamarken
+    takter:
+      - ackord: Bb
+        anvisning: Kalla den änglamarken
+        tonart: Bb
+        taktart: 6/8
+      - ackord: Cm/Bb
+      - ackord: F/Bb
+      - ackord: Bb
+      - ackord: Bb
+        anvisning: Vildrosor och blåklockor
+      - ackord: Cm/Bb
+      - ackord: F/Bb
+      - ackord: Bb
+  - namn: Änglamark · Vers, del 1
+    anvisning: Låt barnen dansa
+    takter:
+      - ackord: Eb/Bb Cm/Bb
+        anvisning: Låt barnen dansa
+      - ackord: F/Bb Bb
+      - ackord: Eb/Bb Cm/Bb
+      - ackord: F/Bb Bb
+      - ackord: Eb/Bb Cm/Bb
+        anvisning: Låt fåglar leva
+      - ackord: F/Bb Bb
+      - ackord: Eb/Bb Cm/Bb
+      - ackord: F/Bb Bb
+  - namn: Änglamark · Vers, del 2
+    anvisning: BAS IN - Sluta att utrota / Låt sista älven
+    takter:
+      - ackord: Gm
+        anvisning: BAS IN
+      - ackord: D7/G Gm
+      - ackord: Gm
+      - ackord: D7/G Gm
+      - ackord: Gm
+      - ackord: D7/G Gm
+      - ackord: Gm
+      - ackord: D7/G Gm
+  - namn: Änglamark · Sista refräng
+    anvisning: Kalla den änglamarken · därefter Vintersaga
+    takter:
+      - ackord: Bb Bb/D
+      - ackord: Eb6
+      - ackord: Cm
+      - ackord: F Gm F/A
+      - ackord: Ebm/Bb Bb
+      - ackord: Bb Bb/D
+      - ackord: Eb6 Cm/Eb
+      - ackord: Cm F7
+      - ackord: F Gm F/A
+      - ackord: Ebm/Bb Bb
+  - namn: Vintersaga · Gitarrintro
+    anvisning: Rubato · fri tid, ackordföljd som förslag
+    sidbrytning: true
+    takter:
+      - ackord: F#m
+        tonart: F#m
+        fermat: 1
+  - namn: Vintersaga · Vers 1
+    anvisning: En kusttanker … Flämtande ljus
+    takter:
+      - ackord: F#m
+        fermat: 1
+      - ackord: A
+        fermat: 1
+      - ackord: Bm
+        fermat: 1
+      - ackord: F#m
+        fermat: 1
+      - ackord: F#m
+        fermat: 1
+      - ackord: Am
+        fermat: 1
+      - ackord: Bm
+        fermat: 1
+      - ackord: F#m
+        fermat: 1
+      - ackord: F#m
+        anvisning: A tempo
+        taktart: 4/4
+      - ackord: A
+      - ackord: Bm
+      - ackord: F#m
+      - ackord: F#m
+      - ackord: A
+      - ackord: Bm
+      - ackord: F#m
+  - namn: Vintersaga · Refräng
+    anvisning: Det är då som det stora vemodet rullar in
+    takter:
+      - ackord: D
+      - ackord: E
+      - ackord: F#m
+      - ackord: F#m
+      - ackord: D
+      - ackord: E
+      - ackord: F#m
+      - ackord: F#m
+  - namn: Vintersaga · Vers 2
+    anvisning: I Malmö … Stockholm city
+    takter:
+      - ackord: F#m
+        anvisning: BAS IN (+Trummor) - I Malmö rispas dimman
+      - ackord: A
+      - ackord: Bm
+      - ackord: F#m
+      - ackord: F#m
+      - ackord: A
+      - ackord: Bm
+      - ackord: F#m
+      - ackord: F#m
+      - ackord: A
+      - ackord: Bm
+      - ackord: F#m
+      - ackord: F#m
+      - ackord: C#m/E
+      - ackord: Bm/D
+      - ackord: F#m
+  - ateranvand: Vintersaga · Refräng
+    ganger: 2
+    anvisning: Refräng + extra repris. Därefter sololoop.
+  - namn: Vintersaga · Solo på cue
+    anvisning: Sista 4 takterna · upprepa fritt till cue
+    takter:
+      - ackord: D
+        repris_start: true
+      - ackord: E
+      - ackord: F#m
+      - ackord: F#m
+        repris_slut: true
+        anvisning: Vidare på cue (Breaka på 4e takt!)
+        break: true
+  - namn: Du måste finnas · Refräng
+    anvisning: Direkt in · bas och keys
+    sidbrytning: true
+    takter:
+      - ackord: Eb Bb/D
+        tonart: Eb
+        taktart: 4/4
+      - ackord: Ab Eb/G
+        anvisning: Ab/C i Intro
+      - ackord: Fm Fm7/Eb
+      - ackord: Bb/D Eb Bb/D
+        slag: [ 1, 3, 4 ]
+      - ackord: Eb Bb/D
+      - ackord: Ab Eb/G
+        anvisning: Ab/C i Intro
+      - ackord: Fm Fm7/Eb
+      - ackord: Bb/D Bb/D
+      - ackord: Eb
+      - ackord: Eb
+  - namn: Du måste finnas · Vers
+    anvisning: Trummor in · Vem skulle känna min ånger
+    takter:
+      - ackord: Eb
+      - ackord: Bb
+      - ackord: Cm Ab
+      - ackord: Bb
+      - ackord: Gm
+      - ackord: Cm Bb
+      - ackord: Ab Cm/G
+      - ackord: Fm N.C
+        slag: [ 1, 3 ]
+        anvisning: BREAK på N.C
+
+  - ateranvand: Du måste finnas · Refräng
+    ganger: 1
+    anvisning: Förslag (2å) på ackord 2 i varje takt. Alla spelar. Därefter fyra takter bara gitarr.
+  - namn: Du måste finnas · Gitarrövergång
+    anvisning: Bara gitarr · direkt vidare till Tro
+    takter:
+      - Cm Bb
+      - Ab
+      - G7
+      - Fm Bb7
+  - namn: Tro · Refräng
+    anvisning: Tro, jag vill känna tro
+    sidbrytning: true
+    takter:
+      - ackord: D
+        tonart: D
+        taktart: 4/4
+      - ackord: A/C#
+      - ackord: Bm Bm7/A
+      - ackord: G
+      - ackord: D/A
+      - ackord: A (F#/A#)
+        anvisning: ---------------------På sista dubbelrefräng
+        slag:
+          - 1
+          - 4
+      - ackord: Bm Bm7/A
+      - ackord: G
+        coda: mal
+      - ackord: D
+        anvisning: drumfill - SKIPPA I SISTA
+  - namn: Tro · Vers
+    anvisning: Drömmarna vi har
+    takter:
+      - ackord: C/E G
+      - ackord: D A
+      - ackord: C/E G
+      - ackord: A
+      - ackord: C/E G
+      - ackord: D A
+      - ackord: C/E G
+      - ackord: G A
+      - ackord: G/B A/C#
+        taktart: 2/4
+  - ateranvand: Tro · Refräng
+    ganger: 2
+    anvisning: "Därefter stick/solo."
+  - namn: Tro · Stick / solo
+    anvisning: Na, na, na … · 8 takter, harmonik som förslag
+    takter:
+      - ackord: Am
+      - ackord: G/B
+      - ackord: C
+      - ackord: G/B
+      - ackord: Am
+      - ackord: G/B
+      - ackord: C
+      - ackord: A/C#
+
+  - ateranvand: Tro · Refräng
+    ganger: 1
+    anvisning: "TILL CODA (SKIPPA TAKT 110)"
+  - namn: Tro · Sista refräng, andra varvet
+    anvisning: "Till och med: här i lugn och ro"
+    takter:
+      - ackord: D
+        anvisning: Känna tro igen
+      - ackord: A/C#
+      - ackord: Bm Bm7/A
+      - ackord: G
+      - ackord: G
+        break: true
+        fermat: 1
+      - ackord: D
+      - ackord: Am
+      - ackord: D
+        fermat: 1
+        slut: true

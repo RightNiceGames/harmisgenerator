@@ -12,70 +12,181 @@ status: utkast
 delar:
   - namn: Intro
     takter:
-      - C
-      - Dm
-      - G
-      - C
-      - Am
-      - Dm
-      - G
-      - N.C.
-  - namn: A
+      - ackord: N.C
+        rytm:
+          - slag: 2
+            notvarde: 4
+            text: Fling
+          - slag: 3
+            notvarde: 4
+            text: Fling
+  - namn: A+B
     takter:
       - ackord: C
-        repris_start: true
-      - F
-      - G
-      - C
-      - Am
-      - Dm
-      - G
+        radbrytning: true
+      - ackord: Dm
+        rytm:
+          - slag: 4
+            notvarde: 4
+            text: Fling
+      - ackord: G
+        rytm:
+          - slag: 1
+            notvarde: 4
+            text: Fling
+      - ackord: C
+        rytm:
+          - slag: 4
+            notvarde: 4
+            text: Fling
+      - ackord: Am
+        rytm:
+          - slag: 1
+            notvarde: 4
+            text: Fling
+      - ackord: Dm
+        rytm:
+          - slag: 4
+            notvarde: 8
+            text: det
+          - slag: 4.5
+            notvarde: 8
+            text: som
+      - ackord: G
+        break: true
+        rytm:
+          - slag: 1
+            notvarde: 4
+            text: göms
+          - slag: 2
+            notvarde: 8
+            text: i
+          - slag: 2.5
+            notvarde: 8
+            text: snö
+          - slag: 4
+            notvarde: 8
+            text: ko
+          - slag: 4.5
+            notvarde: 8
+            text: mmer
       - ackord: N.C.
-        repris_slut: true
-  - namn: A / variation
-    takter:
-      - C
-      - Dm7
-      - G
-      - C
-      - Am
-      - Dm7
-      - G
-      - N.C.
-  - namn: B
-    takter:
-      - C
+        rytm:
+          - slag: 1
+            notvarde: 8
+            text: upp
+          - slag: 1.5
+            notvarde: 8
+            text: i
+          - slag: 2.5
+            notvarde: 8
+            text: tö
+          - slag: 4
+            notvarde: 4
+            text: FLING
+      - ackord: C
+        rytm:
+          - slag: 1
+            notvarde: 4
+            text: FLING
       - F
       - G
       - C
       - Am
-      - Dm F
-      - G
-      - N.C.
-  - namn: A / återkomst
-    takter:
-      - ackord: C
-        repris_start: true
       - Dm
-      - G
-      - C
-      - Am
-      - Dm7
-      - G
+      - ackord: G
+        break: true
       - ackord: N.C.
-        repris_slut: true
-  - namn: Slut
+        rytm:
+          - slag: 4
+            notvarde: 8
+            text: det
+          - slag: 4.5
+            notvarde: 8
+            text: som
+  - ateranvand: A+B
+    ganger: 2
+
+  - namn: Sista A
     takter:
-      - C
-      - F
-      - G
-      - C
-      - Am
-      - Dm
-      - G
-      - G
       - ackord: C
-        slut: true
+        radbrytning: true
+        repris_start: true
+      - ackord: Dm
+        rytm:
+          - slag: 4
+            notvarde: 4
+            text: Fling
+      - ackord: G
+        rytm:
+          - slag: 1
+            notvarde: 4
+            text: Fling
+      - ackord: C
+        rytm:
+          - slag: 4
+            notvarde: 4
+            text: Fling
+      - ackord: Am
+        rytm:
+          - slag: 1
+            notvarde: 4
+            text: Fling
+      - ackord: Dm
+        rytm:
+          - slag: 4
+            notvarde: 8
+            text: det
+          - slag: 4.5
+            notvarde: 8
+            text: som
+      - ackord: G
+        break: true
+        rytm:
+          - slag: 1
+            notvarde: 4
+            text: göms
+          - slag: 2
+            notvarde: 8
+            text: i
+          - slag: 2.5
+            notvarde: 8
+            text: snö
+          - slag: 4
+            notvarde: 8
+            text: ko
+          - slag: 4.5
+            notvarde: 8
+            text: mmer
+      - ackord: N.C. G/D
+        rytm:
+          - slag: 1
+            notvarde: 4
+            text: upp
+          - slag: 2
+            notvarde: 4
+            text: FLING
+          - slag: 3
+            notvarde: 4
+            text: FLING
+          - slag: 4
+            notvarde: 4
+            text: i
+        slag:
+          - 1
+          - 4
+      - ackord: C
+        break: true
+        rytm:
+          - slag: 1
+            notvarde: 4
+            text: tö
+          - slag: 2
+            notvarde: 4
+            text: FLING
+          - slag: 3
+            notvarde: 4
+            text: FLING
 kallor:
   - url: https://chordify.net/es/chords/robert-broberg-songs/det-som-goms-i-sno-chords
     beskrivning: Ackordöversikt märkt 1991, med C-dur, 130 BPM och återkommande pauser.

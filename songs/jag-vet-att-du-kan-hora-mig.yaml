@@ -15,78 +15,137 @@ delar:
       - Eb
       - Ab
       - Eb
-      - Bb
-  - namn: Vers 1
+      - Ab
+  - namn: Vers
     takter:
+      - ackord: Eb
+        rytm:
+          - slag: 1
+            notvarde: 8
+          - slag: 1.5
+            notvarde: 8
+          - slag: 2.5
+            notvarde: 8
+          - slag: 3
+            notvarde: 8
+          - slag: 3.5
+            notvarde: 8
+          - slag: 4.5
+            notvarde: 8
+        anvisning: Rytmen på Vers 2
+      - Bb/Eb
+      - (Ab/Eb)
+      - (Ab/Eb)
       - Eb
-      - Bb/D
+      - Bb/Eb
+      - (Ab/Eb)
+      - (Ab/Eb)
+      - ackord: Cm
+        anvisning: BAS IN
+      - Bb/C
+      - Ab
+      - ackord: Ab (Gm)
+        slag: [ 1, 4 ]
+        anvisning: -------------------------------------------Bara 1sta
       - Cm
-      - Ab
-      - Eb/G
-      - Ab
-      - Fm
-      - Bb
-      - Eb
-      - Bb/D
-      - Cm
-      - Ab
-      - Fm
-      - Ab
-      - Bb
-      - Bb
+      - Bb/C
+      - F
+      - Ab Bb
   - namn: Refräng
     takter:
-      - Ab
-      - Bb
       - Eb
-      - Eb
-      - Ab
-      - Bb
-      - Cm
-      - Cm
-      - Ab
-      - Bb
-      - Eb/G
-      - Cm
-      - F
-      - F
-      - Bb
-      - Bb
-  - namn: Vers 2
-    takter:
       - Eb
       - Bb/D
-      - Cm
+      - Bb/D
+      - Fm
+      - ackord: Fm (Gm)
+        slag:
+          - 1
+          - 4
       - Ab
-      - Eb/G
+      - Bb
+      - Eb
+      - Eb
+      - Gm
+      - Gm
       - Ab
+      - ackord: Ab Eb/G
       - Fm
       - Bb
-  - namn: Refräng 2
+  - namn: MSP
+    takter:
+      - ackord: "Eb"
+        anvisning: Som Intro
+        break: true
+  - ateranvand: Vers
+    anvisning: Bas in från början
+  - ateranvand: Refräng
+  - ateranvand: Intro
+    anvisning: Full fräs
+
+  - namn: Stick
     takter:
       - Ab
-      - Bb
-      - Eb
-      - Eb
       - Ab
       - Bb
-      - Cm
-      - Cm
+      - ackord: Eb Bb/F Eb/G Ab
+        slag:
+          - 1
+          - 2.5
+          - 3.5
+          - 4.5
+      - Ab
       - Ab
       - Bb
-      - Eb/G
-      - Cm
-      - F
-      - F
       - Bb
-      - Bb
-  - namn: Outro
+  - namn: Refräng tonartshöjd
     takter:
-      - Ab
+      - F
+      - F
+      - C/E
+      - C/E
+      - Gm
+      - ackord: Gm (Am)
+        slag:
+          - 1
+          - 4
       - Bb
-      - Eb
-      - ackord: Eb
-        slut: true
+      - C
+      - F
+      - ackord: F (Gm)
+        slag:
+          - 1
+          - 4
+      - Am
+      - Am
+      - Bb
+      - ackord: Bb Dm
+      - Gm
+      - C
+      - ackord: Dm C
+        rytm:
+          - slag: 1
+            notvarde: 4
+          - slag: 3
+            notvarde: 4
+        slag:
+          - 1
+          - 3
+        anvisning: MARKERINGAR
+      - ackord: Gm/Bb F/A
+        slag:
+          - 1
+          - 3
+        rytm:
+          - slag: 1
+            notvarde: 4
+          - slag: 3
+            notvarde: 4
+      - Gm
+      - F/C C
+      - ackord: F
+        anvisning: Break (låt klinga) - (Intro Piano)
+
 kallor:
   - url: https://chordify.net/fr/chords/sonja-alden-songs/jag-vet-att-du-kan-hora-mig-chords
     beskrivning: Begränsad analys anger Eb-dur, 125 BPM och ackorden Ab, Bb, Eb och F.
