@@ -48,3 +48,20 @@
 .form-instruction{flex-basis:100%}.form-instruction input{width:100%;padding:9px;border:1px solid #d0dcc4;border-radius:3px;background:white;color:var(--ink)}
 
 .chord-dialog .parenthesis-option{display:flex;align-items:center;gap:9px;margin-top:14px;font-size:12px}.chord-dialog .parenthesis-option input{width:16px;height:16px;accent-color:var(--green)}
+
+.library-view{display:flex;flex-direction:column;min-height:0;flex:1;animation:library-enter .2s ease-out}
+@keyframes library-enter{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:translateX(0)}}
+.setlist-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:12px 0}
+.setlist-heading h2{font-size:16px;overflow-wrap:anywhere;min-width:0}.setlist-heading .text-button{flex-shrink:0}
+.setlist-caption{font-size:11px;line-height:1.7;color:var(--muted);margin:0 0 16px}
+.setlist-list{overflow:auto;min-height:0}.setlist-card{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:1px solid var(--line);border-radius:6px;background:var(--paper);padding:15px 12px;margin-bottom:9px;color:var(--green)}
+.setlist-card>span:first-of-type{flex:1;min-width:0}.setlist-card strong{display:block;font-size:12px;overflow-wrap:anywhere}.setlist-card small{display:block;font-size:10px;color:var(--muted);margin-top:6px}
+.setlist-back{align-self:flex-start;margin:0 0 8px}.setlist-sort{display:flex;justify-content:space-between;align-items:center;gap:4px;font-size:10px;margin-bottom:10px}.setlist-sort .text-button{font-size:10px}.setlist-sort [aria-pressed=true]{color:var(--green);font-weight:700}
+.library-error{font-size:12px;color:#994f3d;line-height:1.6;margin:10px 0;overflow-wrap:anywhere}
+.setlist-dialog{width:min(620px,calc(100vw - 32px));max-height:85dvh;overflow:auto;padding:26px;border:1px solid var(--line);border-radius:9px;background:var(--paper);color:var(--ink);box-shadow:0 20px 70px #152c2433}
+.setlist-dialog::backdrop{background:#192b2555}.setlist-dialog h2{font-size:20px;margin-bottom:20px}.setlist-dialog fieldset{border:0;padding:0;margin:0;min-width:0}.setlist-dialog label{display:block;font-size:12px;flex:1;min-width:0}.setlist-dialog input,.setlist-dialog select{display:block;width:100%;padding:10px;margin:7px 0 12px;border:1px solid var(--line);border-radius:4px;background:white;color:var(--ink)}
+.setlist-draft{list-style:none;padding:0;margin:0 0 16px;max-height:35dvh;overflow:auto}.setlist-draft li{display:flex;align-items:center;gap:5px;padding:8px 0;border-bottom:1px solid var(--line)}.setlist-draft li>span{flex:1;min-width:0;overflow-wrap:anywhere;font-size:12px}.setlist-draft .icon-button{flex-shrink:0}
+.setlist-add{display:flex;align-items:center;gap:12px}.setlist-add .button{margin-top:6px}.setlist-actions{display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-top:22px;flex-wrap:wrap}.setlist-actions>.text-button{margin-right:auto}
+@media(max-width:620px){.library .library-heading{display:flex;margin:8px 0}.setlist-list{max-height:230px}.setlist-heading{margin:8px 0}.setlist-dialog{padding:20px}.setlist-add{flex-wrap:wrap}}
+@media(prefers-reduced-motion:reduce){.library-view{animation:none}}
+@media print{.setlist-dialog{display:none!important}}

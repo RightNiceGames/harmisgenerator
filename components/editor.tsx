@@ -1,8 +1,9 @@
 'use client';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowDownToLine, ArrowUpDown, Check, ChevronDown, CircleHelp, FileMusic, FolderOpen, ListMusic, LoaderCircle, Maximize2, Music2, Plus, RefreshCw, RotateCcw, RotateCw, Save, Search, X } from 'lucide-react';
+import { ArrowDownToLine, ArrowUpDown, Check, ChevronDown, CircleHelp, FileMusic, ListMusic, LoaderCircle, Maximize2, Plus, RotateCcw, RotateCw, Save, X } from 'lucide-react';
 import { readSong, asBar, pretty, SongError, transposeText } from '@/lib/song';
 import { EditAction, insertFeature, selectedBar, insertReuse, selectedSection, replaceExistingChord, renameSection, type ChordTarget } from '@/lib/edit';
+import { Library } from './library';
 import type { SongEntry } from '@/lib/storage';
 
 type Props = { initialSongs: SongEntry[]; initialId: string; initial: { text: string; revision: string } };
@@ -28,7 +29,7 @@ async function jsonResponse(response: Response) {
 export function Editor({ initialSongs, initialId, initial }: Props) {
   const [songs, setSongs] = useState(initialSongs), [id, setId] = useState(initialId);
   const [text, setText] = useState(initial.text), [saved, setSaved] = useState(initial.text), [revision, setRevision] = useState(initial.revision);
-  const [search, setSearch] = useState(''), [pages, setPages] = useState<string[]>([]), [previewText, setPreviewText] = useState('');
+  const [pages, setPages] = useState<string[]>([]), [previewText, setPreviewText] = useState('');
   const [saving, setSaving] = useState(false), [loading, setLoading] = useState(false), [exporting, setExporting] = useState(false), [rendering, setRendering] = useState(false);
   const [notice, setNotice] = useState(''), [requestError, setRequestError] = useState(''), [renderError, setRenderError] = useState('');
   const [formOpen, setFormOpen] = useState(false), [formPart, setFormPart] = useState(''), [formTimes, setFormTimes] = useState(1), [formInstruction, setFormInstruction] = useState(''), [formAfter,setFormAfter] = useState(-1);
@@ -131,6 +132,7 @@ export function Editor({ initialSongs, initialId, initial }: Props) {
   }, [dirty, parsed.song, busy, text, id, revision]);
   useEffect(() => {
     const keyboard = (event: KeyboardEvent) => {
+      if ((event.target as HTMLElement)?.closest('.setlist-dialog')) return;
       if (event.key === '/' && !['INPUT', 'TEXTAREA', 'SELECT'].includes((event.target as HTMLElement)?.tagName)) { event.preventDefault(); searchInput.current?.focus(); return; }
       if (!(event.ctrlKey || event.metaKey)) return;
       if (event.key.toLowerCase() === 's') { event.preventDefault(); void save(); }
@@ -216,18 +218,8 @@ export function Editor({ initialSongs, initialId, initial }: Props) {
     } catch (e) { setRequestError(e instanceof Error ? e.message : 'Kunde inte exportera.'); }
     finally { setExporting(false); }
   }
-  const visible = songs.filter(s => `${s.title} ${s.artist}`.toLocaleLowerCase('sv').includes(search.toLocaleLowerCase('sv')));
   return <div className="app-shell">
-    <aside className="library" aria-label="Låtbibliotek">
-      <a className="brand" href="/" onClick={e => e.preventDefault()}><span className="brand-mark"><Music2 size={22}/></span><span>harmis<span className="brand-dot">.</span></span></a>
-      <div className="library-heading"><span>DITT LÅTBIBLIOTEK</span><button className="icon-button" onClick={refresh} title="Uppdatera låtlistan" aria-label="Uppdatera låtlistan"><RefreshCw size={14}/></button></div>
-      <label className="search"><Search size={16}/><input ref={searchInput} aria-label="Sök låt eller artist" placeholder="Sök låt eller artist…" value={search} onChange={e => setSearch(e.target.value)}/><kbd>/</kbd></label>
-      <div className="library-count"><FolderOpen size={14}/><span>Alla låtar</span><span>{songs.length}</span></div>
-      <nav className="song-list">{visible.map((song,index) => <button key={song.id} className={`song-item ${song.id === id ? 'active' : ''}`} onClick={() => openSong(song.id)} disabled={busy} aria-current={song.id === id ? 'page' : undefined}>
-        <span className="song-number">{String(index+1).padStart(2,'0')}</span><span className="song-description"><strong>{song.title}</strong><small>{song.artist || 'Kontrollera låtfilen'}</small></span><span className="song-key">{song.error ? '!' : pretty(song.key)}</span>
-      </button>)}{!visible.length && <p className="empty-search">Inga låtar matchar sökningen.</p>}</nav>
-      <div className="library-footer"><span className="online-dot"/><span>Lokalt bibliotek</span><span className="file-tag">songs/</span></div>
-    </aside>
+    <Library songs={songs} id={id} busy={busy} openSong={openSong} refresh={refresh} searchInput={searchInput}/>
     <main className="main">
       <div className={`workspace ${wide ? 'preview-wide' : ''}`}>
       <div className="editing-column">
@@ -264,6 +256,6 @@ export function Editor({ initialSongs, initialId, initial }: Props) {
       </div>
     </main>
     {chordEdit && <dialog className="chord-dialog" ref={chordDialog} onCancel={()=>setChordEdit(null)} aria-labelledby="chord-title"><form onSubmit={e=>{e.preventDefault();applyChord();}}><h2 id="chord-title">{'kind' in chordEdit.target ? 'Ändra delnamn' : 'Ändra ackord'}</h2><p>{chordEdit.label}</p><label htmlFor="chord-value">{'kind' in chordEdit.target ? 'Delnamn' : 'Ackord'}</label><input id="chord-value" ref={chordInput} autoFocus value={chordDraft} onChange={e=>{setChordDraft(e.target.value);setChordError('');}} autoComplete="off" spellCheck={false} aria-invalid={!!chordError} aria-describedby={chordError ? 'chord-error' : undefined}/>{!('kind' in chordEdit.target) && <><p className="chord-entry-hint">Skriv flera ackord med mellanslag för att ersätta det valda ackordet i samma takt. Högst fyra ackord per takt. Angivna slag delas inom det valda ackordets utrymme.</p><label className="parenthesis-option"><input type="checkbox" checked={!!chordDraft.trim() && chordDraft.trim().split(/\s+/).every(value=>value.startsWith('(')&&value.endsWith(')'))} onChange={e=>{setChordDraft(chordDraft.trim().split(/\s+/).filter(Boolean).map(value=>{const wrapped=value.startsWith('(')&&value.endsWith(')');return e.target.checked ? (wrapped?value:`(${value})`) : (wrapped?value.slice(1,-1):value);}).join(' '));setChordError('');}}/>Ackord inom parentes</label></>}{chordError && <p id="chord-error" role="alert">{chordError}</p>}<div><button type="button" className="button secondary" onClick={()=>setChordEdit(null)}>Avbryt</button><button className="button primary" type="submit">{'kind' in chordEdit.target ? 'Ändra delnamn' : 'Ändra ackord'}</button></div></form></dialog>}
-    {help && <div className="modal-backdrop" onClick={() => setHelp(false)}><section className="help-dialog" role="dialog" aria-modal="true" aria-labelledby="help-title" onClick={e => e.stopPropagation()}><button className="icon-button close-help" aria-label="Stäng hjälp" autoFocus onClick={() => setHelp(false)}><X size={20}/></button><div className="eyebrow">FRÅN LÅTFIL TILL NOTSTÄLL</div><h2 id="help-title">Gör harmisen till din.</h2><ol><li><strong>Välj en låt.</strong> Listan läser filerna i songs-mappen. Uppdatera listan när du har lagt till en fil.</li><li><strong>Ändra texten.</strong> Varje rad under takter är en takt. Separera flera ackord i samma takt med mellanslag.</li><li><strong>Infoga musikaliska tecken.</strong> Placera markören i en takt och använd knapparna. Ändra de infogade värdena direkt i texten.</li><li><strong>Transponera och spara.</strong> Grundtoner, bastoner och tonart ändras tillsammans. Spara skriver över låtfilen och behåller en lokal säkerhetskopia.</li><li><strong>Exportera PDF.</strong> Exporten använder texten du ser, även innan du sparar. Öppna PDF-filen för att skriva ut den.</li></ol><p className="help-note">Variantackord anger vilken gång alternativet spelas. Ackordslag placerar ackordbyten, t.ex. [1, 4]. Egen rytm anger anslag: i 4/4 betyder slag 1.5 första åttondelens efterslag, 1å; notvarde 8 betyder åttondel. Lägg till text: "Eb" eller annan fritext på en rytmnot för att visa text direkt under noten. Tomma textfält tar ingen extra höjd. Texten ändras inte vid transponering.</p><p className="help-note">Ctrl+S sparar. Ctrl+Z ångrar. Tab infogar två mellanslag. Ett skrivfel visar radnumret och behåller senaste fungerande förhandsvisning.</p><button className="button primary" onClick={() => setHelp(false)}>Tillbaka till musiken</button></section></div>}
+    {help && <div className="modal-backdrop" onClick={() => setHelp(false)}><section className="help-dialog" role="dialog" aria-modal="true" aria-labelledby="help-title" onClick={e => e.stopPropagation()}><button className="icon-button close-help" aria-label="Stäng hjälp" autoFocus onClick={() => setHelp(false)}><X size={20}/></button><div className="eyebrow">FRÅN LÅTFIL TILL NOTSTÄLL</div><h2 id="help-title">Gör harmisen till din.</h2><ol><li><strong>Välj setlista och låt.</strong> Skapa en setlista med plusknappen i biblioteket, eller öppna Alla låtar. Redigera ändrar listans spelordning; A–Ö-knappen sorterar bara visningen. Listan läser filerna i songs-mappen. Uppdatera listan när du har lagt till en fil.</li><li><strong>Ändra texten.</strong> Varje rad under takter är en takt. Separera flera ackord i samma takt med mellanslag.</li><li><strong>Infoga musikaliska tecken.</strong> Placera markören i en takt och använd knapparna. Ändra de infogade värdena direkt i texten.</li><li><strong>Transponera och spara.</strong> Grundtoner, bastoner och tonart ändras tillsammans. Spara skriver över låtfilen och behåller en lokal säkerhetskopia.</li><li><strong>Exportera PDF.</strong> Exporten använder texten du ser, även innan du sparar. Öppna PDF-filen för att skriva ut den.</li></ol><p className="help-note">Variantackord anger vilken gång alternativet spelas. Ackordslag placerar ackordbyten, t.ex. [1, 4]. Egen rytm anger anslag: i 4/4 betyder slag 1.5 första åttondelens efterslag, 1å; notvarde 8 betyder åttondel. Lägg till text: "Eb" eller annan fritext på en rytmnot för att visa text direkt under noten. Tomma textfält tar ingen extra höjd. Texten ändras inte vid transponering.</p><p className="help-note">Ctrl+S sparar. Ctrl+Z ångrar. Tab infogar två mellanslag. Ett skrivfel visar radnumret och behåller senaste fungerande förhandsvisning.</p><button className="button primary" onClick={() => setHelp(false)}>Tillbaka till musiken</button></section></div>}
   </div>;
 }
