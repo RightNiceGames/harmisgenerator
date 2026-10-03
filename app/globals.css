@@ -91,3 +91,9 @@
 .live-message{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;gap:12px;font-size:15px;max-width:600px;text-align:center}
 .live-error{flex-direction:column;padding:24px;line-height:1.7}.live-error h2{font-size:21px}.live-error p{overflow-wrap:anywhere}
 @media print{.live-view{display:none!important}}
+
+.live-exit{padding:0 10px;font-size:12px}
+.live-toolbar{position:absolute;top:14px;right:14px;z-index:3;display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px;max-width:calc(100% - 170px)}
+.live-toolbar .live-control{position:static;padding:0 12px;font-size:12px;white-space:nowrap}
+.live-page-step[aria-pressed=true]{background:#28564a}
+.live-fullscreen-error{position:absolute;top:66px;right:14px;z-index:4;max-width:calc(100% - 28px);padding:10px 14px;border-radius:6px;background:#17251df2;color:#f5f7f3;line-height:1.5;pointer-events:auto}

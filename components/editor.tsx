@@ -52,8 +52,7 @@ export function Editor({ initialSongs, initialId, initial }: Props) {
   }, []);
   function startLive(name: string, songs: LiveSong[]) {
     if (!songs.length || busy) return;
-    setLive({name, songs, ...(parsed.song ? {override:{id,text}} : {})});
-    if (!document.fullscreenElement) void document.documentElement.requestFullscreen?.().catch(() => {});
+    setLive({name, songs, startSong: Math.max(0, songs.findIndex(song => song.id === id)), ...(parsed.song ? {override:{id,text}} : {})});
   }
   const searchInput = useRef<HTMLInputElement>(null);
   const editor = useRef<HTMLTextAreaElement>(null), gutter = useRef<HTMLDivElement>(null);
