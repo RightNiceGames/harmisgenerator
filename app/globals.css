@@ -65,3 +65,12 @@
 @media(max-width:620px){.library .library-heading{display:flex;margin:8px 0}.setlist-list{max-height:230px}.setlist-heading{margin:8px 0}.setlist-dialog{padding:20px}.setlist-add{flex-wrap:wrap}}
 @media(prefers-reduced-motion:reduce){.library-view{animation:none}}
 @media print{.setlist-dialog{display:none!important}}
+
+/* Two-page view affects only the preview; print keeps one A4 per page. */
+@media screen{
+  .paper-stack.two-pages{display:grid;grid-template-columns:repeat(2,var(--paper-width,minmax(0,1fr)));gap:20px;align-content:start;align-items:start}
+  .two-pages .paper{margin:0 auto}
+  .page-layout-toggle[aria-pressed=true]{background:var(--mint);color:var(--green)}
+  .page-layout-toggle[aria-pressed=true] svg{color:var(--green)}
+  .preview-panel .panel-header{flex-wrap:wrap;padding-top:8px;padding-bottom:8px;flex-shrink:0}
+}

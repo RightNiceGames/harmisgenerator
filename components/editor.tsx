@@ -1,6 +1,6 @@
 'use client';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowDownToLine, ArrowUpDown, Check, ChevronDown, CircleHelp, FileMusic, ListMusic, LoaderCircle, Maximize2, Plus, RotateCcw, RotateCw, Save, X } from 'lucide-react';
+import { ArrowDownToLine, ArrowUpDown, Check, ChevronDown, CircleHelp, Columns2, FileMusic, ListMusic, LoaderCircle, Maximize2, Plus, RotateCcw, RotateCw, Save, X } from 'lucide-react';
 import { readSong, asBar, pretty, SongError, transposeText } from '@/lib/song';
 import { EditAction, insertFeature, selectedBar, insertReuse, selectedSection, replaceExistingChord, renameSection, type ChordTarget } from '@/lib/edit';
 import { Library } from './library';
@@ -43,6 +43,7 @@ export function Editor({ initialSongs, initialId, initial }: Props) {
     if (chordEdit) { chordDialog.current?.showModal(); chordInput.current?.select(); }
   }, [chordEdit]);
   const [zoom, setZoom] = useState('fit');
+  const [twoPages, setTwoPages] = useState(false);
   const searchInput = useRef<HTMLInputElement>(null);
   const editor = useRef<HTMLTextAreaElement>(null), gutter = useRef<HTMLDivElement>(null);
   const history = useRef<string[]>([initial.text]), historyIndex = useRef(0);
@@ -243,11 +244,11 @@ export function Editor({ initialSongs, initialId, initial }: Props) {
       <div className="bottom-status" role="status" aria-live="polite">{notice || (loading ? 'Öppnar låten…' : 'Ändra texten. Se resultatet. Spela.')}</div>
       </div>
         <section className={`preview-panel ${stale || busy ? 'preview-readonly' : ''}`} aria-label="Förhandsvisning" onClick={e => { if(e.target instanceof Element) openChord(e.target); }} onKeyDown={e=>{if ((e.key==='Enter' || e.key===' ') && e.target instanceof Element && e.target.closest('.chord-hit, .section-hit')) {e.preventDefault();openChord(e.target);}}}>
-          <div className="panel-header"><div><h2>Förhandsvisning</h2><span className="live-label"><span className="online-dot"/>{rendering ? 'Uppdaterar' : stale && pages.length ? 'Inaktuell' : 'Live'}</span></div><div><select aria-label="Zoom" className="zoom-select" value={zoom} onChange={e => setZoom(e.target.value)}><option value="fit">Anpassa</option><option value="100">100 %</option><option value="125">125 %</option></select><button className="icon-button" aria-label={wide ? 'Visa redigerare' : 'Större förhandsvisning'} title="Växla bred förhandsvisning" onClick={() => setWide(!wide)}><Maximize2 size={16}/></button></div></div>
+          <div className="panel-header"><div><h2>Förhandsvisning</h2><span className="live-label"><span className="online-dot"/>{rendering ? 'Uppdaterar' : stale && pages.length ? 'Inaktuell' : 'Live'}</span></div><div><select aria-label="Zoom" className="zoom-select" value={zoom} onChange={e => setZoom(e.target.value)}><option value="fit">Anpassa</option><option value="100">100 %</option><option value="125">125 %</option></select><button className="icon-button" aria-label={wide ? 'Visa redigerare' : 'Större förhandsvisning'} title="Växla bred förhandsvisning" onClick={() => setWide(!wide)}><Maximize2 size={16}/></button><button className="icon-button page-layout-toggle" aria-label="Visa två sidor sida vid sida" aria-pressed={twoPages} title={twoPages ? 'Visa en sida i bredd' : 'Visa två sidor sida vid sida'} onClick={() => setTwoPages(!twoPages)}><Columns2 size={16}/></button></div></div>
           <div className="preview-meta"><span>A4 · stående</span><span>{pages.length ? `${pages.length} ${pages.length === 1 ? 'sida' : 'sidor'}` : 'Förbereder ackordblad'}</span></div>
           {(parsed.error || renderError) && pages.length > 0 && <div className="stale-message">Senaste fungerande förhandsvisning. Rätta felet för att uppdatera.</div>}
           {renderError && <div className="parse-error" role="alert">{renderError}</div>}
-          <div className={`paper-stack ${zoom === 'fit' ? 'fit-pages' : ''}`} style={zoom === 'fit' ? undefined : { '--paper-width': `${Number(zoom)*7.94}px` } as React.CSSProperties}>
+          <div className={`paper-stack ${zoom === 'fit' ? 'fit-pages' : ''} ${twoPages && pages.length > 1 ? 'two-pages' : ''}`} style={zoom === 'fit' ? undefined : { '--paper-width': `${Number(zoom)*7.94}px` } as React.CSSProperties}>
             {pages.map((svg,i) => <figure key={i} className="paper" aria-label={`Ackordblad sida ${i+1}`} dangerouslySetInnerHTML={{__html:svg}}/>)}
             {!pages.length && <div className="preview-empty">{parsed.error ? <><FileMusic size={36}/><p>Förhandsvisningen visas när låtfilen är giltig.</p></> : <><LoaderCircle size={30} className="spin"/><p>Ritar ditt ackordblad…</p></>}</div>}
           </div>
