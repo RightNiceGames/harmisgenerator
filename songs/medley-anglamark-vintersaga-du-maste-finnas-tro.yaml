@@ -74,13 +74,45 @@ delar:
       - ackord: Bb Bb/D
       - ackord: Eb6
       - ackord: Cm
-      - ackord: F Gm F/A
-      - ackord: Ebm/Bb Bb
+      - ackord: F Ebm/Bb Bb
+        rytm:
+          - slag: 1
+            notvarde: 8
+            text: F
+          - slag: 2
+            notvarde: 8
+            text: G
+          - slag: 3
+            notvarde: 8
+            text: A
+          - slag: 4
+            notvarde: 8
+            text: Bb
+        slag:
+          - 1
+          - 4
+          - 6
       - ackord: Bb Bb/D
       - ackord: Eb6 Cm/Eb
       - ackord: Cm F7
-      - ackord: F Gm F/A
-      - ackord: Ebm/Bb Bb
+      - ackord: F Ebm/Bb Bb
+        rytm:
+          - slag: 1
+            notvarde: 8
+            text: F
+          - slag: 2
+            notvarde: 8
+            text: G
+          - slag: 3
+            notvarde: 8
+            text: A
+          - slag: 4
+            notvarde: 8
+            text: Bb
+        slag:
+          - 1
+          - 4
+          - 6
   - namn: Vintersaga · Gitarrintro
     anvisning: Rubato · fri tid, ackordföljd som förslag
     sidbrytning: true
