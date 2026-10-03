@@ -67,11 +67,12 @@ delar:
       - C
       - Am
       - D
-      - C
-      - C
-      - G
+      - ackord: C
+        break: true
+        fermat: 1
       - ackord: G
         slut: true
+        fermat: 1
 kallor:
   - url: https://chordify.net/es/chords/sonja-alden-songs/allt-jag-ser-chords
     beskrivning: "Automatisk ackordöversikt för Sonja Aldéns inspelning: G-dur, 81 BPM. Översikten ligger till
