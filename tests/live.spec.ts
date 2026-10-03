@@ -1,0 +1,110 @@
+import { test, expect, type Page } from '@playwright/test';
+const list = {id:'246622b7-d8e4-43d7-ad35-7b4dcb3c6e3',name:'Liveset',songs:['live-a.yaml','live-b.yaml','live-c.yaml','live-a.yaml']};
+function source(name: string, count: number) {
+  return `format: 1\ntitel: ${name}\nartist: Test\ngrundtonart: C\ntaktart: 4/4\ndelar:\n` + Array.from({length:count},(_,i)=>`  - namn: Del ${i+1}\n    ${i ? 'sidbrytning: true\n    ' : ''}takter: [C]\n`).join('');
+}
+async function setup(page: Page) {
+  const loads: string[] = [];
+  await page.route('**/api/setlists',route=>route.fulfill({json:{lists:[list],revision:'0'}}));
+  await page.route(/\/api\/songs\/live-[abc]\.yaml$/,route=>{
+    const id = route.request().url().split('/').at(-1)!;
+    loads.push(id);
+    const [name,count] = id === 'live-a.yaml' ? ['Låt A',3] : id === 'live-b.yaml' ? ['Låt B',1] : ['Låt C',4];
+    return route.fulfill({json:{text:source(name as string,count as number),revision:'0'}});
+  });
+  await page.goto('/');
+  await expect(page.locator('.paper').first()).toBeVisible();
+  const original = await page.getByRole('textbox',{name:'Låtfilens text'}).inputValue();
+  await page.getByRole('button',{name:/Liveset/}).click();
+  await page.getByRole('button',{name:'Sortera i bokstavsordning'}).click();
+  await page.getByRole('button',{name:'Live',exact:true}).click();
+  return {loads,original};
+}
+
+test('Live presents spreads in set order and navigates forward and backward across songs', async ({page}) => {
+  const {loads,original} = await setup(page);
+  const live = page.getByRole('dialog',{name:'Live: Liveset'});
+  const figures = live.locator('figure');
+  const next = live.getByRole('button',{name:'Nästa sida eller låt'});
+  const back = live.getByRole('button',{name:'Föregående sida eller låt'});
+  await expect(figures).toHaveCount(2);
+  await expect(figures.nth(0)).toHaveAttribute('aria-label','live-a.yaml, sida 1');
+  await expect(figures.nth(1)).toHaveAttribute('aria-label','live-a.yaml, sida 2');
+  expect(await page.evaluate(()=>!!document.fullscreenElement)).toBe(true);
+  expect(await page.locator('.app-shell').evaluate(el=>(el as HTMLElement).inert)).toBe(true);
+  await expect(back).toBeDisabled();
+  const a = await figures.nth(0).boundingBox(), b = await figures.nth(1).boundingBox();
+  expect(a!.y).toBeCloseTo(b!.y,0); expect(b!.x).toBeGreaterThan(a!.x+a!.width);
+  const liveBox = await live.boundingBox();
+  await page.mouse.click(liveBox!.width-15,liveBox!.height/2);
+  await expect(figures).toHaveCount(1);
+  await expect(figures).toHaveAttribute('aria-label','live-a.yaml, sida 3');
+  await next.click();
+  await expect(figures).toHaveAttribute('aria-label','live-b.yaml, sida 1');
+  await next.click();
+  await expect(figures).toHaveCount(2);
+  await expect(figures.first()).toHaveAttribute('aria-label','live-c.yaml, sida 1');
+  await next.click();
+  await expect(figures.first()).toHaveAttribute('aria-label','live-c.yaml, sida 3');
+  await next.click();
+  await expect(figures.first()).toHaveAttribute('aria-label','live-a.yaml, sida 1');
+  await back.click();
+  await expect(figures.first()).toHaveAttribute('aria-label','live-c.yaml, sida 3');
+  await back.click();
+  await expect(figures.first()).toHaveAttribute('aria-label','live-c.yaml, sida 1');
+  await back.click();
+  await expect(figures).toHaveAttribute('aria-label','live-b.yaml, sida 1');
+  await back.click();
+  await expect(figures).toHaveAttribute('aria-label','live-a.yaml, sida 3');
+  expect(loads.filter(id=>id==='live-a.yaml')).toHaveLength(1);
+  await page.keyboard.press('Escape');
+  await expect(live).toHaveCount(0);
+  await expect.poll(()=>page.evaluate(()=>!!document.fullscreenElement)).toBe(false);
+  expect(await page.locator('.app-shell').evaluate(el=>(el as HTMLElement).inert)).toBe(false);
+  await expect(page.getByRole('textbox',{name:'Låtfilens text'})).toHaveValue(original);
+});
+
+test('controls hide, reappear, change page count, and X exits with fullscreen fallback', async ({page}) => {
+  await page.addInitScript(()=>{HTMLElement.prototype.requestFullscreen = () => Promise.reject(new Error('Fullscreen unavailable'));});
+  await setup(page);
+  const live = page.getByRole('dialog',{name:'Live: Liveset'}), figures = live.locator('figure');
+  const toggle = live.getByRole('button',{name:'Två sidor i Live-läge'});
+  await expect(figures).toHaveCount(2);
+  await expect(toggle).toHaveAttribute('aria-pressed','true');
+  await expect(toggle).toBeHidden({timeout:5000});
+  await page.mouse.move(100,100);
+  await expect(toggle).toBeVisible();
+  await toggle.click();
+  await expect(figures).toHaveCount(1);
+  await expect(toggle).toHaveAttribute('aria-pressed','false');
+  await page.keyboard.press('ArrowRight');
+  await expect(figures).toHaveAttribute('aria-label','live-a.yaml, sida 2');
+  await toggle.click();
+  await expect(figures).toHaveCount(2);
+  await expect(figures.nth(1)).toHaveAttribute('aria-label','live-a.yaml, sida 2');
+  await live.getByRole('button',{name:'Nästa sida eller låt'}).click();
+  await expect(figures).toHaveAttribute('aria-label','live-a.yaml, sida 3');
+  await page.screenshot({path:'work/cache/live-single-page.png'});
+  await live.getByRole('button',{name:'Avsluta Live-läge'}).click();
+  await expect(live).toHaveCount(0);
+  await expect(page.getByRole('button',{name:'Live',exact:true})).toBeFocused();
+});
+
+test('a missing song is shown as an error and can be retried or passed without skipping silently', async ({page}) => {
+  await page.route('**/api/setlists',route=>route.fulfill({json:{lists:[{...list,songs:['missing.yaml','live-b.yaml']}],revision:'0'}}));
+  await page.route('**/api/songs/missing.yaml',route=>route.fulfill({status:404,json:{error:'Låtfilen finns inte.'}}));
+  await page.route('**/api/songs/live-b.yaml',route=>route.fulfill({json:{text:source('Låt B',1),revision:'0'}}));
+  await page.goto('/');
+  await expect(page.locator('.paper').first()).toBeVisible();
+  await page.getByRole('button',{name:/Liveset/}).click();
+  await page.getByRole('button',{name:'Live',exact:true}).click();
+  const live = page.getByRole('dialog',{name:'Live: Liveset'});
+  await expect(live.getByRole('alert')).toContainText('Låtfilen finns inte.');
+  await live.getByRole('button',{name:'Försök igen'}).click();
+  await expect(live.getByRole('alert')).toContainText('Låtfilen finns inte.');
+  await live.getByRole('button',{name:'Nästa sida eller låt'}).click();
+  await expect(live.locator('figure')).toHaveAttribute('aria-label','live-b.yaml, sida 1');
+  await expect(live.getByRole('button',{name:'Nästa sida eller låt'})).toBeDisabled();
+  await page.keyboard.press('Escape');
+  await expect(live).toHaveCount(0);
+});

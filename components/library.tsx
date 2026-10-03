@@ -1,17 +1,18 @@
 'use client';
 import { useEffect, useRef, useState, type RefObject } from 'react';
-import { ArrowLeft, ArrowDown, ArrowUp, ArrowUpDown, ListMusic, Music2, Plus, RefreshCw, Search, X } from 'lucide-react';
+import { ArrowLeft, ArrowDown, ArrowUp, ArrowUpDown, ListMusic, Music2, Play, Plus, RefreshCw, Search, X } from 'lucide-react';
 import type { SongEntry } from '@/lib/storage';
+import type { LiveSong } from './live-viewer';
 import type { Setlist, SetlistLibrary } from '@/lib/setlists';
 import { pretty } from '@/lib/song';
 
-type Props = { songs: SongEntry[]; id: string; busy: boolean; openSong: (id: string) => void; refresh: () => Promise<void>; searchInput: RefObject<HTMLInputElement | null> };
+type Props = { songs: SongEntry[]; id: string; busy: boolean; openSong: (id: string) => void; refresh: () => Promise<void>; searchInput: RefObject<HTMLInputElement | null>; startLive: (name: string, songs: LiveSong[]) => void };
 async function responseData(response: Response): Promise<SetlistLibrary> {
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || 'Kunde inte läsa setlistorna.');
   return data;
 }
-export function Library({songs, id, busy, openSong, refresh, searchInput}: Props) {
+export function Library({songs, id, busy, openSong, refresh, searchInput, startLive}: Props) {
   const [data, setData] = useState<SetlistLibrary | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [alphabetical, setAlphabetical] = useState(false), [search, setSearch] = useState('');
@@ -70,6 +71,7 @@ export function Library({songs, id, busy, openSong, refresh, searchInput}: Props
     </div> : <div className="library-view" key={selected}>
       <button className="text-button setlist-back" onClick={() => setSelected(null)}><ArrowLeft size={15}/>Setlistor</button>
       <div className="setlist-heading"><h2>{title}</h2>{active && <button className="text-button" onClick={() => edit(active)}>Redigera</button>}</div>
+      {active && <button className="button primary start-live" disabled={busy || !entries.length} onClick={() => startLive(active.name, entries.map(({id,title}) => ({id,title})))}><Play size={15}/>Live</button>}
       <label className="search"><Search size={16}/><input ref={searchInput} aria-label="Sök låt eller artist" placeholder="Sök låt eller artist…" value={search} onChange={e => setSearch(e.target.value)}/><kbd>/</kbd></label>
       <div className="setlist-sort"><span>{visible.length} låtar</span><button className="text-button" aria-label="Sortera i bokstavsordning" aria-pressed={alphabetical} onClick={() => setAlphabetical(!alphabetical)}><ArrowUpDown size={14}/>{alphabetical ? 'A–Ö' : selected === 'all' ? 'Biblioteksordning' : 'Setlistans ordning'}</button></div>
       <nav className="song-list" aria-label="Låtar i vald lista">{visible.map(({song,index}) => <button key={`${song.id}-${index}`} className={`song-item ${song.id === id ? 'active' : ''}`} onClick={() => openSong(song.id)} disabled={busy || !songs.some(item => item.id === song.id)} aria-current={song.id === id ? 'page' : undefined}>

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowDownToLine, ArrowUpDown, Check, ChevronDown, CircleHelp, Columns2, FileMusic, ListMusic, LoaderCircle, Maximize2, Plus, RotateCcw, RotateCw, Save, X } from 'lucide-react';
 import { readSong, asBar, pretty, SongError, transposeText } from '@/lib/song';
 import { EditAction, insertFeature, selectedBar, insertReuse, selectedSection, replaceExistingChord, renameSection, type ChordTarget } from '@/lib/edit';
+import { LiveViewer, type LiveSession, type LiveSong } from './live-viewer';
 import { Library } from './library';
 import type { SongEntry } from '@/lib/storage';
 
@@ -44,6 +45,16 @@ export function Editor({ initialSongs, initialId, initial }: Props) {
   }, [chordEdit]);
   const [zoom, setZoom] = useState('fit');
   const [twoPages, setTwoPages] = useState(false);
+  const [live, setLive] = useState<LiveSession | null>(null);
+  const closeLive = useCallback(() => {
+    setLive(null);
+    if (document.fullscreenElement) void document.exitFullscreen().catch(() => {});
+  }, []);
+  function startLive(name: string, songs: LiveSong[]) {
+    if (!songs.length || busy) return;
+    setLive({name, songs, ...(parsed.song ? {override:{id,text}} : {})});
+    if (!document.fullscreenElement) void document.documentElement.requestFullscreen?.().catch(() => {});
+  }
   const searchInput = useRef<HTMLInputElement>(null);
   const editor = useRef<HTMLTextAreaElement>(null), gutter = useRef<HTMLDivElement>(null);
   const history = useRef<string[]>([initial.text]), historyIndex = useRef(0);
@@ -133,14 +144,14 @@ export function Editor({ initialSongs, initialId, initial }: Props) {
   }, [dirty, parsed.song, busy, text, id, revision]);
   useEffect(() => {
     const keyboard = (event: KeyboardEvent) => {
-      if ((event.target as HTMLElement)?.closest('.setlist-dialog')) return;
+      if (live || (event.target as HTMLElement)?.closest('.setlist-dialog')) return;
       if (event.key === '/' && !['INPUT', 'TEXTAREA', 'SELECT'].includes((event.target as HTMLElement)?.tagName)) { event.preventDefault(); searchInput.current?.focus(); return; }
       if (!(event.ctrlKey || event.metaKey)) return;
       if (event.key.toLowerCase() === 's') { event.preventDefault(); void save(); }
       if (event.key.toLowerCase() === 'z') { event.preventDefault(); undo(event.shiftKey); }
     };
     window.addEventListener('keydown',keyboard); return () => window.removeEventListener('keydown',keyboard);
-  }, [save, undo]);
+  }, [save, undo, live]);
   async function openSong(nextId: string, reload = false) {
     if (busy || (nextId === id && !reload)) return;
     if (dirty && !window.confirm('Du har osparade ändringar. Vill du lämna dem och läsa in låtfilen?')) return;
@@ -220,7 +231,8 @@ export function Editor({ initialSongs, initialId, initial }: Props) {
     finally { setExporting(false); }
   }
   return <div className="app-shell">
-    <Library songs={songs} id={id} busy={busy} openSong={openSong} refresh={refresh} searchInput={searchInput}/>
+    {live && <LiveViewer session={live} onClose={closeLive}/>}
+    <Library songs={songs} id={id} busy={busy} openSong={openSong} refresh={refresh} searchInput={searchInput} startLive={startLive}/>
     <main className="main">
       <div className={`workspace ${wide ? 'preview-wide' : ''}`}>
       <div className="editing-column">
