@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-05T09:06:53.851275+00:00",
+  "date": "2026-10-05T11:13:28.984Z",
   "errors": [],
   "results": [
     {
@@ -368,6 +368,146 @@
     },
     {
       "name": "Selecting a chord after a part clears whole-part selection",
+      "passed": true
+    },
+    {
+      "name": "Chord first click selects and second click edits the full measure",
+      "passed": true
+    },
+    {
+      "name": "Context body and caption pointer clicks retain chord selection",
+      "passed": true
+    },
+    {
+      "name": "Parentheses toggle targets selected chord and is undoable",
+      "passed": true
+    },
+    {
+      "name": "Delete chord retains other chords, signs, rhythm and restores variant on undo",
+      "passed": true
+    },
+    {
+      "name": "Last chord removal creates editable empty measure",
+      "passed": true
+    },
+    {
+      "name": "Add group inserts after selection without replacing later chord",
+      "passed": true
+    },
+    {
+      "name": "Variant typing retains trailing spaces, caret and live model",
+      "passed": true
+    },
+    {
+      "name": "Continuous variant typing is one undo and metadata remains live",
+      "passed": true
+    },
+    {
+      "name": "Invalid variant retains last valid model and recovery retains raw input",
+      "passed": true
+    },
+    {
+      "name": "Group toggle, back and Escape retain chord selection",
+      "passed": true
+    },
+    {
+      "name": "Changing selected chord closes stale group and restores static card position",
+      "passed": true
+    },
+    {
+      "name": "Opening chord group does not move primary buttons",
+      "passed": true
+    },
+    {
+      "name": "Placing chord preserves keyboard focus after rerender",
+      "passed": true
+    },
+    {
+      "name": "Clearing chord row preserves signs and rhythm and supports undo",
+      "passed": true
+    },
+    {
+      "name": "Takt insertion and duplication retain intended placement and select copy",
+      "passed": true
+    },
+    {
+      "name": "Range exposes only range actions and places repeat endpoints correctly",
+      "passed": true
+    },
+    {
+      "name": "Range houses apply, conflict cancel and replace preserve correct spans",
+      "passed": true
+    },
+    {
+      "name": "Custom house back returns to reprise menu and uses typed numbers",
+      "passed": true
+    },
+    {
+      "name": "Range deletion confirms, moves repeat signs and undo restores whole span",
+      "passed": true
+    },
+    {
+      "name": "Entire part range deletion leaves a blank bar and single undo restores",
+      "passed": true
+    },
+    {
+      "name": "Section and range prevent rhythm and chord mutations through panel",
+      "passed": true
+    },
+    {
+      "name": "Copy part remaps bars, chords and houses with independent source",
+      "passed": true
+    },
+    {
+      "name": "New part inserts four blank measures and can be renamed and edited",
+      "passed": true
+    },
+    {
+      "name": "Context reuse applies settings and linked title updates propagate",
+      "passed": true
+    },
+    {
+      "name": "Context reuse detach preserves settings and becomes independent",
+      "passed": true
+    },
+    {
+      "name": "Removing contextual reuse retains source and undo restores reuse",
+      "passed": true
+    },
+    {
+      "name": "Mobile 375: chord and bar groups fit and expanded card clears next row",
+      "passed": true
+    },
+    {
+      "name": "Mobile 430: chord and bar groups fit and expanded card clears next row",
+      "passed": true
+    },
+    {
+      "name": "Mobile variant and reuse settings open focused popup for selected context",
+      "passed": true
+    },
+    {
+      "name": "Desktop final row expanded variant and submenu controls remain reachable",
+      "passed": true
+    },
+    {
+      "name": "Range panels disable text, variants and local changes and omit rhythm input",
+      "passed": true
+    },
+    {
+      "name": "Full measure recent-add chips disable without removing existing chord context",
+      "passed": true
+    },
+    {
+      "name": "Bar layout back returns to more group and breaker targets first range bar",
+      "passed": true
+    },
+    {
+      "name": "Mobile last-column chord placement and grid remain fixed and focused",
+      "passed": true
+    },
+    {
+      "name": "Selecting reuse then source clears reuse context and restores correct source actions",
       "passed": true
     }
   ]

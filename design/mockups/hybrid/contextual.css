@@ -1,0 +1,60 @@
+/* One stable card per selected measure. Primary controls stay above the expanded group. */
+.context-tools.chord-tools,.context-tools.bar-actions {
+ position:absolute;left:0;right:auto;top:calc(100% + 6px);bottom:auto;
+ width:326px;max-width:calc(100vw - 34px);padding:10px;
+ display:block;z-index:8;background:#fff;border:1px solid #9bb891;
+ border-radius:8px;box-shadow:0 5px 14px #334c351c;
+ font-size:11px;cursor:default;
+}
+.context-caption{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px;font-size:10px;line-height:1.4}
+.context-caption strong{font-weight:700;overflow-wrap:anywhere}.context-caption span{font-size:9px;color:var(--muted)}
+.context-primary,.context-placement{display:flex;align-items:center;gap:4px;flex-wrap:nowrap}
+.context-primary>button{flex:1;min-width:0;min-height:33px;padding:5px 7px;background:#f5f8f1;border:1px solid #d5e0cf;font-size:10px;justify-content:center}
+.context-primary>button[aria-expanded=true]{background:#dce8d3;border-color:#8eac80}
+.context-primary>.bar-delete{flex:0 0 33px;min-width:33px;font-size:20px;background:#fff;color:#86512f}
+.context-primary>.bar-delete:hover{background:#f6eade}
+.context-placement{margin-bottom:7px}
+.context-tools .context-placement>button{min-width:37px;min-height:33px;padding:2px 6px;border:1px solid #d5e0cf;font-size:17px;background:#f8faf5}
+.context-tools .context-placement select{width:74px;min-height:33px;padding:4px 7px;font-size:11px}
+.context-tools .context-placement span{font-size:10px;margin-left:auto;color:var(--muted)}
+.context-body{border-top:1px solid #dce6d6;margin-top:10px;padding-top:7px}
+.context-back{font-size:10px;color:var(--accent);padding:3px 0!important;min-height:27px!important;margin-bottom:5px}
+.context-tools .context-body h3{font-size:11px;margin-bottom:7px}
+.context-tools .context-button,.section-context .context-button{min-height:33px;font-size:10px;padding:5px 9px;border:1px solid #d5e0cf;background:#f7faf3;white-space:normal;text-align:left;line-height:1.6}
+.context-tools .context-options{display:grid;gap:7px}
+.context-tools .context-body .hint{font-size:10px;margin:6px 0;white-space:normal}
+.context-tools .field{margin-bottom:8px}.context-tools .field label{font-size:10px}.context-tools input{font-size:12px;min-height:35px}
+.context-tools input[type=checkbox]{min-height:0}.context-tools .row{font-size:10px}
+.context-tools .chips{margin-top:4px}.context-tools .chips button{min-width:35px;justify-content:center;text-align:center}
+.context-warning{border-left:2px solid #b0865e;background:#fff5e8;color:#86512f;padding:9px;font-size:10px;margin-top:8px;white-space:normal}
+.context-warning p{margin:5px 0}.context-warning button{margin:3px 3px 0 0}
+.section-title .part-actions{gap:5px;flex-wrap:wrap}.part-actions .context-move{min-width:28px;min-height:28px;font-size:15px;padding:2px 5px;border:1px solid var(--line)}
+.part-actions .context-button{min-height:28px;font-size:10px;padding:2px 8px;border:1px solid var(--line);background:#fff}
+.section-context{padding:12px;background:#f5f8ef;border:1px solid #d5e0cf;border-radius:6px;margin:10px 0 16px;white-space:normal}
+.section-context .hint{font-size:10px;margin:8px 0 0}.section-context .field{max-width:340px}.section-context .context-back{display:block}
+.reuse-score .reuse-name{font-size:14px;font-weight:700;padding:1px 5px;margin-left:-5px;white-space:normal;text-align:left}
+.reuse-score .reuse-name[aria-pressed=true]{background:#e7d8bf}
+.reuse-score.reuse-selected{outline:1px solid #b99c73;outline-offset:4px}
+.reuse-score .reuse-actions{margin-top:9px}.reuse-actions .context-button{border:1px solid #d1bfa6;background:#fff;font-size:10px;padding:5px 8px}.reuse-actions .context-move{border:1px solid #d1bfa6;min-width:31px;min-height:33px;font-size:16px;padding:3px 5px}
+.reuse-score .section-context{background:#f8f4ed;border-color:#d1bfa6;margin-bottom:0}
+@media(max-width:760px){
+ .context-tools.chord-tools,.context-tools.bar-actions{width:326px;max-width:calc(100vw - 26px);padding:8px}
+ .context-primary>button{min-height:44px;padding:4px 5px;font-size:10px}
+ .context-primary>.bar-delete{flex-basis:36px;min-width:36px}
+ .context-tools .context-placement>button{min-width:44px;min-height:44px}
+ .context-tools .context-placement select{min-height:44px;width:77px;font-size:12px}
+ .context-tools .context-placement span{font-size:10px}
+ .context-tools .context-button,.section-context .context-button{min-height:44px;font-size:10px;padding:6px 9px}
+ .context-tools .context-body .context-back{min-height:37px!important}
+ .context-caption{font-size:10px}.context-tools .context-body .hint{font-size:10px}
+ .section-title .part-actions{margin-left:0;width:100%;gap:5px}
+ .part-actions .outline,.part-actions .context-button{min-height:44px;font-size:10px;padding:4px 7px}
+ .part-actions .context-move{min-width:38px;min-height:44px}
+ .section-title .part-actions .part-delete{margin-left:auto;min-width:40px}
+ .reuse-actions .context-move,.reuse-actions .context-button{min-height:44px}
+ .section-context .row{gap:5px}.reuse-score .reuse-name{min-height:44px;padding-top:7px}
+}
+.context-tools .context-body{overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scroll-padding:8px}
+
+.part-more-moves{display:none}.part-more-moves span{font-size:10px;color:var(--muted)}
+@media(max-width:760px){.part-actions>.context-move{display:none}.part-more-moves{display:flex;margin-bottom:10px}.part-more-moves .context-move{border:1px solid var(--line);min-width:44px;min-height:44px;font-size:17px}}

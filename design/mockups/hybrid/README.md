@@ -51,4 +51,30 @@ Mobilkontrollerna använder Chromium med simulerade skärmar. Ett riktigt iOS-/A
 
 `selection-review.mjs` kontrollerar det separerade klickflödet, dubbelklick, fast verktygsplacering, tomma takter, avgränsad ackordyta, tangentbordsaktivering, delmarkering, titeländring och mobilbredd. Resultat finns i `selection-verification.json`. `verify-all.mjs` kör samtliga kontroller och uppdaterar sammanställningen och bildgalleriet.
 
-Senaste verifieringen: 92 godkända webbläsarkontroller och 18 godkända kontroller vid bildfångst; 32 aktuella mockupbilder. JavaScript-kontroll och projektets TypeScript-kontroll passerade.
+## Kontextmenyer, reviderade 2026-10-05
+
+Markeringen avgör vilka snabbval som visas. En enda meny ligger på en fast plats under takten. Den följer inte ackordet när placeringen ändras. De vanligaste åtgärderna ligger på huvudraden, medan Fler öppnar en grupp i samma kort med en tydlig Tillbaka-knapp. Raden med huvudknappar stannar kvar när gruppen öppnas. Kortet anger ackord, taktnummer, spann eller återanvänd del så att åtgärdens omfattning är synlig.
+
+| Markering | Snabbval | Fler och kompletterande val |
+| --- | --- | --- |
+| Ackord | Vänster/höger, notvärde, Skriv, Variant, Lägg till | Parentes, N.C., exakt placering/ordning, ta bort ackord. Tidigare ackord infogas efter markeringen. |
+| En takt | Ackord, + Takt, Duplicera, Fler, X | Rytm, Repris & hus, tonart/taktart, markera flera, rad/sida, töm ackordraden. |
+| Taktspann | Duplicera, Repris, Hus, Fler | Ny takt efter spannet, rad/sida före första takten, borttagning med bekräftelse och ett gemensamt ångrasteg. |
+| Delrubrik | Ändra titel, Återanvänd, flytta, Fler, X | Duplicera del, ny del efter markeringen, låtform. På mobil ligger flyttpilarna under Fler. |
+| Återanvänd del | Inställningar, Visa original, flytta, Fler | Gör till egen del, ta bort återanvändning. Källdelen och andra återanvändningar påverkas inte av borttagning. |
+
+Plus Takt markerar den nya tomma takten och öppnar ackordraden direkt. Töm ackordraden och Ta bort ackord bevarar rytm, repris, hus och lokala byten. Delkopior får egna identiteter och egna husspann, placeras efter den markerade källdelen och kan ändras separat. Ny del skapar fyra tomma takter. Återanvänd lägger en länkad förekomst sist i formen och erbjuder inställningar och flyttpilar därifrån. Gör till egen del markerar den nya självständiga delen.
+
+Repris & hus anger exakt vilka takter som påverkas. Borttagningsval visas när markeringen faktiskt innehåller tecknen. Ett eget husnummer har en uttrycklig väg tillbaka till Repris & hus. Överlappande hus kräver valet Ersätt eller Behåll. Tonart/taktart och ackord/rytm kräver en enda takt. För ett spann gäller rad- och sidbrytning före första markerade takten.
+
+Varianter uppdateras direkt i det öppnade kortet på datorn; text, mellanslag, skrivmarkör och sammanhängande ångra bevaras. På mobil öppnas större formulär för varianter, rytm, byten och återanvändning i popupen. Att markera i bladet öppnar fortfarande ingen popup automatiskt.
+
+### Granskning och avvägningar
+
+Två oberoende subagenter granskade funktion, faktisk rendering och arbetsflöde. Granskningen ledde till att utökade kort rullas fram vid öppning, för höga grupper får egen scroll och plats reserveras i taktraden så kortet inte täcker nästa rad. Plus Takt öppnar nu skrivning direkt. Delens flyttpilar flyttades till Fler på mobil. Efter Gör till egen del rensas återanvändningsmarkeringen och den självständiga delen markeras.
+
+Fler ger ett extra klick för mindre vanliga val men gör huvudraden lättare att läsa. Långa mobilmenyer kan ta nästan hela bladområdet och delvis dölja takten; taktnummer och markeringens omfattning står kvar i kortet. Det är en kvarvarande avvägning som bör provas med riktiga mobilanvändare. En popup även för långa grupper är ett möjligt alternativ. Det verkliga mobiltangentbordet, pekprecision och exakt PDF-rendering ingår fortfarande inte i denna mockup.
+
+`contextual-review.mjs` och `contextual-verification.json` innehåller den oberoende verifieringen av de nya funktionerna. `verify-all.mjs` kör också tidigare kontroller och uppdaterar sammanställningen och bildgalleriet.
+
+Senaste verifieringen: 127 godkända webbläsarkontroller, inklusive 35 oberoende kontroller av kontextmenyer, samt 18 godkända kontroller vid bildfångst. Galleriet innehåller 42 aktuella bilder. Inga webbläsarfel. JavaScript- och TypeScript-kontroller passerade.
