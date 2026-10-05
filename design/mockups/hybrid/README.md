@@ -1,6 +1,6 @@
 # Harmisgeneratorn: redigera på bladet
 
-Öppna [mockupen](prototype.html) eller [bildgalleriet](index.html). Musiken ändras bara i sidans minne. Nollställ demo återställer låten. Inställningen för textmarkering sparas i webbläsaren.
+Öppna [mockupen](prototype.html) eller [bildgalleriet](index.html). Musiken ändras bara i sidans minne. Nollställ demo återställer låten.
 
 ## Direkta ikonrader, reviderade 2026-10-05
 
@@ -17,7 +17,7 @@ Smala avdelare grupperar ikonerna utan extra menyer. Verktygen stannar på samma
 
 En ikon med parametrar öppnar ett kompakt formulär. På dator visas det vid takten, på mobil i en separat modal popup. Stängknappen och Escape återför fokus till ikonknappen och behåller markeringen. När ordningsknappen blir inaktiverad efter en flytt får samma ackords startpunktsfält fokus.
 
-Sidopanelen innehåller endast Form, Låt och inställningar. Form visar hela låten och låter användaren välja ett block eller dra det till en annan plats. Blockets musikaliska verktyg visas vid den valda delen på bladet. Lokala musikverktyg och återanvändningens parametrar upprepas inte i panelen. Den fasta menyknappen fäller in eller ut kolumnen och öppnar panelen på mobil. Form och Låt nås också från verktygsraden.
+Sidopanelen innehåller endast Form och Låt. Den gamla inställningen för textmarkering och dess lagrade preferens används inte längre. Den stora headern med dubblerade låtuppgifter är borttagen. Titel, artist, tonart, taktart och tempo står på bladet, och ändras via Låt. Nollställ demo ligger i den tunna verktygsraden. Form visar hela låten och låter användaren välja ett block eller dra det till en annan plats. Blockets musikaliska verktyg visas vid den valda delen på bladet. Lokala musikverktyg och återanvändningens parametrar upprepas inte i panelen. Den fasta menyknappen fäller in eller ut kolumnen och öppnar panelen på mobil. Form och Låt nås också från verktygsraden.
 
 ## Markering och direkt skrivning
 
@@ -27,15 +27,21 @@ Kopiera, ta bort och töm gäller endast de kryssade takterna. Repris runt marke
 
 Första klicket på ett ackord markerar det. Nästa klick på samma ackord öppnar hela taktens ackordrad. Dubbelklick fungerar också. Klick på ett annat ackord byter markering. Klick i tomt utrymme inom ackordraden öppnar textfältet direkt. Tomma takter är tillåtna. Klick på taktnumret öppnar fortsatt ingen inmatning.
 
-Skrivmarkör är standard för små rättningar. Inställningar kan ändra beteendet till att markera all text när fältet öppnas. Mellanslag ger flera ackord och parenteser skrivs i texten. `(D A)` normaliseras till `(D) (A)`. Även `Fm(maj9)/Ab` accepteras. Två nya ackord börjar på 1 och 3, tre på 1, 2, 3 och fyra på 1, 2, 3, 4. Oförändrat antal bevarar manuella startpunkter.
+Textfältet öppnas alltid med skrivmarkör för små rättningar. Mellanslag ger flera ackord och parenteser skrivs i texten. `(D A)` normaliseras till `(D) (A)`. Även `Fm(maj9)/Ab` accepteras. Två nya ackord börjar på 1 och 3, tre på 1, 2, 3 och fyra på 1, 2, 3, 4. Oförändrat antal bevarar manuella startpunkter.
 
 Enter, Tab och klick utanför sparar giltig text. Escape avbryter. Ogiltig text stannar som utkast. Tom text tömmer ackorden och bevarar takten, rytm och övriga tecken. Enter under pågående IME-inmatning sparar inte. Tidigare ackord läggs till efter valt ackord; N.C. ersätter det valda ackordet. Textinmatning finns bara på bladet och via skrivikonen.
 
 ## Varianter, rytm och form
 
-Variantfältet accepterar flera ackord och uppdaterar giltig text direkt. Spelomgång och följande gånger uppdateras också direkt. Bladet visar exempelvis "Andra gången: G Am". Ofullständig text stannar i fältet medan bladet behåller senaste giltiga variant. Sammanhängande skrivning blir ett ångrasteg. Fältet Stämma är borttaget. Ett ändrat grundackord med befintlig variant kräver ett val att behålla eller ta bort varianten. Beslutet visas i en egen dialog.
+Variantikonen vid ett grundackord skapar en egen ackordrad på bladet. Skriv flera ackord med mellanslag och parenteser direkt i raden. Giltig text uppdaterar varianten direkt. Enter, Tab och klick utanför avslutar redigeringen. Escape återställer den ursprungliga varianten och ångrahistoriken; en helt ny tom rad försvinner. Första klicket på ett befintligt variantackord markerar det och nästa klick öppnar radens text. Vanlig Ctrl+Z/Ctrl+Y fungerar i textfältet, vars DOM-element behålls under skrivning. Sammanhängande varianttext blir ett ångrasteg.
 
-Placeringspilarna flyttar ackordet enligt valt notvärde och hindrar att ackord passerar varandra eller taktgränsen. Ordning och startpunkter har ett eget kompakt formulär. Rytm redigerar anslag och deras notvärden separat; överlappning och anslag efter taktens slut stoppas. Aktiva skrivfält, skrivmarkör och menyns scrollposition bevaras vid uppdatering.
+Etiketten står ovanför variantens egen taktram och visar exempelvis "2:a · D" eller "3:e+ · D". Grundackordet efter punkten visar vilken harmonik som ersätts; plus anger även följande gånger. Inställningsikonen öppnar endast spelomgång och följande gånger. Det gamla textfältet Ackord i parametermenyn är borttaget. Parametrarna har egna ångrasteg. Ett ändrat grundackord med befintlig variant kräver fortsatt valet att behålla eller ta bort den.
+
+Varje variant har egna ackordsidentiteter och startpunkter. Variantens ram visar grundackordets spann som en förstorad segmentvy. Slaglinjalen under ackorden visar deras faktiska slag, även när grundackordet börjar på exempelvis slag 3. Detta gör täta byten läsbara utan att ändra tidsplaceringen. På mobil visar en del med varianter två takter per rad, inklusive korrekt fortsättning av hus över radbrytningar. Raderna uppdateras direkt vid byte mellan dator- och mobilbredd.
+
+Markerade variantackord får placeringspilar, valt notvärde, ordning/startpunkter och ett verktyg för variantens rytm. Pilarna påverkar ett ackord. Rytmverktyget gäller anslagen för hela den aktuella variantraden, vilket framgår av ackordsföljden och grundackordet i formuläret. Grundtaktens rytm och variantens rytm lagras och redigeras separat. Båda hindrar överlappning och anslag utanför sitt spann. Flyttade grundackord tar med variantens relativa placeringar, medan en flytt som skulle göra placeringarna ogiltiga stoppas. Kopierade takter och delar får nya identiteter även för variantackorden.
+
+Rytmen återges med notsymboler på rätt slag. Fjärdedelar, åttondelar och sextondelar har skilda notvärden. Täta åttondelar och sextondelar får balkar så flaggorna inte överlappar. Enskilda symboler anpassar sin bredd efter utrymmet. De gamla små slagnummertexterna under takten är borttagna. Klick på notbilden öppnar rätt rytmverktyg. Rutnätet lägger till och tar bort anslag, och notvärdet per anslag väljs separat.
 
 Hus har exakta spann och fortsätter över radbrytningar. Infogade takter inne i huset tas med. Borttagna takter krymper huset och flyttar början till första kvarvarande takt. Överlappande hus kräver ett uttryckligt val att ersätta det gamla. Att ta bort ett hus från någon av dess takter tar bort hela huset.
 
@@ -55,14 +61,16 @@ Fri placering och självständiga formblock demonstrerar den kommande modellen. 
 
 När en del återanvänds förankras dess ingående taktart. Återanvändningar följer sedan källdelens taktartsbyten oberoende av blockets plats. Fristående kopior behåller denna taktart. Borttagning av en takt med ett lokalt byte bevarar kvarvarande musikens taktart vid nästa takt. Formflyttar som gör befintliga placeringar ogiltiga stoppas.
 
-Prototypen tillåter högst fyra ackord per takt. Det första kan flyttas senare än slag 1, vilket avviker från dagens produktionsvalidering. I 6/8 räknas slag i åttondelar. Fjärdedelsrutnätet visar 1, 3, 5; åttondelar visar 1 till 6 och sextondelar halva enheter.
+Prototypen tillåter högst fyra grundackord per takt och högst fyra ackord per variantrad. Det första kan flyttas senare än slag 1, vilket avviker från dagens produktionsvalidering. I 6/8 räknas slag i åttondelar. Fjärdedelsrutnätet visar 1, 3, 5; åttondelar visar 1 till 6 och sextondelar halva enheter.
 
 Bladet använder lokal HTML-rendering. Det anropar inte spar-API, PDF-export eller ljuduppspelning. Sidbrytning visas som en avdelare. Avancerade navigeringstecken, transponering, nottext och full textfilredigering ligger utanför prototypen.
 
 ## Verifiering
 
-`verify-all.mjs` kör åtta webbläsargranskningar och bildfångsten. `independent-review.json` sammanställer funktionstesterna. `verification.json` innehåller bildfångstens kontroller och aktuellt bildantal. `flat-review.mjs` kontrollerar de direkta ikonraderna, kryssrutornas omfattning, urval med luckor, massåtgärder, lokala parametrar och mobilbredderna 320, 375 och 430 pixels. Tidigare granskningar kontrollerar textredigering, varianter, rytm, hus, delar, återanvändningar, ångra, fokus och menybeteende.
+`verify-all.mjs` kör nio webbläsargranskningar och bildfångsten. `independent-review.json` sammanställer funktionstesterna. `verification.json` innehåller bildfångstens kontroller och aktuellt bildantal. `flat-review.mjs` kontrollerar de direkta ikonraderna, kryssrutornas omfattning, urval med luckor, massåtgärder, lokala parametrar och mobilbredderna 320, 375 och 430 pixels. Tidigare granskningar kontrollerar textredigering, varianter, rytm, hus, delar, återanvändningar, ångra, fokus och menybeteende.
+
+`notation-review.mjs` kontrollerar dessutom variantens egna startpunkter och rytm, SVG-noternas faktiska läsbarhet, balkning, segmentets slaglinjal, mobilens två kolumner, kopiering av variantidentiteter, Escape och textfältets vanliga ångra/gör om.
 
 Galleriet visar de aktuella arbetsmomenten på dator och mobil. Äldre bilder finns kvar i mappen för tidigare designversioner och används inte i den aktuella presentationen.
 
-Senaste slutverifiering: 185 godkända funktionstester och 13 godkända kontroller vid bildfångst. Galleriet har 19 aktuella bilder. Inga JavaScriptfel. Syntax- och diffkontroller passerade.
+Senaste slutverifiering: 238 godkända funktionstester och 15 godkända kontroller vid bildfångst. Galleriet har 23 aktuella bilder. Inga JavaScriptfel. Syntax- och diffkontroller passerade.

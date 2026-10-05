@@ -82,15 +82,15 @@
       "passed": true
     },
     {
-      "name": "Mobile 375: parameter popup retains chord scope and shared field IDs",
+      "name": "Mobile 375: variant text stays inline and metadata popup retains owner scope",
       "passed": true
     },
     {
-      "name": "Mobile 430: parameter popup retains chord scope and shared field IDs",
+      "name": "Mobile 430: variant text stays inline and metadata popup retains owner scope",
       "passed": true
     },
     {
-      "name": "Global column contains Form, Song and Settings without local tool contents",
+      "name": "Global column contains Form and Song while header and Settings are absent",
       "passed": true
     },
     {

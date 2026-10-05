@@ -5,8 +5,11 @@ const page=await browser.newPage({viewport:{width:1512,height:1050}}),results=[]
 page.on('pageerror',e=>errors.push(e.message));
 page.setDefaultTimeout(3500);
 const state=()=>page.evaluate(()=>window.hybrid.getState());
-async function closeParameters(){if((await state()).contextView)await page.keyboard.press('Escape');}
-async function parameter(view){const st=await state();if(st.draft)await page.locator('#score-edit').press('Enter');if(['variant','add','order'].includes(view)&&!(await state()).chordId){const z=await state(),b=z.model.sections.flatMap(x=>x.bars).find(b=>b.id===z.selected[0]);if(b?.chords.length)await page.locator(`[data-chord="${b.chords[0].id}"]`).click();}if((await state()).contextView!==view)await page.locator(`button[data-action="context:${view}"]`).filter({visible:true}).first().click();}
+async function closeParameters(){if(await page.locator('#variant-edit').count())await page.locator('#variant-edit').press('Enter');if((await state()).contextView)await page.keyboard.press('Escape');}
+async function parameter(view){if(await page.locator('#variant-edit').count()){if(view==='variant')return;await page.locator('#variant-edit').press('Enter');}const st=await state();if(st.draft)await page.locator('#score-edit').press('Enter');if(['variant','add','order'].includes(view)&&!(await state()).chordId){const z=await state(),b=z.model.sections.flatMap(x=>x.bars).find(b=>b.id===z.selected[0]);if(b?.chords.length)await page.locator(`[data-chord="${b.chords[0].id}"]`).click();}if((await state()).contextView!==view)await page.locator(`button[data-action="context:${view}"]`).filter({visible:true}).first().click();}
+async function finishVariant(){if(await page.locator('#variant-edit').count())await page.locator('#variant-edit').press('Enter');}
+async function variantSettings(owner){await finishVariant();await page.locator(`[data-action="variant-settings:${owner}"]`).filter({visible:true}).first().click();}
+
 
 const part=async(id='verse')=>(await state()).model.sections.find(s=>s.id===id);
 const action=a=>page.locator(`[data-action="${a}"]`).filter({visible:true}).first().click();

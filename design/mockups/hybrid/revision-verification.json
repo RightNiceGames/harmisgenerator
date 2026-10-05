@@ -10,7 +10,7 @@
       "passed": true
     },
     {
-      "name": "Select-all preference applies to opened field and persists reload",
+      "name": "Header and text-selection preferences are absent and caret is standard",
       "passed": true
     },
     {
@@ -82,7 +82,7 @@
       "passed": true
     },
     {
-      "name": "Mobile settings and direct bar row have no horizontal overflow",
+      "name": "Mobile song popup and direct bar row fit without header controls",
       "passed": true
     },
     {

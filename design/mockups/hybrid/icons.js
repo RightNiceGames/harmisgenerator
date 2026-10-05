@@ -26,6 +26,11 @@ const iconPaths = {
  reset:'<path d="M3 10a9 9 0 1 1 2 8M3 3v7h7"/>'
 };
 function actionIcon(action) {
+ if(action.startsWith('variant-settings:'))return 'settings';
+ if(action==='context:variant-rhythm'||action.startsWith('edit-rhythm:'))return 'rhythm';
+ if(action.startsWith('variant-step:'))return action.endsWith(':-1')?'left':'right';
+ if(action.startsWith('variant-up:'))return 'up';
+ if(action.startsWith('variant-attack:'))return 'close';
  if(action==='close-context')return 'close';
  if(action==='toggle-panel')return innerWidth<761?'menu':'panel';
  if(action==='part-delete-confirm'||action==='context-delete-range')return 'trash';
@@ -67,7 +72,7 @@ function iconButtonHTML(text,action,kind='',attrs='') {
  let label=supplied?.[1]||title?.[1]||esc(el.textContent.trim());
  const labels={'context:variant':'Variantackord','context:add':'Lägg till ackord','context:chord-more':'Fler ackordval','context:bar-more':'Fler taktval','context:part-more':'Fler val för delen','context:repeats':'Repris och hus','context:':'Tillbaka till snabbval','context-edit':'Skriv ackord','context-insert-bar':'Infoga tom takt efter markeringen','context-tool:insert':'Tonart och taktart','context:reuse-more':'Fler val för återanvändningen'};
  if(!supplied)label=labels[action]||label;
- const content=/^(recent:|block:|select-part:|context-select-reuse:|resolution:)/.test(action)||action.startsWith('attack:')&&!text.startsWith('Ta bort')&&text!=='×';
+ const content=/^(recent:|block:|select-part:|context-select-reuse:|resolution:)/.test(action)||/^(attack:|variant-attack:)/.test(action)&&!text.startsWith('Ta bort')&&text!=='×';
  if(content)return `<button class="${kind}" data-action="${esc(action)}" ${attrs}>${text}</button>`;
  const unavailable=attrs.match(/data-unavailable="([^"]+)"/)?.[1];
  const number=/^(?:context-house:|house:)([12])$/.exec(action)?.[1];

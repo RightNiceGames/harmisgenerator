@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-05T17:15:10.399Z",
+  "date": "2026-10-05T21:26:11.845Z",
   "checks": [
     {
       "name": "Bar selection opens direct tools without text editing",
@@ -10,7 +10,15 @@
       "passed": true
     },
     {
-      "name": "Variant supports multiple live chords and pass settings",
+      "name": "Variant chords are edited directly on the score and update live",
+      "passed": true
+    },
+    {
+      "name": "Variant placement and rhythm are independent from base music",
+      "passed": true
+    },
+    {
+      "name": "Variant settings contain only play pass and following passes",
       "passed": true
     },
     {
@@ -46,7 +54,7 @@
       "passed": true
     },
     {
-      "name": "Mobile variant popup uses the same local field IDs",
+      "name": "Mobile variants use score editing and compact pass-only popup",
       "passed": true
     },
     {
@@ -55,5 +63,5 @@
     }
   ],
   "errors": [],
-  "screenshots": 19
+  "screenshots": 23
 }

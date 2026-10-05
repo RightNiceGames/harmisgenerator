@@ -1,35 +1,26 @@
 /* Direct action rows. Each selection owns at most one parameter editor. */
-let contextView = '', selectedReuse = null, contextVariantDraft = null, contextReturnAction = '';
+let contextView = '', selectedReuse = null, contextReturnAction = '';
 let chordRevealTimer=null,chordRevealGeneration=0,chordRevealPending=null;
 function cancelChordReveal(){clearTimeout(chordRevealTimer);chordRevealTimer=null;chordRevealPending=null;chordRevealGeneration++;}
 function queueChordReveal(keyboard=false){
- cancelChordReveal();const generation=chordRevealGeneration,id=chordId,barId=selected[0];
- const reveal=()=>{if(generation!==chordRevealGeneration||draft||contextView||chordId!==id||selected.length!==1||selected[0]!==barId)return;const chord=$(`[data-chord="${id}"]`),tools=$('.flat-chord-tools'),scene=$('.scene');if(!tools||!scene)return;
-  if(!keyboard&&chord?.matches(':hover')){chordRevealPending={generation,id,reveal};return;}
+ cancelChordReveal();const generation=chordRevealGeneration,id=selectedVariantId||chordId,variant=!!selectedVariantId,barId=selected[0];
+ const reveal=()=>{if(generation!==chordRevealGeneration||draft||contextView||(selectedVariantId||chordId)!==id||selected.length!==1||selected[0]!==barId)return;const chord=$(variant?`[data-variant-chord="${id}"]`:`[data-chord="${id}"]`),tools=$('.flat-chord-tools'),scene=$('.scene');if(!tools||!scene)return;
+  if(!keyboard&&matchMedia('(hover: hover)').matches&&chord?.matches(':hover')){chordRevealPending={generation,id,variant,reveal};return;}
   const rect=tools.getBoundingClientRect(),bounds=scene.getBoundingClientRect();if(rect.bottom>bounds.bottom-8||rect.top<bounds.top)tools.scrollIntoView({block:'nearest',inline:'nearest'});
  };
  if(keyboard)reveal();else chordRevealTimer=setTimeout(reveal,650);
 }
 for(const event of ['pointerdown','keydown','wheel','touchstart'])document.addEventListener(event,cancelChordReveal,{capture:true,passive:true});
-document.addEventListener('pointermove',e=>{const pending=chordRevealPending;if(pending&&pending.generation===chordRevealGeneration&&e.target.closest('[data-chord]')?.dataset.chord!==String(pending.id)){chordRevealPending=null;chordRevealTimer=setTimeout(pending.reveal,100);}},{passive:true});
-function resetContext() { contextView = ''; selectedReuse = null; contextVariantDraft = null; contextReturnAction=''; }
+document.addEventListener('pointermove',e=>{const pending=chordRevealPending;if(pending&&pending.generation===chordRevealGeneration&&e.target.closest(pending.variant?'[data-variant-chord]':'[data-chord]')?.getAttribute(pending.variant?'data-variant-chord':'data-chord')!==String(pending.id)){chordRevealPending=null;chordRevealTimer=setTimeout(pending.reveal,100);}},{passive:true});
+function resetContext() { contextView = ''; selectedReuse = null; selectedVariantId=null;variantOwnerId=null; contextReturnAction=''; }
 function singleBar() { return !selectedPart && !selectedReuse && selected.length === 1 ? selectedBar() : null; }
 function needSingleBar() { if (singleBar()) return true; fail('Markera ett ackord eller en enda takt för det här verktyget.'); return false; }
 function contextButton(text, action, extra = '') { return btn(text, action, 'context-button', extra); }
 function contextToggle(text, view, extra='') { return contextButton(text, 'context:' + view, `aria-expanded="${contextView === view}" ${extra}`); }
 function contextHeading(title, hint = '') { return `<div class="context-caption"><strong>${esc(title)}</strong>${hint ? `<span>${esc(hint)}<span class="strip-scroll-hint" aria-hidden="true">${innerWidth<761?'↔ Svep':'↔ Rulla'}</span></span>` : ''}</div>`; }
-function contextBack(view = '') { return btn('← Tillbaka', 'context:' + view, 'context-back', 'aria-label="Tillbaka till ' + (view === 'repeats' ? 'Repris & hus' : 'snabbval') + '"'); }
 function contextFeedback() {
  const conflict = pendingHouse ? `<div class="context-warning" role="alert"><strong>Husen överlappar</strong><p>Nytt hus ${esc(pendingHouse.number)} över ${selected.length} takter. Det befintliga husets hela spann ersätts.</p>${pendingHouse.spans.map(s => `<p>Hus ${esc(s.number)}: takt ${numberOf(s.barIds[0])}–${numberOf(s.barIds.at(-1))}</p>`).join('')}${contextButton('Ersätt befintligt hus', 'house-replace')}${contextButton('Behåll befintligt hus', 'house-cancel')}</div>` : '';
  return conflict + (error ? `<div class="context-warning" role="alert">${esc(error)}</div>` : '');
-}
-function compactVariantFields(c, prefix = '') {
- const d = prefix && contextVariantDraft?.id === c?.id ? contextVariantDraft : {value:c?.variant || '', pass:c?.variantPass || 2, following:!!c?.variantFollowing};
- const disabled=c?'':'disabled';
- return `<div class="variant-fields"><div class="variant-line">${field('Ackord',prefix+'variant',d.value,`placeholder="G Am" autocomplete="off" ${disabled}`)}${field('Spelas gång',prefix+'variant-pass',d.pass,`type="number" min="2" max="16" ${disabled}`)}</div><label class="variant-follow row"><input id="${prefix}variant-following" type="checkbox" ${d.following?'checked':''} ${disabled}> Även följande gånger</label><p id="${prefix}variant-feedback" class="hint variant-feedback" role="status">${esc(variantError || (c?.variant ? variantLabel(c) : 'Uppdateras direkt · mellanslag mellan ackord'))}</p></div>`;
-}
-function contextVariantHTML(c) {
- return `<div class="context-subheading">${contextBack()}<h3>Variant till ${esc(c.name)}</h3></div>${compactVariantFields(c,'context-')}`;
 }
 function panelToggleHTML(){const mobile=innerWidth<761,on=mobile?panelOpen:!panelCollapsed;return btn(mobile?(on?'Stäng menyn':'Öppna menyn'):(on?'Fäll in menykolumn':'Visa menykolumn'),'toggle-panel','panel-toggle',`aria-expanded="${on}" aria-controls="editor-panel"`);}
 function selectionContiguous(){if(!selected.length)return false;const bars=sectionOf(selected[0]).bars,indices=selected.map(id=>bars.findIndex(b=>b.id===id));return indices.every((n,i)=>!i||n===indices[i-1]+1);}
@@ -56,28 +47,25 @@ function barCornerActions(b){
  actionGroup(contextButton('Ny rad före första valda takten','break:row',`aria-pressed="${first.rowBreak}"`)+contextButton('Ny sida före första valda takten','break:page',`aria-pressed="${first.pageBreak}"`)+(first.rowBreak||first.pageBreak?contextButton('Ta bort brytning','break:remove'):''));
  return `<div class="bar-corner-actions flat-bar-tools" role="group" aria-label="Taktverktyg för ${esc(scope)}">${contextHeading(scope,'Takter')}<div class="action-strip" data-strip="bar">${row}</div>${innerWidth>760&&(['rhythm','changes','house-number','delete-range'].includes(contextView)||(!chordId&&(pendingHouse||error)))?`<div class="context-body parameter-body">${contextParameterBody()}${contextFeedback()}</div>`:''}</div>`;
 }
-function rememberContextVariant() {
- const c = currentChord(); if (!c || !$('#context-variant')) return;
- contextVariantDraft = {id:c.id, value:$('#context-variant').value, pass:$('#context-variant-pass').value, following:$('#context-variant-following').checked};
-}
 function parameterHeading(title){return `<div class="context-subheading"><h3>${esc(title)}</h3>${contextButton('Stäng parametrar','close-context')}</div>`;}
 function contextChordBody(b,c){
- if(contextView==='variant')return `${parameterHeading('Variant till '+c.name)}${compactVariantFields(c,'context-')}`;
- if(contextView==='add')return `${parameterHeading('Lägg till efter '+c.name)}<div class="chips">${model.recent.map(n=>contextButton(esc(n),'recent:'+n,b.chords.length>=4?'disabled':'')).join('')}</div>${b.chords.length>=4?'<p class="hint">Takten har redan fyra ackord.</p>':''}`;
- if(contextView==='order')return `${parameterHeading('Ordning och startpunkter')}${resolutionHTML()}${changeStartsHTML(b)}`;
+ if(contextView==='variant')return variantParamsHTML(c);
+ if(contextView==='add')return `${parameterHeading('Lägg till efter '+c.name)}<div class="chips">${model.recent.map(n=>contextButton(esc(n),'recent:'+n,(currentVariant()?c.variantChords.length:b.chords.length)>=4?'disabled':'')).join('')}</div>${b.chords.length>=4?'<p class="hint">Takten har redan fyra ackord.</p>':''}`;
+ if(contextView==='order')return currentVariant()?variantOrderHTML(b,c):`${parameterHeading('Ordning och startpunkter')}${resolutionHTML()}${changeStartsHTML(b)}`;
  return '';
 }
 function chordTools(b){
- const c=b.chords.find(c=>c.id===chordId);if(!c||draft||selectedPart||selected[0]!==b.id)return '';
- const left=nextChordPosition(b,c,-1),right=nextChordPosition(b,c,1);
- return `<div class="chord-tools context-tools flat-chord-tools" role="group" aria-label="Ackordverktyg för ${esc(c.name)}">${contextHeading(c.name+' · takt '+numberOf(b.id),'Slag '+beatLabel(c.start))}<div class="action-strip" data-strip="chord">${actionGroup(contextButton('Flytta '+c.name+' åt vänster','chord-step:'+c.id+':-1',left==null?'disabled':'')+contextButton('Flytta '+c.name+' åt höger','chord-step:'+c.id+':1',right==null?'disabled':'')+`<select data-chord-grid aria-label="Notvärde för ackordets placeringssteg">${[4,8,16].map(n=>`<option value="${n}" ${n===resolution?'selected':''}>1/${n}</option>`).join('')}</select>`)}${actionGroup(contextButton('Skriv ackord','context-edit')+contextToggle('Variantackord','variant')+contextToggle('Lägg till ackord','add'))}${actionGroup(contextButton(c.parenthetical?'Ta bort parentes':'Inom parentes','context-parentheses',`aria-pressed="${c.parenthetical}"`)+contextButton('N.C. i stället för '+c.name,'nc')+contextToggle('Ordning och startpunkter','order')+contextButton('Ta bort '+c.name,'context-delete-chord'))}</div>${innerWidth>760&&['variant','add','order'].includes(contextView)?`<div class="context-body parameter-body">${contextChordBody(b,c)}</div>`:''}${!['rhythm','changes','house-number','delete-range'].includes(contextView)&&!pendingHouse?contextFeedback():''}</div>`;
+ const owner=b.chords.find(c=>c.id===chordId),variant=currentVariant(),c=variant||owner;if(!c||draft||selectedPart||selected[0]!==b.id)return '';
+ const left=variant?variantNextPosition(b,owner,c,-1):nextChordPosition(b,c,-1),right=variant?variantNextPosition(b,owner,c,1):nextChordPosition(b,c,1),move=variant?'variant-step:':'chord-step:';
+ return `<div class="chord-tools context-tools flat-chord-tools" role="group" aria-label="Ackordverktyg för ${esc(c.name)}">${contextHeading((variant?'Variant '+c.name:c.name)+' · takt '+numberOf(b.id),'Slag '+beatLabel(c.start))}<div class="action-strip" data-strip="chord">${actionGroup(contextButton('Flytta '+c.name+' åt vänster',move+c.id+':-1',left==null?'disabled':'')+contextButton('Flytta '+c.name+' åt höger',move+c.id+':1',right==null?'disabled':'')+`<select data-chord-grid aria-label="Notvärde för ackordets placeringssteg">${[4,8,16].map(n=>`<option value="${n}" ${n===resolution?'selected':''}>1/${n}</option>`).join('')}</select>`)}${actionGroup(contextButton('Skriv ackord','context-edit')+contextToggle(variant?'Variantens spelomgång':'Variantackord','variant')+(variant?contextToggle('Rytm för hela variantraden '+owner.variant,'variant-rhythm'):'')+contextToggle('Lägg till ackord','add'))}${actionGroup(contextButton(c.parenthetical?'Ta bort parentes':'Inom parentes','context-parentheses',`aria-pressed="${c.parenthetical}"`)+contextButton('N.C. i stället för '+c.name,'nc')+contextToggle('Ordning och startpunkter','order')+contextButton('Ta bort '+c.name,'context-delete-chord'))}</div>${innerWidth>760&&['variant','add','order','variant-rhythm'].includes(contextView)?`<div class="context-body parameter-body">${contextView==='variant-rhythm'?rhythmParameterHTML(true):contextChordBody(b,owner)}</div>`:''}${!['rhythm','changes','house-number','delete-range'].includes(contextView)&&!pendingHouse?contextFeedback():''}</div>`;
 }
-function barActions(){return '';}
-function rhythmParameterHTML(){
- const b=singleBar();if(!b)return '';
- return `${parameterHeading('Anslag i takt '+numberOf(b.id))}${resolutionHTML()}<div class="beat-grid">${Array.from({length:meterUnits(b)},(_,beat)=>`<div class="beat-group"><span>Slag ${beat+1}</span>${positions(b).filter(n=>Math.floor(n)===beat+1).map(n=>btn(beatLabel(n),'attack:'+n,b.attacks.some(a=>a.start===n)?'on':'',`aria-label="Anslag på ${beatLabel(n)}" aria-pressed="${b.attacks.some(a=>a.start===n)}"`)).join('')}</div>`).join('')}</div><div class="attacks">${b.attacks.sort((a,z)=>a.start-z.start).map(a=>`<div class="beat-row"><span>${beatLabel(a.start)}</span><select data-duration="${a.start}" aria-label="Notvärde för anslag ${beatLabel(a.start)}">${[4,8,16].map(n=>`<option value="${n}" ${a.duration===n?'selected':''}>1/${n}</option>`).join('')}</select>${contextButton('Ta bort anslag '+beatLabel(a.start),'attack:'+a.start)}</div>`).join('')}</div>`;
+function rhythmParameterHTML(variant=false){
+ const b=singleBar();if(!b)return '';const c=variant?variantOwner():null,attacks=variant?(c.variantAttacks||[]):b.attacks,action=variant?'variant-attack:':'attack:';
+ return `${parameterHeading(variant?'Variantens rytm · '+variantPassLabel(c):'Rytm i takt '+numberOf(b.id))}${variant?`<p class="variant-rhythm-scope">${esc(c.variant)} · i stället för ${esc(c.name)}</p>`:''}${resolutionHTML()}<div class="beat-grid" style="--beats:${meterUnits(b)}">${Array.from({length:meterUnits(b)},(_,beat)=>`<div class="beat-group"><span>${beat+1}</span>${positions(b).filter(n=>Math.floor(n)===beat+1).map(n=>btn(beatLabel(n),action+n,attacks.some(a=>a.start===n)?'on':'',`aria-label="${variant?'Variantens anslag':'Anslag'} på ${beatLabel(n)}" aria-pressed="${attacks.some(a=>a.start===n)}" ${variant&&(n<c.start||n>=variantEnd(b,c))?'disabled':''}`)).join('')}</div>`).join('')}</div><div class="attacks">${[...attacks].sort((a,z)=>a.start-z.start).map(a=>`<div class="beat-row"><span>Slag ${beatLabel(a.start)}</span><select ${variant?'data-variant-duration':'data-duration'}="${a.start}" aria-label="Notvärde för ${variant?'variantens ':''}anslag ${beatLabel(a.start)}">${[4,8,16].map(n=>`<option value="${n}" ${a.duration===n?'selected':''}>1/${n}</option>`).join('')}</select>${contextButton('Ta bort anslag '+beatLabel(a.start),action+a.start)}</div>`).join('')}</div><p class="hint rhythm-hint">Klicka på slag för att lägga till eller ta bort anslag. Notvärdet anger längden.</p>`;
 }
+
 function contextParameterBody(){
+ if(contextView==='variant-rhythm')return rhythmParameterHTML(true);
  if(['variant','add','order'].includes(contextView)){const b=singleBar(),c=currentChord();return b&&c?contextChordBody(b,c):'';}
  if(contextView==='rhythm')return rhythmParameterHTML();
  if(contextView==='changes')return `${parameterHeading('Tonart och taktart')}${localChangesHTML().replace('<h3>Byten i markerad takt</h3>','')}`;
@@ -86,13 +74,11 @@ function contextParameterBody(){
  if(contextView==='reuse-settings'){const block=selectedForm();return `${parameterHeading('Återanvänd '+sectionById(block.source).name)}<div class="reuse-fields">${field('Gånger','context-reuse-count',block.count,'type="number" min="1" max="16"')}${field('Anvisning','context-reuse-instruction',block.instruction,'placeholder="Instrumentalt"')}</div>${contextButton('Använd inställningar','context-reuse-apply')}`;}
  return '';
 }
-function contextPopupHTML(){return innerWidth<761&&contextView?`<dialog id="context-popup" class="context-popup" aria-label="Parametrar för ${esc(selectionText())}"><p class="popup-scope">${esc(selectionText())}</p><div class="context-tools popup-parameters">${contextParameterBody()}${contextFeedback()}</div></dialog>`:'';}
+function contextPopupHTML(){const scope=['rhythm','changes','house-number','delete-range'].includes(contextView)?selectionText().replace(/ · variant .*/, ''):selectionText();return innerWidth<761&&contextView?`<dialog id="context-popup" class="context-popup" aria-label="Parametrar för ${esc(scope)}"><p class="popup-scope">${esc(scope)}</p><div class="context-tools popup-parameters">${contextParameterBody()}${contextFeedback()}</div></dialog>`:'';}
+
 function positionChordTools() {
- for (const row of document.querySelectorAll('.score-row')) {
-  const base = innerWidth < 761 ? 103 : 85; let needed = base;
-  for (const variant of row.querySelectorAll('.variant')) needed = Math.max(needed, variant.offsetTop + variant.scrollHeight + 13);
-  row.style.setProperty('--bar-needed-height', needed + 'px'); row.style.removeProperty('margin-bottom');
- }
+ for(const row of document.querySelectorAll('.score-row')){const bars=[...row.querySelectorAll('.bar')],base=(innerWidth<761?103:85)+(bars.some(el=>barById(el.dataset.bar).attacks.length)?32:0)+(bars.some(el=>barById(el.dataset.bar).key||barById(el.dataset.bar).meter)?10:0);row.style.setProperty('--measure-height',base+'px');let needed=base;for(const stack of row.querySelectorAll('.variant-stack'))if(stack.children.length)needed=Math.max(needed,base+(innerWidth<761?44:24)+stack.scrollHeight);row.style.setProperty('--bar-needed-height',needed+'px');row.style.removeProperty('margin-bottom');}
+ for(const line of document.querySelectorAll('.rhythm-notation')){const notes=[...line.querySelectorAll('.rhythm-attack')];notes.forEach((note,i)=>{const gap=notes[i+1]?notes[i+1].offsetLeft-note.offsetLeft:line.clientWidth-note.offsetLeft;note.querySelector('.rhythm-note').style.width=(note.classList.contains('is-beamed')?8:Math.max(8,Math.min(21,gap-2)))+'px';});}
  const scene = $('.scene'); if (!scene) return;
  const bounds = scene.getBoundingClientRect();
  for(const tools of document.querySelectorAll('.flat-bar-tools,.flat-chord-tools')){
@@ -118,7 +104,6 @@ function partActionsHTML(s,block){
  if(selectedPart!==s.id||renameState)return '';
  return `<div class="part-actions action-strip" data-strip="part" role="group" aria-label="Verktyg för delen ${esc(s.name)}">${btn('Ändra titel','rename-part:'+s.id,'outline')}${btn('Återanvänd','context-reuse:'+s.id,'outline')}${blockMovesHTML(block)}${contextButton('Duplicera del','context-copy-part:'+s.id)}${contextButton('Ny del efter '+s.name,'context-new-part:'+s.id)}${btn('Ta bort delen','delete-part:'+s.id,'part-delete',`aria-label="Ta bort delen ${esc(s.name)}"`)}</div>`;
 }
-function partBodyHTML(){return '';}
 function reuseScoreHTML(block,s){
  const on=selectedReuse===block.id;
  return `<div class="reuse-score ${on?'reuse-selected':''}" data-score-block="${block.id}">${btn(esc(s.name)+' × '+block.count,'context-select-reuse:'+block.id,'reuse-name',`aria-pressed="${on}"`)}<p>Återanvänd del · följer originalets ackord${block.instruction?' · '+esc(block.instruction):''}</p>${on?`<div class="reuse-actions action-strip" data-strip="reuse" role="group" aria-label="Verktyg för återanvändningen">${contextToggle('Inställningar','reuse-settings')}${contextButton('Visa original','goto-source:'+s.id)}${blockMovesHTML(block)}${contextButton('Gör till egen del','detach-reuse')}${contextButton('Ta bort återanvändning','reuse-remove')}</div>${innerWidth>760&&contextView==='reuse-settings'?`<div class="section-context">${contextParameterBody()}</div>`:''}${error?`<p class="context-warning" role="alert">${esc(error)}</p>`:''}`:''}</div>`;
@@ -135,7 +120,7 @@ function copyPart(id, empty = false) {
  if (!empty) {
   copy.id = 'part' + (++uid); const ids = new Map();
   copy.entryMeter = meterFor(source.bars[0]);
-  copy.bars.forEach(b => {const previous=b.id;b.id=++uid;ids.set(previous,b.id);b.chords.forEach(c => c.id=++uid);});
+  copy.bars.forEach(b => {const previous=b.id;b.id=++uid;ids.set(previous,b.id);copyChordIdentities(b);});
   copy.bars.forEach(b => {if(b.houseSpan)b.houseSpan.barIds=b.houseSpan.barIds.map(id=>ids.get(id));});
   if (!copy.bars[0].meter) copy.bars[0].meter = copy.entryMeter;
   copy.name = source.name + ' · kopia';
@@ -163,22 +148,20 @@ function insertContextBar(){
  beginEdit(bar.id,null);
 }
 function handleContextAction(action) {
- if(action==='close-context'){const target=contextReturnAction;contextView='';contextVariantDraft=null;liveUndoKey=null;render();if(target)$('[data-action="'+target+'"]')?.focus({preventScroll:true});return true;}
+ if(action==='close-context'){const target=contextReturnAction;contextView='';render();if(target)$('[data-action="'+target+'"]')?.focus({preventScroll:true});return true;}
  if(action?.startsWith('context:')){
   const view=action.slice(8);
-  if(['rhythm','changes','variant','add','order'].includes(view)&&!needSingleBar())return true;
+  if(['rhythm','variant-rhythm','changes','variant','add','order'].includes(view)&&!needSingleBar())return true;
   if(view==='house-number'&&!selectionContiguous()){fail('Markera sammanhängande takter för att lägga till ett hus.');return true;}
-  contextView=contextView===view?'':view;contextReturnAction='context:'+view;error='';variantError='';render();if(contextView&&innerWidth>760)revealContext();
-  const focus={'variant':'#context-variant','house-number':'#context-house-number','changes':'#local-key','reuse-settings':'#context-reuse-count'}[view];if(contextView&&focus)$(focus)?.focus({preventScroll:true});return true;
+  contextView=contextView===view?'':view;contextReturnAction='context:'+view;error='';render();if(contextView&&innerWidth>760)revealContext();
+  const focus={'variant':'#context-variant-pass','house-number':'#context-house-number','changes':'#local-key','reuse-settings':'#context-reuse-count'}[view];if(contextView&&focus)$(focus)?.focus({preventScroll:true});return true;
  }
  if (action==='context-insert-bar'){insertContextBar();return true;}
  if (action==='context-edit') {if(needSingleBar())beginEdit(selected[0],null);return true;}
- if (action?.startsWith('context-tool:')) {contextView='';setTool(action.slice(13));if(action.endsWith('insert'))$('#local-key')?.scrollIntoView({block:'center'});return true;}
  if (action==='context-parentheses') {const c=currentChord();if(c)mutate(()=>c.parenthetical=!c.parenthetical,'Parentesen uppdaterades för '+c.name+'.');return true;}
- if (action==='context-delete-chord') {const b=singleBar(),c=currentChord();if(b&&c)mutate(()=>{b.chords=b.chords.filter(v=>v.id!==c.id);chordId=b.chords[0]?.id||null;contextView='';contextVariantDraft=null;},'Ackordet togs bort. Rytm och takttecken är kvar.');return true;}
- if(action==='context-clear-chords'){if(needBar())mutate(()=>{selected.forEach(id=>barById(id).chords=[]);chordId=null;contextView='';contextVariantDraft=null;},'Ackordraderna tömdes. Rytm och takttecken är kvar.');return true;}
+ if (action==='context-delete-chord') {const b=singleBar(),c=currentChord();if(b&&c)mutate(()=>{b.chords=b.chords.filter(v=>v.id!==c.id);chordId=b.chords[0]?.id||null;contextView='';},'Ackordet togs bort. Rytm och takttecken är kvar.');return true;}
+ if(action==='context-clear-chords'){if(needBar())mutate(()=>{selected.forEach(id=>barById(id).chords=[]);chordId=null;contextView='';},'Ackordraderna tömdes. Rytm och takttecken är kvar.');return true;}
  if (action==='context-remove-repeat') {mutate(()=>selected.forEach(id=>{const b=barById(id);b.repeatStart=false;b.repeatEnd=false;}),'Repristecknen i markeringen togs bort.');return true;}
- if (action==='context-houses') {contextView='repeats';renderScore();revealContext();$('.context-body h3:last-of-type')?.scrollIntoView({block:'nearest'});return true;}
  if (action?.startsWith('context-house:')) {requestContextHouse(action.slice(14));return true;}
  if (action==='context-house-apply') {requestContextHouse($('#context-house-number').value.trim());return true;}
  if (action==='context-delete-range') {deleteRange();return true;}

@@ -9,8 +9,11 @@ await p.evaluate(()=>document.fonts.ready);
 p.setDefaultTimeout(3500);
 const state=()=>p.evaluate(()=>window.hybrid.getState());
 const results=[];
-async function closeParameters(){if((await state()).contextView)await p.keyboard.press('Escape');}
-async function parameter(view){const st=await state();if(st.draft)await p.locator('#score-edit').press('Enter');if(['variant','add','order'].includes(view)&&!(await state()).chordId){const z=await state(),b=z.model.sections.flatMap(x=>x.bars).find(b=>b.id===z.selected[0]);if(b?.chords.length)await p.locator(`[data-chord="${b.chords[0].id}"]`).click();}if((await state()).contextView!==view)await p.locator(`button[data-action="context:${view}"]`).filter({visible:true}).first().click();}
+async function closeParameters(){if(await p.locator('#variant-edit').count())await p.locator('#variant-edit').press('Enter');if((await state()).contextView)await p.keyboard.press('Escape');}
+async function parameter(view){if(await p.locator('#variant-edit').count()){if(view==='variant')return;await p.locator('#variant-edit').press('Enter');}const st=await state();if(st.draft)await p.locator('#score-edit').press('Enter');if(['variant','add','order'].includes(view)&&!(await state()).chordId){const z=await state(),b=z.model.sections.flatMap(x=>x.bars).find(b=>b.id===z.selected[0]);if(b?.chords.length)await p.locator(`[data-chord="${b.chords[0].id}"]`).click();}if((await state()).contextView!==view)await p.locator(`button[data-action="context:${view}"]`).filter({visible:true}).first().click();}
+async function finishVariant(){if(await p.locator('#variant-edit').count())await p.locator('#variant-edit').press('Enter');}
+async function variantSettings(owner){await finishVariant();await p.locator(`[data-action="variant-settings:${owner}"]`).filter({visible:true}).first().click();}
+
 
 async function fresh(){await p.reload();await p.evaluate(()=>document.fonts.ready);}
 async function clickChord(section,index,chordIndex=0){await closeParameters();const s=await state();const b=s.model.sections.find(x=>x.id===section).bars[index];await p.locator(`[data-chord="${b.chords[chordIndex].id}"]`).click();}

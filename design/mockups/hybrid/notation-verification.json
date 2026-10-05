@@ -1,0 +1,217 @@
+{
+  "errors": [],
+  "results": [
+    {
+      "name": "Header and selection settings are removed without losing Song controls",
+      "passed": true
+    },
+    {
+      "name": "Variant text opens directly on score with caret and live multi chord model",
+      "passed": true
+    },
+    {
+      "name": "Variant first click selects and second click edits only owner line",
+      "passed": true
+    },
+    {
+      "name": "Variant trailing spaces and caret survive live rendering",
+      "passed": true
+    },
+    {
+      "name": "Escape restores original variant positions rhythm and undo depth",
+      "passed": true
+    },
+    {
+      "name": "Variant typing groups one undo and redo restores identities and starts",
+      "passed": true
+    },
+    {
+      "name": "Invalid variant leaves last valid music and visible correction feedback",
+      "passed": true
+    },
+    {
+      "name": "Enter Tab and blur finish variant editing without losing valid text",
+      "passed": true
+    },
+    {
+      "name": "Variant settings badge opens metadata only and updates outside pass label",
+      "passed": true
+    },
+    {
+      "name": "Variant arrows move on 4/8/16 grid without moving base chords or neighbor",
+      "passed": true
+    },
+    {
+      "name": "Variant arrows cannot cross its neighbor or the next base chord",
+      "passed": true
+    },
+    {
+      "name": "Editing surviving variant text retains its independent starts and IDs",
+      "passed": true
+    },
+    {
+      "name": "Variant parentheses NC and delete affect selected variant only",
+      "passed": true
+    },
+    {
+      "name": "Variant order and exact starts use independent owner scope",
+      "passed": true
+    },
+    {
+      "name": "Base rhythm renders quarter eighth and sixteenth SVGs on stored beats",
+      "passed": true
+    },
+    {
+      "name": "Variant rhythm has own attack array and notation lane without changing base rhythm",
+      "passed": true
+    },
+    {
+      "name": "Variant rhythm rejects duration overlap and crossing owner span",
+      "passed": true
+    },
+    {
+      "name": "Clicking base or variant note reopens correct rhythm scope",
+      "passed": true
+    },
+    {
+      "name": "Two owners have separate variant chord IDs positions and rhythms",
+      "passed": true
+    },
+    {
+      "name": "Duplicating bar remaps all variant IDs and keeps independent rhythm arrays",
+      "passed": true
+    },
+    {
+      "name": "Copying part remaps variant identities and keeps source independent",
+      "passed": true
+    },
+    {
+      "name": "Mobile 320: inline variant field and SVG rhythm stay within score",
+      "passed": true
+    },
+    {
+      "name": "Mobile 375: inline variant field and SVG rhythm stay within score",
+      "passed": true
+    },
+    {
+      "name": "Mobile 430: inline variant field and SVG rhythm stay within score",
+      "passed": true
+    },
+    {
+      "name": "Mobile 375: variant parameters use popup while score text stays inline",
+      "passed": true
+    },
+    {
+      "name": "Mobile 430: variant parameters use popup while score text stays inline",
+      "passed": true
+    },
+    {
+      "name": "Variant settings badge selects its own measure after another measure is selected",
+      "passed": true
+    },
+    {
+      "name": "Moving base chord translates its variants and attacks as one undo",
+      "passed": true
+    },
+    {
+      "name": "Moving next base change cannot strand a variant outside its owner span",
+      "passed": true
+    },
+    {
+      "name": "Local meter shrink rejects existing variant starts and attacks outside measure",
+      "passed": true
+    },
+    {
+      "name": "Variant rhythm 6/8 uses eighth-based starts and rejects boundary crossing",
+      "passed": true
+    },
+    {
+      "name": "Detach reuse remaps variant identities and retains independent rhythm",
+      "passed": true
+    },
+    {
+      "name": "Keyboard variant selection and second activation edit with stable scope",
+      "passed": true
+    },
+    {
+      "name": "Variant text composition Enter retains draft",
+      "passed": true
+    },
+    {
+      "name": "Keyboard variant reorder restores focus to moved variants own start field",
+      "passed": true
+    },
+    {
+      "name": "Escape on a new blank variant leaves exact model shape and undo history unchanged",
+      "passed": true
+    },
+    {
+      "name": "Dense sixteenths beam within beats and preserve actual stored starts",
+      "passed": true
+    },
+    {
+      "name": "Adjacent eighth and sixteenth have primary beam and short secondary beam",
+      "passed": true
+    },
+    {
+      "name": "Variant segment beat ruler follows actual owner span and independent placements",
+      "passed": true
+    },
+    {
+      "name": "Mobile 320: variants use two bars per row while plain sections keep four",
+      "passed": true
+    },
+    {
+      "name": "Mobile 375: variants use two bars per row while plain sections keep four",
+      "passed": true
+    },
+    {
+      "name": "Mobile 430: variants use two bars per row while plain sections keep four",
+      "passed": true
+    },
+    {
+      "name": "Width 1512: G Am variant names remain distinct for one-beat owner in C D E F bar",
+      "passed": true
+    },
+    {
+      "name": "Width 375: G Am variant names remain distinct for one-beat owner in C D E F bar",
+      "passed": true
+    },
+    {
+      "name": "Mobile house brackets follow two-column variant rows and stop at correct selected endpoint",
+      "passed": true
+    },
+    {
+      "name": "Width 1512: dense sixteenth noteheads remain visually separate",
+      "passed": true
+    },
+    {
+      "name": "Width 375: dense sixteenth noteheads remain visually separate",
+      "passed": true
+    },
+    {
+      "name": "Native input undo and redo preserve variant field identity and synchronize live model",
+      "passed": true
+    },
+    {
+      "name": "Replacing two manually placed variants by typing retains original count identities and starts",
+      "passed": true
+    },
+    {
+      "name": "Escape new blank mobile variant removes empty row and restores base layout and focus",
+      "passed": true
+    },
+    {
+      "name": "Escape editing existing variant restores the specifically selected variant and focus",
+      "passed": true
+    },
+    {
+      "name": "Crossing mobile breakpoint rerenders variant columns house brackets and parameter dialogs",
+      "passed": true
+    },
+    {
+      "name": "Switching variant to its base and back selects on first click and edits on second",
+      "passed": true
+    }
+  ]
+}

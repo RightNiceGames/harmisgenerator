@@ -38,7 +38,7 @@
       "passed": true
     },
     {
-      "name": "Variant inline fields omit voice, align chord and pass, retain live multi chord editing",
+      "name": "Variant text is inline while metadata stays separate and live",
       "passed": true
     },
     {
@@ -58,7 +58,7 @@
       "passed": true
     },
     {
-      "name": "Collapsed panel reopens for requested global Settings tab",
+      "name": "Collapsed panel reopens for Song and removed Settings stay absent",
       "passed": true
     },
     {

@@ -58,3 +58,56 @@
  .popup-parameters .context-button.icon-button{min-height:44px;min-width:44px;width:44px}.popup-parameters .beat-group button{min-height:44px}
  .part-actions>.context-move{display:inline-flex!important}.section-title .part-actions{gap:2px}.part-actions .icon-button,.reuse-actions .icon-button{width:44px;min-width:44px;min-height:44px}
 }
+
+/* Separate score rows; labels sit above their own measure frame. */
+.bar,.bar.selected,.bar:hover{border:0;box-shadow:none;background:transparent}
+.bar:hover>.measure-frame{background:#f4f8ef}
+.measure-frame{position:absolute;top:0;left:0;right:0;height:var(--measure-height,85px);border-right:1.3px solid #334337;border-bottom:1px solid transparent}
+.score-row>.bar:first-child .measure-frame{border-left:1.3px solid #334337}
+.bar.selected>.measure-frame{background:#edf4e7;box-shadow:inset 0 0 0 1.5px #789777}
+.bar.selected .variant-frame{background:#f7f5ed}
+.bar .chord{white-space:nowrap;max-width:92%;overflow:hidden;text-overflow:ellipsis}
+.variant-stack{position:absolute;left:0;right:0;top:calc(var(--measure-height,85px) + 24px);display:flex;flex-direction:column;gap:28px}
+.variant-lane{position:relative;min-width:0;cursor:default}
+.variant-row-label{position:absolute;left:4px;right:4px;bottom:calc(100% + 3px);height:20px;display:flex;gap:3px;align-items:center;justify-content:space-between;color:#776347;font-size:10px;white-space:nowrap}
+.variant-row-label>span{min-width:0;overflow:hidden;text-overflow:ellipsis;font-weight:700}
+.variant-source{font-weight:400;color:#877b6c}
+.variant-row-label .variant-settings.icon-button{width:22px;min-width:22px;min-height:22px;padding:3px!important;border:0;background:transparent;color:#776347}
+.variant-settings svg{width:14px;height:14px}
+.variant-frame{position:relative;height:45px;border-left:1px solid #c1b49b;border-right:1px solid #c1b49b;background:#faf9f4}
+.variant-frame:has(.rhythm-notation){height:80px}.variant-frame:has(.variant-error){min-height:120px}
+.variant-active .variant-frame{box-shadow:inset 0 0 0 1px #b5a482}
+.variant-chord-area{position:absolute;inset:0;cursor:text}
+.bar .variant-chord,.bar:has(.bar-change) .variant-chord{position:absolute;top:8px;font-size:19px;color:#776347}
+.bar .variant-chord.chord-selected{color:#fff;background:#776347;outline-color:#776347}
+.variant-edit{position:absolute;left:3px;right:3px;top:6px;width:calc(100% - 6px);height:32px;padding:3px 5px;font-size:18px;border:1px solid #a69676;background:white;z-index:4}
+.variant-error{position:absolute;top:43px;left:3px;width:270px;max-width:calc(100vw - 50px);z-index:5;background:#fff5e8;color:#86512f;border:1px solid #d2ba95;padding:7px;font-size:11px;line-height:1.5}
+.rhythm-notation{position:absolute;left:0;right:0;bottom:1px;height:35px;color:#3f5745;pointer-events:none}
+.rhythm-attack{position:absolute;top:0;transform:translateX(-5px);height:34px;width:23px;min-height:0;padding:0;border:0;background:transparent;pointer-events:auto}
+.rhythm-attack:hover{background:#dce8d3;border-radius:3px}.rhythm-note{width:21px;height:34px;display:block}
+.variant-frame .rhythm-notation{color:#776347}.variant-frame .rhythm-attack{z-index:2}
+.score-row{grid-template-columns:repeat(var(--columns,4),minmax(0,1fr))}
+.variant-frame{height:64px}.variant-frame:has(.rhythm-notation){height:100px}
+.variant-beat-ruler{position:absolute;left:0;right:0;bottom:1px;height:17px;pointer-events:none;font-size:8px;color:#8b806d}
+.variant-beat-ruler span{position:absolute;white-space:nowrap;border-top:1px solid #d5ccba;padding-top:2px}
+.variant-frame .rhythm-notation{bottom:18px}
+.rhythm-beam{position:absolute;top:4px;height:2px;background:currentColor;pointer-events:none;z-index:3}.rhythm-beam.level-2{top:9px}
+.rhythm-attack.is-beamed{transform:translateX(-4px);width:12px}.is-beamed .rhythm-note{width:8px;height:34px}
+.variant-rhythm-scope{font-size:11px;margin:0 0 8px;color:#776347;white-space:normal!important}
+.variant-parameters{display:flex;align-items:center;gap:12px}.variant-parameters .field{width:76px;flex:none;margin:0}.variant-parameters .variant-follow{display:flex;align-items:center;gap:6px;margin:0;font-size:11px;white-space:normal}
+.beat-grid{grid-template-columns:repeat(var(--beats,4),minmax(0,1fr))}
+.attacks .beat-row{grid-template-columns:minmax(78px,1fr) minmax(100px,1fr) 36px!important}
+.context-tools .beat-group span{white-space:normal;margin:0}.context-tools .beat-group button{font-size:11px}
+.rhythm-hint{white-space:normal!important}.editing-help{top:calc(var(--measure-height,85px) + 3px)}
+@media(max-width:760px){
+ .bar .variant-chord,.bar:has(.bar-change) .variant-chord{top:9px;font-size:15px;letter-spacing:-.5px}
+ .variant-frame{height:65px}.variant-frame:has(.rhythm-notation){height:103px}
+ .variant-edit{font-size:16px;height:36px;top:5px}
+ .variant-row-label{height:40px;font-size:10px;bottom:calc(100% + 1px)}
+ .variant-row-label .variant-settings.icon-button{width:44px;min-width:44px;min-height:44px;padding:12px!important}
+ .variant-row-label .variant-settings svg{width:16px;height:16px}
+ .variant-stack{top:calc(var(--measure-height,103px) + 44px);gap:44px}
+ .rhythm-attack{width:24px;height:36px}.rhythm-note{width:22px;height:35px}
+ .variant-error{width:210px}.variant-parameters .variant-follow{font-size:12px}
+ .popup-parameters .variant-parameters input[type=checkbox]{width:18px;height:18px;min-height:18px;flex:none}
+}

@@ -30,7 +30,7 @@
       "passed": true
     },
     {
-      "name": "Continuous variant typing is one undo and metadata remains live",
+      "name": "Continuous variant typing groups undo and separate metadata remains live",
       "passed": true
     },
     {
@@ -114,7 +114,7 @@
       "passed": true
     },
     {
-      "name": "Mobile variant and reuse parameters open focused native dialog for scope",
+      "name": "Mobile variant text is inline while metadata and reuse use native dialog",
       "passed": true
     },
     {
