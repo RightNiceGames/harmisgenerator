@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-05T11:13:28.984Z",
+  "date": "2026-10-05T12:51:21.968912+00:00",
   "errors": [],
   "results": [
     {
@@ -255,7 +255,7 @@
       "passed": true
     },
     {
-      "name": "Variant play count, subsequent passes and voice update without buttons",
+      "name": "Variant play count and subsequent passes update without buttons",
       "passed": true
     },
     {
@@ -508,6 +508,118 @@
     },
     {
       "name": "Selecting reuse then source clears reuse context and restores correct source actions",
+      "passed": true
+    },
+    {
+      "name": "Single selected measure has exactly duplicate and delete at upper right",
+      "passed": true
+    },
+    {
+      "name": "Chord selection preserves corner actions and direct duplication copies full bar",
+      "passed": true
+    },
+    {
+      "name": "Corner delete removes measure with selected chord and supports undo",
+      "passed": true
+    },
+    {
+      "name": "Corner background click neither edits chord nor changes selection",
+      "passed": true
+    },
+    {
+      "name": "Number strip remains selectable while corner buttons are shown",
+      "passed": true
+    },
+    {
+      "name": "First and second chord clicks retain selection/editing contract with icons",
+      "passed": true
+    },
+    {
+      "name": "Icon buttons all contain hidden SVG and nonempty accessible labels",
+      "passed": true
+    },
+    {
+      "name": "Mouse hover displays readable floating tooltip and clears it on click",
+      "passed": true
+    },
+    {
+      "name": "Keyboard focus shows icon tooltip and Tab clears or updates it",
+      "passed": true
+    },
+    {
+      "name": "Variant inline fields omit voice, align chord and pass, retain live multi chord editing",
+      "passed": true
+    },
+    {
+      "name": "Sidebar variant omits voice and preserves field labels",
+      "passed": true
+    },
+    {
+      "name": "Add and More have no duplicate Write or exact-placement action",
+      "passed": true
+    },
+    {
+      "name": "Desktop column collapse expands score while preserving tab, tool and selection",
+      "passed": true
+    },
+    {
+      "name": "Desktop close returns keyboard focus to persistent expand control",
+      "passed": true
+    },
+    {
+      "name": "Collapsed panel reopens when explicit music tool is invoked",
+      "passed": true
+    },
+    {
+      "name": "Whole part and range selections do not display single-measure corner actions",
+      "passed": true
+    },
+    {
+      "name": "Mobile 320: corner targets and chords remain reachable without overflow",
+      "passed": true
+    },
+    {
+      "name": "Mobile 375: corner targets and chords remain reachable without overflow",
+      "passed": true
+    },
+    {
+      "name": "Mobile 430: corner targets and chords remain reachable without overflow",
+      "passed": true
+    },
+    {
+      "name": "Mobile 320: menu toggle is reachable through popup navigation and close",
+      "passed": true
+    },
+    {
+      "name": "Mobile 375: menu toggle is reachable through popup navigation and close",
+      "passed": true
+    },
+    {
+      "name": "Mobile 430: menu toggle is reachable through popup navigation and close",
+      "passed": true
+    },
+    {
+      "name": "Resize between desktop and mobile updates toggle name and state",
+      "passed": true
+    },
+    {
+      "name": "Selection and second click do not move the marked chord or number strip",
+      "passed": true
+    },
+    {
+      "name": "Parentheses tooltip changes and selected state is visible",
+      "passed": true
+    },
+    {
+      "name": "Deletion confirmation uses distinct icons for keep and remove",
+      "passed": true
+    },
+    {
+      "name": "Changing base chord with variant reopens collapsed panel for required decision",
+      "passed": true
+    },
+    {
+      "name": "Double click from measure selection after sidebar variant edit retains pointer position",
       "passed": true
     }
   ]

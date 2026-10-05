@@ -11,24 +11,33 @@ function contextFeedback() {
  const conflict = pendingHouse ? `<div class="context-warning" role="alert"><strong>Husen överlappar</strong><p>Nytt hus ${esc(pendingHouse.number)} över ${selected.length} takter. Det befintliga husets hela spann ersätts.</p>${pendingHouse.spans.map(s => `<p>Hus ${esc(s.number)}: takt ${numberOf(s.barIds[0])}–${numberOf(s.barIds.at(-1))}</p>`).join('')}${contextButton('Ersätt befintligt hus', 'house-replace')}${contextButton('Behåll befintligt hus', 'house-cancel')}</div>` : '';
  return conflict + (error ? `<div class="context-warning" role="alert">${esc(error)}</div>` : '');
 }
+function compactVariantFields(c, prefix = '') {
+ const d = prefix && contextVariantDraft?.id === c?.id ? contextVariantDraft : {value:c?.variant || '', pass:c?.variantPass || 2, following:!!c?.variantFollowing};
+ const disabled=c?'':'disabled';
+ return `<div class="variant-fields"><div class="variant-line">${field('Ackord',prefix+'variant',d.value,`placeholder="G Am" autocomplete="off" ${disabled}`)}${field('Spelas gång',prefix+'variant-pass',d.pass,`type="number" min="2" max="16" ${disabled}`)}</div><label class="variant-follow row"><input id="${prefix}variant-following" type="checkbox" ${d.following?'checked':''} ${disabled}> Även följande gånger</label><p id="${prefix}variant-feedback" class="hint variant-feedback" role="status">${esc(variantError || (c?.variant ? variantLabel(c) : 'Uppdateras direkt · mellanslag mellan ackord'))}</p></div>`;
+}
 function contextVariantHTML(c) {
- const d = contextVariantDraft?.id === c.id ? contextVariantDraft : {value:c.variant || '', pass:c.variantPass || 2, following:!!c.variantFollowing, voice:c.variantVoice || ''};
- return `${contextBack()}<h3>Alternativ till ${esc(c.name)}</h3>${field('Variantackord', 'context-variant', d.value, 'placeholder="Till exempel G Am" autocomplete="off"')}<div class="two">${field('Spelas gången', 'context-variant-pass', d.pass, 'type="number" min="2" max="16"')}${field('Stämma, valfritt', 'context-variant-voice', d.voice)}</div><label class="row"><input id="context-variant-following" type="checkbox" ${d.following ? 'checked' : ''}> Även följande gånger</label><p id="context-variant-feedback" class="hint" role="status">${esc(variantError || (c.variant ? variantLabel(c) : 'Skriv flera ackord med mellanslag. Uppdateras direkt.'))}</p>`;
+ return `<div class="context-subheading">${contextBack()}<h3>Variant till ${esc(c.name)}</h3></div>${compactVariantFields(c,'context-')}`;
+}
+function panelToggleHTML(){const mobile=innerWidth<761,on=mobile?panelOpen:!panelCollapsed;return btn(mobile?(on?'Stäng menyn':'Öppna menyn'):(on?'Fäll in menykolumn':'Visa menykolumn'),'toggle-panel','panel-toggle',`aria-expanded="${on}" aria-controls="editor-panel"`);}
+function barCornerActions(b){
+ if(selectedPart||selectedReuse||draft||selected.length!==1||selected[0]!==b.id||rangeAnchor!==null)return '';
+ return `<div class="bar-corner-actions" role="group" aria-label="Takt ${numberOf(b.id)}">${btn('Duplicera takten','duplicate-bar:'+b.id,'corner-copy',`aria-label="Duplicera takt ${numberOf(b.id)} och infoga efter"`)}${btn('Ta bort takten','delete-bar:'+b.id,'bar-delete',`aria-label="${sectionOf(b.id).bars.length===1?'Töm sista takten':'Ta bort takt '+numberOf(b.id)}"`)}</div>`;
 }
 function rememberContextVariant() {
  const c = currentChord(); if (!c || !$('#context-variant')) return;
- contextVariantDraft = {id:c.id, value:$('#context-variant').value, pass:$('#context-variant-pass').value, following:$('#context-variant-following').checked, voice:$('#context-variant-voice').value};
+ contextVariantDraft = {id:c.id, value:$('#context-variant').value, pass:$('#context-variant-pass').value, following:$('#context-variant-following').checked};
 }
 function contextChordBody(b, c) {
  if (contextView === 'variant') return contextVariantHTML(c);
- if (contextView === 'add') return `${contextBack()}<h3>Lägg till efter ${esc(c.name)}</h3><div class="chips">${model.recent.map(n => contextButton(esc(n), 'recent:' + n, b.chords.length >= 4 ? 'disabled' : '')).join('')}</div><p class="hint">Tidigare ackord infogas efter markeringen. Nytt namn skriver du i ackordraden.</p>${contextButton('Skriv ackordraden', 'context-edit')}${b.chords.length >= 4 ? '<p class="hint">Takten har redan fyra ackord.</p>' : ''}`;
- if (contextView === 'chord-more') return `${contextBack()}<div class="context-options">${contextButton(c.parenthetical ? 'Ta bort parentes' : 'Sätt inom parentes', 'context-parentheses', `aria-pressed="${c.parenthetical}"`)}${contextButton('N.C. i stället för ' + esc(c.name), 'nc')}${contextButton('Exakt placering och ordning…', 'context-tool:chord')}${contextButton('Ta bort ' + esc(c.name), 'context-delete-chord')}</div><p class="hint">Valen gäller bara ${esc(c.name)}. Skriv öppnar hela taktens ackordrad.</p>`;
+ if (contextView === 'add') return `${contextBack()}<h3>Lägg till efter ${esc(c.name)}</h3><div class="chips">${model.recent.map(n => contextButton(esc(n), 'recent:' + n, b.chords.length >= 4 ? 'disabled' : '')).join('')}</div><p class="hint">Tidigare ackord infogas efter markeringen. Nytt namn skriver du i ackordraden.</p>${b.chords.length >= 4 ? '<p class="hint">Takten har redan fyra ackord.</p>' : ''}`;
+ if (contextView === 'chord-more') return `${contextBack()}<div class="context-options">${contextButton(c.parenthetical ? 'Ta bort parentes' : 'Inom parentes', 'context-parentheses', `aria-pressed="${c.parenthetical}"`)}${contextButton('N.C. i stället för ' + esc(c.name), 'nc')}${contextButton('Ta bort ' + esc(c.name), 'context-delete-chord')}</div><p class="hint">${esc(c.name)} · ackordval</p>`;
  return '';
 }
 function chordTools(b) {
  const c = b.chords.find(c => c.id === chordId); if (!c || draft || selectedPart || selected[0] !== b.id) return '';
  const left = nextChordPosition(b, c, -1), right = nextChordPosition(b, c, 1);
- return `<div class="chord-tools context-tools" role="group" aria-label="Placera ${esc(c.name)}">${contextHeading(c.name + ' · takt ' + numberOf(b.id), 'Ackord')}<div class="context-placement"><button data-action="chord-step:${c.id}:-1" aria-label="Flytta ${esc(c.name)} åt vänster" ${left == null ? 'disabled' : ''}>←</button><button data-action="chord-step:${c.id}:1" aria-label="Flytta ${esc(c.name)} åt höger" ${right == null ? 'disabled' : ''}>→</button><select data-chord-grid aria-label="Notvärde för ackordets placeringssteg">${[4,8,16].map(n => `<option value="${n}" ${n === resolution ? 'selected' : ''}>1/${n}</option>`).join('')}</select><span>Slag ${beatLabel(c.start)}</span></div><div class="context-primary">${contextButton('Skriv', 'context-edit')}${contextToggle('Variant', 'variant')}${contextToggle('Lägg till', 'add')}${contextToggle('Fler', 'chord-more')}</div>${contextView ? `<div class="context-body">${contextChordBody(b,c)}</div>` : ''}${contextFeedback()}</div>`;
+ return `<div class="chord-tools context-tools" role="group" aria-label="Placera ${esc(c.name)}">${contextHeading(c.name + ' · takt ' + numberOf(b.id), 'Ackord')}<div class="context-placement"><button data-action="chord-step:${c.id}:-1" class="icon-button" data-tooltip="Flytta ${esc(c.name)} åt vänster" aria-label="Flytta ${esc(c.name)} åt vänster" ${left == null ? 'disabled' : ''}>${iconSVG('left')}</button><button data-action="chord-step:${c.id}:1" class="icon-button" data-tooltip="Flytta ${esc(c.name)} åt höger" aria-label="Flytta ${esc(c.name)} åt höger" ${right == null ? 'disabled' : ''}>${iconSVG('right')}</button><select data-chord-grid aria-label="Notvärde för ackordets placeringssteg">${[4,8,16].map(n => `<option value="${n}" ${n === resolution ? 'selected' : ''}>1/${n}</option>`).join('')}</select><span>Slag ${beatLabel(c.start)}</span></div><div class="context-primary">${contextButton('Skriv', 'context-edit')}${contextToggle('Variant', 'variant')}${contextToggle('Lägg till', 'add')}${contextToggle('Fler', 'chord-more')}</div>${contextView ? `<div class="context-body">${contextChordBody(b,c)}</div>` : ''}${contextFeedback()}</div>`;
 }
 function contextRepeatsHTML() {
  const n = selected.length, hasRepeat = selected.some(id => { const b = barById(id); return b.repeatStart || b.repeatEnd; }), hasHouse = visibleBars().some(b => b.houseSpan?.barIds.some(id => selected.includes(id)));
@@ -45,7 +54,7 @@ function contextBarBody(b) {
 function barActions(b) {
  if (selectedPart || selectedReuse || chordId || draft || rangeAnchor !== null || !selected.includes(b.id) || b.id !== selected.at(-1)) return '';
  const many = selected.length > 1, first = selectedBar();
- return `<div class="bar-actions context-tools" role="group" aria-label="${many ? 'Åtgärder för markerade takter' : 'Åtgärder för markerad takt'}">${contextHeading(many ? 'Takt ' + numberOf(first.id) + '–' + numberOf(b.id) : 'Takt ' + numberOf(b.id), many ? selected.length + ' takter' : 'Takt')}<div class="context-primary">${many ? `${contextButton('Duplicera', 'duplicate-bars')}${contextToggle('Repris', 'repeats')}${contextButton('Hus', 'context-houses')}` : `${contextButton('Ackord', 'context-edit')}${contextButton('+ Takt', 'context-insert-bar', 'title="Infoga en tom takt efter markeringen"')}${contextButton('Duplicera', 'duplicate-bar:' + b.id)}`}${contextToggle('Fler', 'bar-more')}${many ? '' : btn('×', 'delete-bar:' + b.id, 'bar-delete', `aria-label="${sectionOf(b.id).bars.length === 1 ? 'Töm takt ' : 'Ta bort takt '}${numberOf(b.id)}" title="${sectionOf(b.id).bars.length === 1 ? 'Töm sista takten' : 'Ta bort takten'}"`)}</div>${contextView ? `<div class="context-body">${contextBarBody(first)}</div>` : ''}${contextFeedback()}</div>`;
+ return `<div class="bar-actions context-tools" role="group" aria-label="${many ? 'Åtgärder för markerade takter' : 'Åtgärder för markerad takt'}">${contextHeading(many ? 'Takt ' + numberOf(first.id) + '–' + numberOf(b.id) : 'Takt ' + numberOf(b.id), many ? selected.length + ' takter' : 'Takt')}<div class="context-primary">${many ? `${contextButton('Duplicera', 'duplicate-bars')}${contextToggle('Repris', 'repeats')}${contextButton('Hus', 'context-houses')}` : `${contextButton('Ackord', 'context-edit')}${contextButton('+ Takt', 'context-insert-bar', 'title="Infoga en tom takt efter markeringen"')}`}${contextToggle('Fler', 'bar-more')}</div>${contextView ? `<div class="context-body">${contextBarBody(first)}</div>` : ''}${contextFeedback()}</div>`;
 }
 function positionChordTools() {
  for (const row of document.querySelectorAll('.score-row')) {
@@ -55,6 +64,10 @@ function positionChordTools() {
  }
  const scene = $('.scene'); if (!scene) return;
  const bounds = scene.getBoundingClientRect();
+ for(const tools of document.querySelectorAll('.bar-corner-actions')){
+  const rect=tools.closest('.bar').getBoundingClientRect(),width=tools.getBoundingClientRect().width;
+  tools.style.left=(Math.max(bounds.left+8,Math.min(rect.right-width,bounds.right-width-8))-rect.left)+'px';tools.style.right='auto';
+ }
  for (const tools of document.querySelectorAll('.context-tools')) {
   const bar = tools.closest('.bar'), rect = bar.getBoundingClientRect(), width = tools.getBoundingClientRect().width, body = tools.querySelector('.context-body');
   if(body){body.style.maxHeight=Math.max(90,scene.clientHeight-(tools.offsetHeight-body.offsetHeight)-35)+'px';}

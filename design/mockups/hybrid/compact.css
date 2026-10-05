@@ -1,0 +1,59 @@
+/* Compact actions; values and field labels remain readable. */
+.icon-button{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;width:36px;min-width:36px;min-height:36px;padding:7px!important;line-height:1}
+.icon-button svg{display:block;flex-shrink:0;width:19px;height:19px;pointer-events:none}
+.icon-button[aria-pressed=true]{background:#dce8d3;border-color:#8eac80}
+.icon-tooltip{position:fixed;z-index:1000;background:#253e35;color:#fff;padding:6px 9px;border-radius:5px;font-size:11px;line-height:1.5;max-width:260px;pointer-events:none;box-shadow:0 3px 10px #253e3520}
+.toolbar{min-height:49px;padding-top:6px;padding-bottom:6px;gap:6px}.toolbar .icon-button{padding:7px!important}
+.toolbar .panel-toggle{border:1px solid #bdccb5;background:#edf3e7;margin-left:5px}
+.toolbar .mobile-only{display:none}
+.panel-toggle[aria-expanded=true]{background:#dce8d3;border-color:#8eac80}
+.preview-top{min-height:58px}
+.panel-nav{padding:9px 13px;gap:5px}.panel-nav .icon-button{flex:0 0 36px}.panel-nav .sheet-close{display:inline-flex;margin-left:auto;flex:0 0 36px!important}
+.panel-heading{padding:12px 16px 10px}.panel-heading h2{font-size:15px}.panel-body{padding:12px 16px}
+.panel-body section{padding-bottom:11px;margin-bottom:12px}.panel-body h3{margin-bottom:6px}.panel-body .hint{margin:5px 0;font-size:10px;line-height:1.65}
+.panel-body .field{margin-bottom:8px}.panel-body .field label{margin-bottom:3px;font-size:10px}.panel-body input,.panel-body select{padding:5px 7px;min-height:32px;font-size:12px}
+.panel-body .options,.context-tools .context-options{display:flex;flex-wrap:wrap;gap:5px}
+.panel-body .options .icon-button,.context-tools .context-options .icon-button{width:36px;min-width:36px;min-height:36px;text-align:center}
+.panel-body .options .icon-button{background:#f7faf3;border-color:#d5e0cf}
+.panel-body .chips{gap:4px;margin:5px 0}.panel-body .chips button{min-height:29px;padding:3px 7px}
+.context-tools.chord-tools,.context-tools.bar-actions{width:286px;padding:8px}
+.context-caption{margin-bottom:5px}.context-primary{gap:5px}.context-primary>.icon-button{flex:0 0 36px;min-height:36px;padding:7px!important}
+.context-placement{margin-bottom:5px;gap:5px}.context-tools .context-placement>.icon-button{min-width:36px;min-height:36px}
+.context-tools .context-placement select{width:65px;min-height:36px}.context-placement span{white-space:nowrap}
+.context-body{padding-top:6px;margin-top:7px}.context-subheading{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.context-tools .context-body .context-subheading h3{margin:0}.context-back.icon-button{width:30px;min-width:30px;min-height:30px!important;margin:0;padding:5px!important}
+.context-tools .context-button.icon-button,.section-context .context-button.icon-button{min-height:36px;width:36px;padding:7px!important}
+.context-tools .context-body .field{margin-bottom:0}.context-tools .field label{margin-bottom:3px}.context-tools input{min-height:32px;padding:5px 7px}
+.variant-line{display:grid;grid-template-columns:minmax(0,1fr) 78px;gap:7px}.variant-line .field{margin:0!important}.variant-line input{width:100%;min-width:0}.variant-line label{white-space:nowrap}
+.variant-follow{font-size:10px;gap:6px;margin-top:7px}.variant-follow input[type=checkbox]{width:15px;min-height:15px;margin:0}
+.variant-fields .variant-feedback{margin:4px 0 0!important;font-size:10px;line-height:1.5;white-space:normal}
+.bar-corner-actions{position:absolute;right:0;top:auto;bottom:calc(100% + 3px);display:flex;gap:0;padding:1px;background:#fff;border:1px solid #a9bd9e;border-radius:6px;z-index:7;box-shadow:0 2px 6px #334c3510;cursor:default}
+.bar-corner-actions .icon-button{width:30px;min-width:30px;min-height:30px;padding:5px!important}.bar-corner-actions svg{width:17px;height:17px}
+.bar-corner-actions .bar-delete{border-left:1px solid #e0e6da;border-radius:0 4px 4px 0;color:#86512f}
+/* Reserve the corner lane before selection, so a second click still hits the chord. */
+.score-row{padding-top:37px;margin-bottom:12px}.section-title{margin-bottom:0}
+.score-row:has(.marker){padding-top:52px}
+.score-row:has(.marker) .bar-corner-actions{bottom:calc(100% + 18px)}
+.section-title .part-actions .icon-button,.reuse-actions .icon-button{width:30px;min-width:30px;min-height:30px;padding:5px!important}
+.section-context{padding:8px;margin-top:7px}.section-context .context-back{display:inline-flex}.section-context .field{margin-bottom:7px}
+.context-warning .icon-button{margin:3px 3px 0 0}.context-tools .chips .context-button:not(.icon-button){width:auto;padding:4px 8px;min-height:30px}
+.content.panel-collapsed{grid-template-columns:minmax(0,1fr)}
+@media(min-width:761px){.content.panel-collapsed>.panel{display:none}}
+@media(max-width:760px){
+ .icon-button,.toolbar .icon-button,.panel-nav .icon-button{width:44px;min-width:44px;min-height:44px}
+ .toolbar{flex-wrap:nowrap;padding:5px 10px;gap:3px;min-height:54px}.toolbar .panel-toggle{position:relative;z-index:11;margin-left:2px}
+ .toolbar .spacer{flex:1;margin:0}.toolbar .mobile-only{display:inline-flex}
+ .preview-top{min-height:64px}
+ .panel-nav .icon-button{flex:0 0 44px}.panel-nav .sheet-close{flex-basis:44px!important}.panel-nav{padding:7px 12px}
+ .panel-heading{padding:9px 14px}.panel-body{padding:10px 14px}.panel-body section{padding-bottom:10px;margin-bottom:10px}
+ .panel-body input,.panel-body select{min-height:38px;font-size:14px}.panel-body .options .icon-button,.context-tools .context-options .icon-button{width:44px;min-width:44px;min-height:44px}
+ .context-tools.chord-tools,.context-tools.bar-actions{width:286px;padding:8px}
+ .context-primary>.icon-button{flex:0 0 44px;min-height:44px}.context-tools .context-placement>.icon-button{min-width:44px;min-height:44px}
+ .context-tools .context-placement select{min-height:44px;width:69px}.context-tools .context-button.icon-button,.section-context .context-button.icon-button{min-height:44px;width:44px}
+ .context-body .context-back.icon-button{min-width:44px;min-height:44px!important}.context-tools input{min-height:38px;font-size:14px}
+ .variant-follow{min-height:32px;font-size:11px}.variant-follow input[type=checkbox]{width:18px;height:18px;min-height:18px}
+ .bar-corner-actions{right:0}.bar-corner-actions .icon-button{width:44px;min-width:44px;min-height:44px;padding:12px!important}.bar-corner-actions svg{width:18px;height:18px}
+ .score-row{padding-top:49px;margin-bottom:14px}.score-row:has(.marker){padding-top:64px}.section-title .part-actions .icon-button,.reuse-actions .icon-button{width:44px;min-width:44px;min-height:44px}
+ .context-tools .chips .context-button:not(.icon-button),.panel-body .chips button{min-height:44px}
+ .context-tools .context-placement span{font-size:9px}.context-primary{gap:5px}.context-caption{margin-bottom:5px}
+}

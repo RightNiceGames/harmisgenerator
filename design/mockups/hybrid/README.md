@@ -10,8 +10,8 @@
 - Enter, Tab och klick utanför sparar giltig text. Escape avbryter. Ogiltig text behålls som utkast. Tom text tömmer ackordraden och bevarar takten, anslag och andra takttecken. Enter under pågående IME-inmatning sparar inte.
 - Mellanslag skapar flera ackord. Parenteser skrivs direkt. `(D A)` uttrycker att båda ackorden är parentetiserade och normaliseras till `(D) (A)`. Ackord som `Fm(maj9)/Ab` accepteras.
 - Två nya ackord börjar på 1 och 3. Tre börjar på 1, 2, 3 och fyra på 1, 2, 3, 4. När antalet är oförändrat bevaras manuella startpunkter.
-- Ändra ackord har en redigerbar textrad för hela takten. Tidigare ackord läggs till efter markerat ackord eller sist i takten. N.C. ersätter fortfarande valt ackord. Verktyget innehåller även varianter, spelomgång, följande gånger, stämma, ordning och exakt placering. Flytt med verktygets pil tar med varianten. Ändrat grundackord med en variant kräver ett uttryckligt val att behålla eller ta bort den berörda varianten.
-- Variantfältet accepterar flera ackord med mellanslag och uppdaterar giltig text direkt. Spelomgång, följande gånger och stämma uppdateras också direkt. En ofullständig eller ogiltig text stannar i fältet medan bladet behåller senaste giltiga variant. Sammanhängande skrivning blir ett steg för Ångra. Bladet visar exempelvis "Andra gången: G Am".
+- Ändra ackord har en redigerbar textrad för hela takten. Tidigare ackord läggs till efter markerat ackord eller sist i takten. N.C. ersätter fortfarande valt ackord. Verktyget innehåller även varianter, spelomgång, följande gånger, ordning och exakt placering. Flytt med verktygets pil tar med varianten. Ändrat grundackord med en variant kräver ett uttryckligt val att behålla eller ta bort den berörda varianten.
+- Variantfältet accepterar flera ackord med mellanslag och uppdaterar giltig text direkt. Spelomgång och följande gånger uppdateras också direkt. En ofullständig eller ogiltig text stannar i fältet medan bladet behåller senaste giltiga variant. Sammanhängande skrivning blir ett steg för Ångra. Bladet visar exempelvis "Andra gången: G Am".
 - Klick på ett befintligt ackord visar vänster- och högerpilar på en fast plats under takten. Verktygsraden följer inte ackordets placering. Vid skärmens kant hålls den inom förhandsgranskningen. Raden döljs under textredigering. Valt notvärde anger placeringssteget: fjärdedel, åttondel eller sextondel. Knapparna visar startpunkten och hindrar att ackord passerar varandra eller taktens gräns. Första ackordet kan också flyttas senare.
 - Panelens scrollposition, aktiva skrivfält och skrivmarkör bevaras när dess innehåll uppdateras.
 - Både Ändra ackord och Rytm har placeringsrutnät för fjärdedelar, åttondelar och sextondelar samt ackordsordning. Anslagens notvärden väljs separat. Överlappning och anslag efter taktens slut stoppas.
@@ -57,8 +57,8 @@ Markeringen avgör vilka snabbval som visas. En enda meny ligger på en fast pla
 
 | Markering | Snabbval | Fler och kompletterande val |
 | --- | --- | --- |
-| Ackord | Vänster/höger, notvärde, Skriv, Variant, Lägg till | Parentes, N.C., exakt placering/ordning, ta bort ackord. Tidigare ackord infogas efter markeringen. |
-| En takt | Ackord, + Takt, Duplicera, Fler, X | Rytm, Repris & hus, tonart/taktart, markera flera, rad/sida, töm ackordraden. |
+| Ackord | Vänster/höger, notvärde, Skriv, Variant, Lägg till | Parentes, N.C., ta bort ackord. Placering ligger redan på huvudraden; ordning finns i Ändra ackord. Tidigare ackord infogas efter markeringen. |
+| En takt | Duplicera och X vid övre högra hörnet. Ackord, + Takt och Fler under takten | Rytm, Repris & hus, tonart/taktart, markera flera, rad/sida, töm ackordraden. |
 | Taktspann | Duplicera, Repris, Hus, Fler | Ny takt efter spannet, rad/sida före första takten, borttagning med bekräftelse och ett gemensamt ångrasteg. |
 | Delrubrik | Ändra titel, Återanvänd, flytta, Fler, X | Duplicera del, ny del efter markeringen, låtform. På mobil ligger flyttpilarna under Fler. |
 | Återanvänd del | Inställningar, Visa original, flytta, Fler | Gör till egen del, ta bort återanvändning. Källdelen och andra återanvändningar påverkas inte av borttagning. |
@@ -77,4 +77,20 @@ Fler ger ett extra klick för mindre vanliga val men gör huvudraden lättare at
 
 `contextual-review.mjs` och `contextual-verification.json` innehåller den oberoende verifieringen av de nya funktionerna. `verify-all.mjs` kör också tidigare kontroller och uppdaterar sammanställningen och bildgalleriet.
 
-Senaste verifieringen: 127 godkända webbläsarkontroller, inklusive 35 oberoende kontroller av kontextmenyer, samt 18 godkända kontroller vid bildfångst. Galleriet innehåller 42 aktuella bilder. Inga webbläsarfel. JavaScript- och TypeScript-kontroller passerade.
+Slutresultat finns i `independent-review.json`, `compact-verification.json` och `verification.json`. `verify-all.mjs` kör hela serien och uppdaterar galleriet.
+
+## Kompakta ikonmenyer, 2026-10-05
+
+Åtgärdsknappar visar lokala SVG-ikoner med tillgängliga namn. Hover och tangentbordsfokus visar ett flytande tips som hålls inom skärmen. Ackordnamn, formblock, startpunkter och notvärden behåller sina läsbara värden. Parentesknappens aktiva tillstånd och förklaring ändras tillsammans. Bekräftelser använder olika symboler för behåll respektive borttagning.
+
+Duplicera och X ligger i en separat yta vid den markerade taktens övre högra hörn, även när ett ackord är markerat. Taktnummerraden och ackordytan är fria. Plats för hörnknappar och informationsraden reserveras före markering så att nästa klick inte missar ackordet. På mycket smala skärmar justeras hörnytan några pixlar för att hålla knapparna inom bladområdet. Mobilens åtgärder har minst 44 pixels tryckytor.
+
+Variantens ackord och spelomgång står på samma rad. Checkboxen anger om varianten gäller även följande gånger. Stämma var bara en valfri textanvisning och har tagits bort ur båda formulären. Extra Skriv-val i Lägg till/Infoga och länken Exakt placering och ordning har tagits bort. Infoga innehåller fortfarande tonarts- och taktartsbyte.
+
+Menykolumnen fälls in eller ut med en fast knapp till höger i verktygsraden. Flik, verktyg och markering bevaras. Ett nödvändigt variantbeslut öppnar panelen även om den varit infälld. Mobilens hamburgerknapp ligger utanför bladets scrollområde, nås även när popupen är öppen och kan stänga den. Stängning återför fokus till menyknappen. Musik, Form och Låt ligger kvar som fasta flikar i popupen.
+
+Ikoner sparar plats men kräver mer inlärning, särskilt på mobil där hover saknas. Tillgängliga namn hjälper skärmläsare; menyrubriker och synlig omfattning hjälper vid vanlig användning. Variant- och återanvändningssymbolerna bör därför provas med ovana användare på en fysisk telefon. Hörnytan ger något större mellanrum mellan taktraderna för att hålla klickpositionerna stabila.
+
+`compact-review.mjs` kontrollerar ikonetiketter, tooltip, hörnknappar, stabila klickpositioner, kompakt variant, panelens in-/utfällning, obligatoriska variantbeslut och mobilens meny på 320, 375 och 430 pixels bredd. Två subagenter granskade ändringen; deras fynd om felaktiga tillbaka-/borttagningsikoner och parentesförklaringen har rättats.
+
+Senaste verifieringen: 155 godkända webbläsarkontroller, varav 28 för ikonversionen, samt 18 godkända kontroller vid bildfångst. Galleriet innehåller 46 aktuella bilder. Inga webbläsarfel. JavaScript- och diffkontroller passerade.
