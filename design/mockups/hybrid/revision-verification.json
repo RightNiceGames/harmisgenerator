@@ -74,15 +74,15 @@
       "passed": true
     },
     {
-      "name": "Mobile two-tap range selects without keyboard or popup",
+      "name": "Mobile checkboxes select exact range without keyboard or popup",
       "passed": true
     },
     {
-      "name": "Range selection rejects crossing parts and can be cancelled",
+      "name": "Checkbox subset excludes other parts and clears on final uncheck",
       "passed": true
     },
     {
-      "name": "Mobile settings and local bar actions have no horizontal overflow",
+      "name": "Mobile settings and direct bar row have no horizontal overflow",
       "passed": true
     },
     {

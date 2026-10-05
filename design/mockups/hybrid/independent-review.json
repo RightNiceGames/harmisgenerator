@@ -1,9 +1,9 @@
 {
-  "date": "2026-10-05T12:51:21.968912+00:00",
+  "date": "2026-10-05T17:15:10.429Z",
   "errors": [],
   "results": [
     {
-      "name": "Single tool click commits valid draft and opens requested tool",
+      "name": "Global tab click commits valid draft and opens requested tab",
       "passed": true
     },
     {
@@ -19,7 +19,7 @@
       "passed": true
     },
     {
-      "name": "Invalid chord is kept as draft after tool click",
+      "name": "Invalid chord remains draft after global tab click",
       "passed": true
     },
     {
@@ -71,7 +71,7 @@
       "passed": true
     },
     {
-      "name": "House back button and exact selected range work",
+      "name": "Custom house close and exact checkbox range work",
       "passed": true
     },
     {
@@ -87,7 +87,7 @@
       "passed": true
     },
     {
-      "name": "Insert and layout share local changes and row breaks work",
+      "name": "Direct changes and row-break controls share selected measure",
       "passed": true
     },
     {
@@ -95,7 +95,7 @@
       "passed": true
     },
     {
-      "name": "Mobile supports direct typing and popup instead of fixed panel",
+      "name": "Mobile supports direct typing and native parameter popup",
       "passed": true
     },
     {
@@ -195,15 +195,15 @@
       "passed": true
     },
     {
-      "name": "Mobile two-tap range selects without keyboard or popup",
+      "name": "Mobile checkboxes select exact range without keyboard or popup",
       "passed": true
     },
     {
-      "name": "Range selection rejects crossing parts and can be cancelled",
+      "name": "Checkbox subset excludes other parts and clears on final uncheck",
       "passed": true
     },
     {
-      "name": "Mobile settings and local bar actions have no horizontal overflow",
+      "name": "Mobile settings and direct bar row have no horizontal overflow",
       "passed": true
     },
     {
@@ -259,15 +259,15 @@
       "passed": true
     },
     {
-      "name": "Sidebar chord line edits whole bar with Enter",
+      "name": "Direct chord line edits whole bar with Enter",
       "passed": true
     },
     {
-      "name": "Sidebar invalid text remains a draft with a visible error",
+      "name": "Direct invalid text remains a draft with a visible error",
       "passed": true
     },
     {
-      "name": "Menu scroll stays when resolution and reorder buttons update it",
+      "name": "Parameter scroll and focus stay when resolution and reorder update",
       "passed": true
     },
     {
@@ -295,7 +295,7 @@
       "passed": true
     },
     {
-      "name": "Chord controls preserve focus and hide measure actions",
+      "name": "Chord controls preserve focus beside separate upper bar actions",
       "passed": true
     },
     {
@@ -315,7 +315,7 @@
       "passed": true
     },
     {
-      "name": "Tool row stays fixed across chord selection and movement",
+      "name": "Tool row stays fixed relative to measure across chord selection and movement",
       "passed": true
     },
     {
@@ -375,7 +375,7 @@
       "passed": true
     },
     {
-      "name": "Context body and caption pointer clicks retain chord selection",
+      "name": "Context caption and parameter background clicks retain chord selection",
       "passed": true
     },
     {
@@ -407,7 +407,7 @@
       "passed": true
     },
     {
-      "name": "Group toggle, back and Escape retain chord selection",
+      "name": "Parameter toggle, close and Escape retain chord selection",
       "passed": true
     },
     {
@@ -415,7 +415,7 @@
       "passed": true
     },
     {
-      "name": "Opening chord group does not move primary buttons",
+      "name": "Opening parameter popover does not move direct chord row buttons",
       "passed": true
     },
     {
@@ -439,7 +439,7 @@
       "passed": true
     },
     {
-      "name": "Custom house back returns to reprise menu and uses typed numbers",
+      "name": "Custom house closes to direct row and uses typed numbers",
       "passed": true
     },
     {
@@ -451,7 +451,7 @@
       "passed": true
     },
     {
-      "name": "Section and range prevent rhythm and chord mutations through panel",
+      "name": "Whole section exposes source actions without ambiguous local tools",
       "passed": true
     },
     {
@@ -483,7 +483,7 @@
       "passed": true
     },
     {
-      "name": "Mobile variant and reuse settings open focused popup for selected context",
+      "name": "Mobile variant and reuse parameters open focused native dialog for scope",
       "passed": true
     },
     {
@@ -491,7 +491,7 @@
       "passed": true
     },
     {
-      "name": "Range panels disable text, variants and local changes and omit rhythm input",
+      "name": "Range row disables single-bar parameters and omits chord controls",
       "passed": true
     },
     {
@@ -499,7 +499,7 @@
       "passed": true
     },
     {
-      "name": "Bar layout back returns to more group and breaker targets first range bar",
+      "name": "Direct break actions target first range measure and remove correctly",
       "passed": true
     },
     {
@@ -511,7 +511,7 @@
       "passed": true
     },
     {
-      "name": "Single selected measure has exactly duplicate and delete at upper right",
+      "name": "Single selected measure exposes duplicate and delete once above bar",
       "passed": true
     },
     {
@@ -551,15 +551,15 @@
       "passed": true
     },
     {
-      "name": "Sidebar variant omits voice and preserves field labels",
+      "name": "Context variant omits voice and preserves field labels",
       "passed": true
     },
     {
-      "name": "Add and More have no duplicate Write or exact-placement action",
+      "name": "Add and order parameters do not duplicate Write button",
       "passed": true
     },
     {
-      "name": "Desktop column collapse expands score while preserving tab, tool and selection",
+      "name": "Desktop global column collapse preserves tab and score selection",
       "passed": true
     },
     {
@@ -567,11 +567,11 @@
       "passed": true
     },
     {
-      "name": "Collapsed panel reopens when explicit music tool is invoked",
+      "name": "Collapsed panel reopens for requested global Settings tab",
       "passed": true
     },
     {
-      "name": "Whole part and range selections do not display single-measure corner actions",
+      "name": "Whole part has source actions and subset has bulk actions",
       "passed": true
     },
     {
@@ -615,11 +615,131 @@
       "passed": true
     },
     {
-      "name": "Changing base chord with variant reopens collapsed panel for required decision",
+      "name": "Changing base chord opens required native variant-choice dialog",
       "passed": true
     },
     {
-      "name": "Double click from measure selection after sidebar variant edit retains pointer position",
+      "name": "Double click after contextual variant edit retains pointer position",
+      "passed": true
+    },
+    {
+      "name": "No ellipsis or obsolete music menu anywhere",
+      "passed": true
+    },
+    {
+      "name": "Bar actions share one line above bar and chord actions one separate line below",
+      "passed": true
+    },
+    {
+      "name": "One-line bar row exposes common actions without opening submenus",
+      "passed": true
+    },
+    {
+      "name": "One-line chord row exposes placement, variants, add, order, parentheses, NC and deletion",
+      "passed": true
+    },
+    {
+      "name": "Checkboxes initially appear for all bars and narrow to selected section",
+      "passed": true
+    },
+    {
+      "name": "Checking arbitrary bars produces sorted subset and does not fill gaps",
+      "passed": true
+    },
+    {
+      "name": "Unchecking middle selected measure retains remaining noncontiguous selection",
+      "passed": true
+    },
+    {
+      "name": "Unchecking final selected measure clears selection and reveals all sections",
+      "passed": true
+    },
+    {
+      "name": "Checkboxes hide while typing and during whole part or reuse selection",
+      "passed": true
+    },
+    {
+      "name": "Gapped subset disables contiguous repeat and houses while keeping basic bulk actions",
+      "passed": true
+    },
+    {
+      "name": "Filling selection gap enables continuous repeat and exact house span",
+      "passed": true
+    },
+    {
+      "name": "Bulk clear affects selected subset only and undo restores whole subset",
+      "passed": true
+    },
+    {
+      "name": "Bulk duplicate copies only selected subset in written order",
+      "passed": true
+    },
+    {
+      "name": "Checkbox on second section replaces selection without cross-section subset",
+      "passed": true
+    },
+    {
+      "name": "Parameter groups switch directly and opening them changes no music",
+      "passed": true
+    },
+    {
+      "name": "Order popover edits chord starts, order and resolution",
+      "passed": true
+    },
+    {
+      "name": "Local changes require single bar and retain local model after popup closure",
+      "passed": true
+    },
+    {
+      "name": "Mobile 320: action rows remain single line with horizontal overflow confined to row",
+      "passed": true
+    },
+    {
+      "name": "Mobile 375: action rows remain single line with horizontal overflow confined to row",
+      "passed": true
+    },
+    {
+      "name": "Mobile 430: action rows remain single line with horizontal overflow confined to row",
+      "passed": true
+    },
+    {
+      "name": "Mobile 375: parameter popup retains chord scope and shared field IDs",
+      "passed": true
+    },
+    {
+      "name": "Mobile 430: parameter popup retains chord scope and shared field IDs",
+      "passed": true
+    },
+    {
+      "name": "Global column contains Form, Song and Settings without local tool contents",
+      "passed": true
+    },
+    {
+      "name": "Escape closes one parameter group and keeps subset selection",
+      "passed": true
+    },
+    {
+      "name": "Checkbox clicking while chord selected changes to measure scope without editing",
+      "passed": true
+    },
+    {
+      "name": "Gapped subset deletion preserves unselected measures and transfers repeat signs with one undo",
+      "passed": true
+    },
+    {
+      "name": "Horizontal bar strip position remains after direct layout changes",
+      "passed": true
+    },
+    {
+      "name": "Horizontal mobile chord strip position remains after parenthesis toggle",
+      "passed": true
+    },
+    {
+      "name": "Clipped chord remains stationary after 800ms hover and a slow second click edits same bar",
+      "passed": true
+    },
+    {
+      "name": "Leaving clipped chord reveals its row without changing model or selected chord",
       "passed": true
     }
   ]

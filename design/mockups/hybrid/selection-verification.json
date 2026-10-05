@@ -18,7 +18,7 @@
       "passed": true
     },
     {
-      "name": "Tool row stays fixed across chord selection and movement",
+      "name": "Tool row stays fixed relative to measure across chord selection and movement",
       "passed": true
     },
     {

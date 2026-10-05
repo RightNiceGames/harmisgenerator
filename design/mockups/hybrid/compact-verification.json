@@ -2,7 +2,7 @@
   "errors": [],
   "results": [
     {
-      "name": "Single selected measure has exactly duplicate and delete at upper right",
+      "name": "Single selected measure exposes duplicate and delete once above bar",
       "passed": true
     },
     {
@@ -42,15 +42,15 @@
       "passed": true
     },
     {
-      "name": "Sidebar variant omits voice and preserves field labels",
+      "name": "Context variant omits voice and preserves field labels",
       "passed": true
     },
     {
-      "name": "Add and More have no duplicate Write or exact-placement action",
+      "name": "Add and order parameters do not duplicate Write button",
       "passed": true
     },
     {
-      "name": "Desktop column collapse expands score while preserving tab, tool and selection",
+      "name": "Desktop global column collapse preserves tab and score selection",
       "passed": true
     },
     {
@@ -58,11 +58,11 @@
       "passed": true
     },
     {
-      "name": "Collapsed panel reopens when explicit music tool is invoked",
+      "name": "Collapsed panel reopens for requested global Settings tab",
       "passed": true
     },
     {
-      "name": "Whole part and range selections do not display single-measure corner actions",
+      "name": "Whole part has source actions and subset has bulk actions",
       "passed": true
     },
     {
@@ -106,11 +106,11 @@
       "passed": true
     },
     {
-      "name": "Changing base chord with variant reopens collapsed panel for required decision",
+      "name": "Changing base chord opens required native variant-choice dialog",
       "passed": true
     },
     {
-      "name": "Double click from measure selection after sidebar variant edit retains pointer position",
+      "name": "Double click after contextual variant edit retains pointer position",
       "passed": true
     }
   ]

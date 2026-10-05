@@ -1,0 +1,125 @@
+{
+  "errors": [],
+  "results": [
+    {
+      "name": "No ellipsis or obsolete music menu anywhere",
+      "passed": true
+    },
+    {
+      "name": "Bar actions share one line above bar and chord actions one separate line below",
+      "passed": true
+    },
+    {
+      "name": "One-line bar row exposes common actions without opening submenus",
+      "passed": true
+    },
+    {
+      "name": "One-line chord row exposes placement, variants, add, order, parentheses, NC and deletion",
+      "passed": true
+    },
+    {
+      "name": "Checkboxes initially appear for all bars and narrow to selected section",
+      "passed": true
+    },
+    {
+      "name": "Checking arbitrary bars produces sorted subset and does not fill gaps",
+      "passed": true
+    },
+    {
+      "name": "Unchecking middle selected measure retains remaining noncontiguous selection",
+      "passed": true
+    },
+    {
+      "name": "Unchecking final selected measure clears selection and reveals all sections",
+      "passed": true
+    },
+    {
+      "name": "Checkboxes hide while typing and during whole part or reuse selection",
+      "passed": true
+    },
+    {
+      "name": "Gapped subset disables contiguous repeat and houses while keeping basic bulk actions",
+      "passed": true
+    },
+    {
+      "name": "Filling selection gap enables continuous repeat and exact house span",
+      "passed": true
+    },
+    {
+      "name": "Bulk clear affects selected subset only and undo restores whole subset",
+      "passed": true
+    },
+    {
+      "name": "Bulk duplicate copies only selected subset in written order",
+      "passed": true
+    },
+    {
+      "name": "Checkbox on second section replaces selection without cross-section subset",
+      "passed": true
+    },
+    {
+      "name": "Parameter groups switch directly and opening them changes no music",
+      "passed": true
+    },
+    {
+      "name": "Order popover edits chord starts, order and resolution",
+      "passed": true
+    },
+    {
+      "name": "Local changes require single bar and retain local model after popup closure",
+      "passed": true
+    },
+    {
+      "name": "Mobile 320: action rows remain single line with horizontal overflow confined to row",
+      "passed": true
+    },
+    {
+      "name": "Mobile 375: action rows remain single line with horizontal overflow confined to row",
+      "passed": true
+    },
+    {
+      "name": "Mobile 430: action rows remain single line with horizontal overflow confined to row",
+      "passed": true
+    },
+    {
+      "name": "Mobile 375: parameter popup retains chord scope and shared field IDs",
+      "passed": true
+    },
+    {
+      "name": "Mobile 430: parameter popup retains chord scope and shared field IDs",
+      "passed": true
+    },
+    {
+      "name": "Global column contains Form, Song and Settings without local tool contents",
+      "passed": true
+    },
+    {
+      "name": "Escape closes one parameter group and keeps subset selection",
+      "passed": true
+    },
+    {
+      "name": "Checkbox clicking while chord selected changes to measure scope without editing",
+      "passed": true
+    },
+    {
+      "name": "Gapped subset deletion preserves unselected measures and transfers repeat signs with one undo",
+      "passed": true
+    },
+    {
+      "name": "Horizontal bar strip position remains after direct layout changes",
+      "passed": true
+    },
+    {
+      "name": "Horizontal mobile chord strip position remains after parenthesis toggle",
+      "passed": true
+    },
+    {
+      "name": "Clipped chord remains stationary after 800ms hover and a slow second click edits same bar",
+      "passed": true
+    },
+    {
+      "name": "Leaving clipped chord reveals its row without changing model or selected chord",
+      "passed": true
+    }
+  ]
+}

@@ -26,6 +26,7 @@ const iconPaths = {
  reset:'<path d="M3 10a9 9 0 1 1 2 8M3 3v7h7"/>'
 };
 function actionIcon(action) {
+ if(action==='close-context')return 'close';
  if(action==='toggle-panel')return innerWidth<761?'menu':'panel';
  if(action==='part-delete-confirm'||action==='context-delete-range')return 'trash';
  if(action.startsWith('variant-choice:'))return {keep:'check',remove:'clear',edit:'edit'}[action.split(':')[1]];
@@ -54,7 +55,7 @@ function actionIcon(action) {
  if(action.startsWith('break:'))return {row:'row',page:'page',remove:'clear'}[action.split(':')[1]];
  if(action.includes('insert-bar')||action.startsWith('context-new-part:'))return 'add';
  const id=action.split(':').at(-1);
- return ({music:'music',form:'form',song:'song',settings:'settings',chord:'edit',insert:'add',rhythm:'rhythm',repeats:'repeat',layout:'layout',variant:'variant',add:'add','bar-more':'more','chord-more':'more','part-more':'more','reuse-more':'more','reuse-settings':'settings'})[id] || (action.startsWith('context:')?'left':'more');
+ return ({music:'music',form:'form',song:'song',settings:'settings',chord:'edit',insert:'add',rhythm:'rhythm',repeats:'repeat',layout:'layout',changes:'changes',order:'form',variant:'variant',add:'add','bar-more':'more','chord-more':'more','part-more':'more','reuse-more':'more','reuse-settings':'settings'})[id] || (action.startsWith('context:')?'left':'more');
 }
 function iconSVG(name,number='') {
  return `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${iconPaths[name]||iconPaths.more}${number?`<text x="12" y="16" fill="currentColor" stroke="none" text-anchor="middle" font-size="11" font-family="sans-serif">${number}</text>`:''}</svg>`;
@@ -66,11 +67,12 @@ function iconButtonHTML(text,action,kind='',attrs='') {
  let label=supplied?.[1]||title?.[1]||esc(el.textContent.trim());
  const labels={'context:variant':'Variantackord','context:add':'Lägg till ackord','context:chord-more':'Fler ackordval','context:bar-more':'Fler taktval','context:part-more':'Fler val för delen','context:repeats':'Repris och hus','context:':'Tillbaka till snabbval','context-edit':'Skriv ackord','context-insert-bar':'Infoga tom takt efter markeringen','context-tool:insert':'Tonart och taktart','context:reuse-more':'Fler val för återanvändningen'};
  if(!supplied)label=labels[action]||label;
- const content=/^(recent:|block:|select-part:|context-select-reuse:|resolution:)/.test(action)||action.startsWith('attack:')&&text!=='×';
+ const content=/^(recent:|block:|select-part:|context-select-reuse:|resolution:)/.test(action)||action.startsWith('attack:')&&!text.startsWith('Ta bort')&&text!=='×';
  if(content)return `<button class="${kind}" data-action="${esc(action)}" ${attrs}>${text}</button>`;
+ const unavailable=attrs.match(/data-unavailable="([^"]+)"/)?.[1];
  const number=/^(?:context-house:|house:)([12])$/.exec(action)?.[1];
  if(el.textContent.startsWith('Behåll'))label=esc(el.textContent);
- return `<button class="${kind} icon-button" data-action="${esc(action)}" ${attrs} ${supplied?'':`aria-label="${label}"`} data-tooltip="${label}${description?' · '+esc(description):''}">${iconSVG(el.textContent.startsWith('Behåll')?'left':actionIcon(action),number)}</button>`;
+ return `<button class="${kind} icon-button" data-action="${esc(action)}" ${attrs} ${supplied?'':`aria-label="${label}"`} data-tooltip="${label}${unavailable?' · '+unavailable:description?' · '+esc(description):''}">${iconSVG(el.textContent.startsWith('Behåll')?'left':actionIcon(action),number)}</button>`;
 }
 /* A single floating tooltip avoids clipping in the score and scrollable menus. */
 let iconTooltip,iconTooltipTarget,hoverTimer;
@@ -87,4 +89,4 @@ document.addEventListener('pointerout',e=>{if(e.target.closest('[data-tooltip]')
 document.addEventListener('focusin',e=>{if(e.target.matches('[data-tooltip]:focus-visible'))showIconTooltip(e.target);});
 document.addEventListener('focusout',hideIconTooltip);
 document.addEventListener('click',hideIconTooltip);
-document.addEventListener('scroll',()=>queueIconHover(document.querySelector('[data-tooltip]:hover')),true);
+document.addEventListener('scroll',()=>{const active=document.activeElement;if(active?.matches('[data-tooltip]:focus-visible')){hideIconTooltip();hoverTimer=setTimeout(()=>{hoverTimer=null;if(active.isConnected&&active===document.activeElement&&active.matches(':focus-visible'))showIconTooltip(active);},40);}else queueIconHover(document.querySelector('[data-tooltip]:hover'));},true);

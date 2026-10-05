@@ -2,7 +2,7 @@
   "errors": [],
   "results": [
     {
-      "name": "Single tool click commits valid draft and opens requested tool",
+      "name": "Global tab click commits valid draft and opens requested tab",
       "passed": true
     },
     {
@@ -18,7 +18,7 @@
       "passed": true
     },
     {
-      "name": "Invalid chord is kept as draft after tool click",
+      "name": "Invalid chord remains draft after global tab click",
       "passed": true
     },
     {
@@ -70,7 +70,7 @@
       "passed": true
     },
     {
-      "name": "House back button and exact selected range work",
+      "name": "Custom house close and exact checkbox range work",
       "passed": true
     },
     {
@@ -86,7 +86,7 @@
       "passed": true
     },
     {
-      "name": "Insert and layout share local changes and row breaks work",
+      "name": "Direct changes and row-break controls share selected measure",
       "passed": true
     },
     {
@@ -94,7 +94,7 @@
       "passed": true
     },
     {
-      "name": "Mobile supports direct typing and popup instead of fixed panel",
+      "name": "Mobile supports direct typing and native parameter popup",
       "passed": true
     }
   ]

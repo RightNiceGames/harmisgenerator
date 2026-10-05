@@ -1,78 +1,59 @@
 {
+  "date": "2026-10-05T17:15:10.399Z",
   "checks": [
     {
-      "name": "Direct typing, grouped parentheses and default starts",
+      "name": "Bar selection opens direct tools without text editing",
       "passed": true
     },
     {
-      "name": "One click commits draft and opens chord tool",
+      "name": "First chord click selects, next edits entire chord line",
       "passed": true
     },
     {
-      "name": "Variant, recent chord and fractional start",
+      "name": "Variant supports multiple live chords and pass settings",
       "passed": true
     },
     {
-      "name": "Undo and redo preserve complete model",
+      "name": "Sixteenth arrows keep toolbar under the measure",
       "passed": true
     },
     {
-      "name": "Rhythm duration differs from placement grid and prevents overlap",
+      "name": "Rhythm has local controls and separate attack durations",
       "passed": true
     },
     {
-      "name": "Exact house span and explicit return",
+      "name": "Key and meter changes apply through local controls",
       "passed": true
     },
     {
-      "name": "Form reuse, count, instruction and free reorder",
+      "name": "Checkboxes select exact noncontiguous measures",
       "passed": true
     },
     {
-      "name": "Local changes from both Infoga and Layout",
+      "name": "Repeat and house cover contiguous selected measures",
       "passed": true
     },
     {
-      "name": "6/8 uses eighth-note units for start grid",
+      "name": "Section selection exposes its direct actions",
       "passed": true
     },
     {
-      "name": "Song title, version, status, meter and tempo are data backed",
+      "name": "Reuse count and instruction affect only that occurrence",
       "passed": true
     },
     {
-      "name": "Reorder blocks invalid inherited meter",
+      "name": "Mobile direct measure tools fit without obsolete range menus",
       "passed": true
     },
     {
-      "name": "Invalid input blocks tool switch and retains draft",
+      "name": "Mobile variant popup uses the same local field IDs",
       "passed": true
     },
     {
-      "name": "Extension parentheses and second-click full measure editing",
-      "passed": true
-    },
-    {
-      "name": "IME Enter does not commit and Tab commits",
-      "passed": true
-    },
-    {
-      "name": "Model numbering follows reordered originals",
-      "passed": true
-    },
-    {
-      "name": "Mobile direct typing leaves sheet closed",
-      "passed": true
-    },
-    {
-      "name": "Mobile tools use a bottom sheet",
-      "passed": true
-    },
-    {
-      "name": "Measure strip and bar actions",
+      "name": "Mobile checkboxes select separate measures",
       "passed": true
     }
   ],
   "errors": [],
-  "screenshots": 46
+  "screenshots": 19
 }

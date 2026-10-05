@@ -46,15 +46,15 @@
       "passed": true
     },
     {
-      "name": "Sidebar chord line edits whole bar with Enter",
+      "name": "Direct chord line edits whole bar with Enter",
       "passed": true
     },
     {
-      "name": "Sidebar invalid text remains a draft with a visible error",
+      "name": "Direct invalid text remains a draft with a visible error",
       "passed": true
     },
     {
-      "name": "Menu scroll stays when resolution and reorder buttons update it",
+      "name": "Parameter scroll and focus stay when resolution and reorder update",
       "passed": true
     },
     {
@@ -82,7 +82,7 @@
       "passed": true
     },
     {
-      "name": "Chord controls preserve focus and hide measure actions",
+      "name": "Chord controls preserve focus beside separate upper bar actions",
       "passed": true
     }
   ]
