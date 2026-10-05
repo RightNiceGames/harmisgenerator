@@ -1,0 +1,101 @@
+{
+  "errors": [],
+  "results": [
+    {
+      "name": "Single tool click commits valid draft and opens requested tool",
+      "passed": true
+    },
+    {
+      "name": "Second chord activation replaces the full measure line",
+      "passed": true
+    },
+    {
+      "name": "Blank area replaces whole bar",
+      "passed": true
+    },
+    {
+      "name": "Production chord extension syntax accepted",
+      "passed": true
+    },
+    {
+      "name": "Invalid chord is kept as draft after tool click",
+      "passed": true
+    },
+    {
+      "name": "Text composition Enter does not commit",
+      "passed": true
+    },
+    {
+      "name": "Three added chords use representable quarter positions",
+      "passed": true
+    },
+    {
+      "name": "One click on next chord saves current edit and selects next chord",
+      "passed": true
+    },
+    {
+      "name": "Escape discards direct typing without changing score",
+      "passed": true
+    },
+    {
+      "name": "Empty direct input clears the chord line",
+      "passed": true
+    },
+    {
+      "name": "Chord input rejects prematurely closing parentheses",
+      "passed": true
+    },
+    {
+      "name": "Grouped parentheses are normalized to individual chords",
+      "passed": true
+    },
+    {
+      "name": "Chord and rhythm placement grids provide 4/8/16 positions",
+      "passed": true
+    },
+    {
+      "name": "Chord position, reorder, recent chord and variant update the model",
+      "passed": true
+    },
+    {
+      "name": "N.C. replaces selected chord without erasing rhythm or neighbor",
+      "passed": true
+    },
+    {
+      "name": "Rhythm rejects overlapping durations and keeps existing notes",
+      "passed": true
+    },
+    {
+      "name": "6/8 grid uses denominator-aware start points",
+      "passed": true
+    },
+    {
+      "name": "House back button and exact selected range work",
+      "passed": true
+    },
+    {
+      "name": "Form includes all parts and a linked recurrence with settings",
+      "passed": true
+    },
+    {
+      "name": "Recurrence moves before original and undo restores order",
+      "passed": true
+    },
+    {
+      "name": "Drag reorder changes preview and written bar numbering",
+      "passed": true
+    },
+    {
+      "name": "Insert and layout share local changes and row breaks work",
+      "passed": true
+    },
+    {
+      "name": "Song edits update title and invalid key does not commit",
+      "passed": true
+    },
+    {
+      "name": "Mobile supports direct typing and popup instead of fixed panel",
+      "passed": true
+    }
+  ]
+}

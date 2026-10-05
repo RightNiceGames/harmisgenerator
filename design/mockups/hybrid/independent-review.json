@@ -1,0 +1,374 @@
+{
+  "date": "2026-10-05T09:06:53.851275+00:00",
+  "errors": [],
+  "results": [
+    {
+      "name": "Single tool click commits valid draft and opens requested tool",
+      "passed": true
+    },
+    {
+      "name": "Second chord activation replaces the full measure line",
+      "passed": true
+    },
+    {
+      "name": "Blank area replaces whole bar",
+      "passed": true
+    },
+    {
+      "name": "Production chord extension syntax accepted",
+      "passed": true
+    },
+    {
+      "name": "Invalid chord is kept as draft after tool click",
+      "passed": true
+    },
+    {
+      "name": "Text composition Enter does not commit",
+      "passed": true
+    },
+    {
+      "name": "Three added chords use representable quarter positions",
+      "passed": true
+    },
+    {
+      "name": "One click on next chord saves current edit and selects next chord",
+      "passed": true
+    },
+    {
+      "name": "Escape discards direct typing without changing score",
+      "passed": true
+    },
+    {
+      "name": "Empty direct input clears the chord line",
+      "passed": true
+    },
+    {
+      "name": "Chord input rejects prematurely closing parentheses",
+      "passed": true
+    },
+    {
+      "name": "Grouped parentheses are normalized to individual chords",
+      "passed": true
+    },
+    {
+      "name": "Chord and rhythm placement grids provide 4/8/16 positions",
+      "passed": true
+    },
+    {
+      "name": "Chord position, reorder, recent chord and variant update the model",
+      "passed": true
+    },
+    {
+      "name": "N.C. replaces selected chord without erasing rhythm or neighbor",
+      "passed": true
+    },
+    {
+      "name": "Rhythm rejects overlapping durations and keeps existing notes",
+      "passed": true
+    },
+    {
+      "name": "6/8 grid uses denominator-aware start points",
+      "passed": true
+    },
+    {
+      "name": "House back button and exact selected range work",
+      "passed": true
+    },
+    {
+      "name": "Form includes all parts and a linked recurrence with settings",
+      "passed": true
+    },
+    {
+      "name": "Recurrence moves before original and undo restores order",
+      "passed": true
+    },
+    {
+      "name": "Drag reorder changes preview and written bar numbering",
+      "passed": true
+    },
+    {
+      "name": "Insert and layout share local changes and row breaks work",
+      "passed": true
+    },
+    {
+      "name": "Song edits update title and invalid key does not commit",
+      "passed": true
+    },
+    {
+      "name": "Mobile supports direct typing and popup instead of fixed panel",
+      "passed": true
+    },
+    {
+      "name": "Partially overlapping houses await explicit choice without data loss",
+      "passed": true
+    },
+    {
+      "name": "Removing house from selected continuation removes owning house",
+      "passed": true
+    },
+    {
+      "name": "Inserting a bar inside house preserves its continuous span",
+      "passed": true
+    },
+    {
+      "name": "House bracket follows manual row break without crossing empty cells",
+      "passed": true
+    },
+    {
+      "name": "Form reorder blocks invalid inherited meter",
+      "passed": true
+    },
+    {
+      "name": "Mobile shorter viewport keeps popup within available height",
+      "passed": true
+    },
+    {
+      "name": "Measure-number strip selects without opening input",
+      "passed": true
+    },
+    {
+      "name": "Chord click places caret, typing corrects without replacing full text",
+      "passed": true
+    },
+    {
+      "name": "Select-all preference applies to opened field and persists reload",
+      "passed": true
+    },
+    {
+      "name": "Second activation edits the complete measure and scope is visible",
+      "passed": true
+    },
+    {
+      "name": "Bar-local duplicate inserts copy after source and selects it",
+      "passed": true
+    },
+    {
+      "name": "Bar-local delete removes one bar and undo restores contents",
+      "passed": true
+    },
+    {
+      "name": "Last remaining bar is emptied and part deletion remains separate",
+      "passed": true
+    },
+    {
+      "name": "Deleting first or middle house bar keeps span contiguous and valid",
+      "passed": true
+    },
+    {
+      "name": "Deleting a local meter change preserves successor meter and attacks",
+      "passed": true
+    },
+    {
+      "name": "Duplicate copies music and omits repeat/layout boundaries",
+      "passed": true
+    },
+    {
+      "name": "Changed base chord asks before retaining/removing variant",
+      "passed": true
+    },
+    {
+      "name": "Explicitly keeping variant and moving chord preserves its metadata",
+      "passed": true
+    },
+    {
+      "name": "New three/four chords use accepted standard positions",
+      "passed": true
+    },
+    {
+      "name": "Partial house overlap offers explicit replacement without early changes",
+      "passed": true
+    },
+    {
+      "name": "Declining conflicting house preserves old house",
+      "passed": true
+    },
+    {
+      "name": "Reuse moves before original and keeps source meter",
+      "passed": true
+    },
+    {
+      "name": "Detach preserves count/instruction, remaps houses and separates edits",
+      "passed": true
+    },
+    {
+      "name": "Detached 6/8 part before original keeps sixteenth placement",
+      "passed": true
+    },
+    {
+      "name": "Mobile two-tap range selects without keyboard or popup",
+      "passed": true
+    },
+    {
+      "name": "Range selection rejects crossing parts and can be cancelled",
+      "passed": true
+    },
+    {
+      "name": "Mobile settings and local bar actions have no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "Keyboard activates local delete as a button without opening editor",
+      "passed": true
+    },
+    {
+      "name": "Deleting meter change at end of part preserves following part",
+      "passed": true
+    },
+    {
+      "name": "Nonempty part deletion asks and Cancel preserves music",
+      "passed": true
+    },
+    {
+      "name": "Part deletion also removes linked form blocks and undo restores all",
+      "passed": true
+    },
+    {
+      "name": "Empty part can be removed immediately through heading X",
+      "passed": true
+    },
+    {
+      "name": "Delete final part has an empty state and remains undoable",
+      "passed": true
+    },
+    {
+      "name": "Escape closes part deletion confirmation without deleting",
+      "passed": true
+    },
+    {
+      "name": "Reprise start/end move to next remaining bar",
+      "passed": true
+    },
+    {
+      "name": "Reprise moves to preceding bar if no next bar exists",
+      "passed": true
+    },
+    {
+      "name": "Variant text supports multiple chords and updates immediately",
+      "passed": true
+    },
+    {
+      "name": "Sequential variant typing preserves caret and groups undo",
+      "passed": true
+    },
+    {
+      "name": "Invalid live variant keeps last valid music and can be corrected",
+      "passed": true
+    },
+    {
+      "name": "Variant play count, subsequent passes and voice update without buttons",
+      "passed": true
+    },
+    {
+      "name": "Sidebar chord line edits whole bar with Enter",
+      "passed": true
+    },
+    {
+      "name": "Sidebar invalid text remains a draft with a visible error",
+      "passed": true
+    },
+    {
+      "name": "Menu scroll stays when resolution and reorder buttons update it",
+      "passed": true
+    },
+    {
+      "name": "Recent chord is inserted after selected chord without replacing neighbors",
+      "passed": true
+    },
+    {
+      "name": "Recent chord appends to whole selected bar using available grid",
+      "passed": true
+    },
+    {
+      "name": "Chord arrows move by chosen grid and cannot cross neighbors",
+      "passed": true
+    },
+    {
+      "name": "First chord can move later without leaving the measure",
+      "passed": true
+    },
+    {
+      "name": "Mobile chord controls and part confirmation fit the viewport",
+      "passed": true
+    },
+    {
+      "name": "Deleting a part with meter changes preserves remaining music",
+      "passed": true
+    },
+    {
+      "name": "Chord controls preserve focus and hide measure actions",
+      "passed": true
+    },
+    {
+      "name": "First chord click selects without opening editor",
+      "passed": true
+    },
+    {
+      "name": "Second chord click edits the complete chord line",
+      "passed": true
+    },
+    {
+      "name": "Native double click opens full line",
+      "passed": true
+    },
+    {
+      "name": "Switching selected chord keeps editor closed",
+      "passed": true
+    },
+    {
+      "name": "Tool row stays fixed across chord selection and movement",
+      "passed": true
+    },
+    {
+      "name": "Blank chord line space opens editor immediately",
+      "passed": true
+    },
+    {
+      "name": "Populated measure lower area selects without editing",
+      "passed": true
+    },
+    {
+      "name": "Clearing chord text creates empty measure and supports undo",
+      "passed": true
+    },
+    {
+      "name": "Empty bar body directly opens editing while number strip selects",
+      "passed": true
+    },
+    {
+      "name": "Part title selects all measures and reveals both actions",
+      "passed": true
+    },
+    {
+      "name": "Renaming updates score, form and linked reuses and supports undo",
+      "passed": true
+    },
+    {
+      "name": "Rename Escape cancels and duplicate or empty names remain editable",
+      "passed": true
+    },
+    {
+      "name": "Deleting selected populated part still requires confirmation",
+      "passed": true
+    },
+    {
+      "name": "Chord keyboard selection and second activation edit",
+      "passed": true
+    },
+    {
+      "name": "Mobile selection, static tools and title actions fit screen",
+      "passed": true
+    },
+    {
+      "name": "Clicking the grid selector preserves the selected chord",
+      "passed": true
+    },
+    {
+      "name": "Clearing chords preserves repeat signs and rhythm",
+      "passed": true
+    },
+    {
+      "name": "Selecting a chord after a part clears whole-part selection",
+      "passed": true
+    }
+  ]
+}

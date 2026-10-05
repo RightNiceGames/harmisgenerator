@@ -1,0 +1,488 @@
+{
+  "errors": [],
+  "screenshotStats": [
+    {
+      "state": {
+        "version": "a",
+        "currentState": "overview",
+        "mode": "",
+        "selected": [],
+        "dirty": false,
+        "score": "base"
+      },
+      "width": 1512,
+      "popup": null,
+      "scene": {
+        "top": 308.09375,
+        "bottom": 1011
+      }
+    },
+    {
+      "state": {
+        "version": "a",
+        "currentState": "chord",
+        "mode": "chord",
+        "selected": [
+          "1-6"
+        ],
+        "dirty": false,
+        "score": "base"
+      },
+      "width": 1512,
+      "popup": {
+        "top": 497,
+        "bottom": 991,
+        "height": 494,
+        "left": 1031.28125,
+        "right": 1357.28125
+      },
+      "scene": {
+        "top": 308.09375,
+        "bottom": 1011
+      }
+    },
+    {
+      "state": {
+        "version": "a",
+        "currentState": "bar",
+        "mode": "insert",
+        "selected": [
+          "1-6"
+        ],
+        "dirty": false,
+        "score": "base"
+      },
+      "width": 1512,
+      "popup": {
+        "top": 468,
+        "bottom": 990.5,
+        "height": 522.5,
+        "left": 1031.28125,
+        "right": 1357.28125
+      },
+      "scene": {
+        "top": 308.09375,
+        "bottom": 1011
+      }
+    },
+    {
+      "state": {
+        "version": "a",
+        "currentState": "rhythm",
+        "mode": "rhythm",
+        "selected": [
+          "1-6"
+        ],
+        "dirty": false,
+        "score": "rhythm"
+      },
+      "width": 1512,
+      "popup": {
+        "top": 326.09375,
+        "bottom": 993,
+        "height": 666.90625,
+        "left": 1031.28125,
+        "right": 1357.28125
+      },
+      "scene": {
+        "top": 308.09375,
+        "bottom": 1011
+      }
+    },
+    {
+      "state": {
+        "version": "a",
+        "currentState": "repeats",
+        "mode": "repeats",
+        "selected": [
+          "2-6",
+          "2-7"
+        ],
+        "dirty": false,
+        "score": "base"
+      },
+      "width": 1512,
+      "popup": {
+        "top": 513,
+        "bottom": 990.5,
+        "height": 477.5,
+        "left": 1170,
+        "right": 1496
+      },
+      "scene": {
+        "top": 308.09375,
+        "bottom": 1011
+      }
+    },
+    {
+      "state": {
+        "version": "a",
+        "currentState": "house",
+        "mode": "house",
+        "selected": [
+          "2-6",
+          "2-7"
+        ],
+        "dirty": false,
+        "score": "base"
+      },
+      "width": 1512,
+      "popup": {
+        "top": 468,
+        "bottom": 1008,
+        "height": 540,
+        "left": 1170,
+        "right": 1496
+      },
+      "scene": {
+        "top": 308.09375,
+        "bottom": 1011
+      }
+    },
+    {
+      "state": {
+        "version": "a",
+        "currentState": "applied",
+        "mode": "",
+        "selected": [
+          "2-6",
+          "2-7"
+        ],
+        "dirty": true,
+        "score": "house"
+      },
+      "width": 1512,
+      "popup": null,
+      "scene": {
+        "top": 308.09375,
+        "bottom": 1011
+      }
+    },
+    {
+      "state": {
+        "version": "a",
+        "currentState": "structure",
+        "mode": "form",
+        "selected": [],
+        "dirty": false,
+        "score": "base"
+      },
+      "width": 1512,
+      "popup": {
+        "top": 330.09375,
+        "bottom": 895.59375,
+        "height": 565.5,
+        "left": 1152,
+        "right": 1478
+      },
+      "scene": {
+        "top": 308.09375,
+        "bottom": 1011
+      }
+    },
+    {
+      "state": {
+        "version": "a",
+        "currentState": "structure-applied",
+        "mode": "",
+        "selected": [],
+        "dirty": true,
+        "score": "structure"
+      },
+      "width": 1512,
+      "popup": null,
+      "scene": {
+        "top": 308.09375,
+        "bottom": 1011
+      }
+    },
+    {
+      "state": {
+        "version": "a",
+        "currentState": "song",
+        "mode": "song",
+        "selected": [],
+        "dirty": false,
+        "score": "base"
+      },
+      "width": 1512,
+      "popup": {
+        "top": 326.09375,
+        "bottom": 993,
+        "height": 666.90625,
+        "left": 1152,
+        "right": 1478
+      },
+      "scene": {
+        "top": 308.09375,
+        "bottom": 1011
+      }
+    },
+    {
+      "state": {
+        "version": "a",
+        "currentState": "layout",
+        "mode": "layout",
+        "selected": [
+          "1-4"
+        ],
+        "dirty": false,
+        "score": "base"
+      },
+      "width": 1512,
+      "popup": {
+        "top": 478,
+        "bottom": 991,
+        "height": 513,
+        "left": 726.703125,
+        "right": 1052.703125
+      },
+      "scene": {
+        "top": 308.09375,
+        "bottom": 1011
+      }
+    },
+    {
+      "state": {
+        "version": "b",
+        "currentState": "overview",
+        "mode": "",
+        "selected": [],
+        "dirty": false,
+        "score": "base"
+      },
+      "width": 1512,
+      "popup": null,
+      "scene": {
+        "top": 308.09375,
+        "bottom": 1011
+      }
+    },
+    {
+      "state": {
+        "version": "b",
+        "currentState": "chord",
+        "mode": "chord",
+        "selected": [
+          "1-6"
+        ],
+        "dirty": false,
+        "score": "base"
+      },
+      "width": 1512,
+      "popup": {
+        "top": 347.09375,
+        "bottom": 839.09375,
+        "height": 492,
+        "left": 1201,
+        "right": 1512
+      },
+      "scene": {
+        "top": 308.09375,
+        "bottom": 1011
+      }
+    },
+    {
+      "state": {
+        "version": "b",
+        "currentState": "bar",
+        "mode": "insert",
+        "selected": [
+          "1-6"
+        ],
+        "dirty": false,
+        "score": "base"
+      },
+      "width": 1512,
+      "popup": {
+        "top": 347.09375,
+        "bottom": 867.59375,
+        "height": 520.5,
+        "left": 1201,
+        "right": 1512
+      },
+      "scene": {
+        "top": 308.09375,
+        "bottom": 1011
+      }
+    },
+    {
+      "state": {
+        "version": "b",
+        "currentState": "rhythm",
+        "mode": "rhythm",
+        "selected": [
+          "1-6"
+        ],
+        "dirty": false,
+        "score": "rhythm"
+      },
+      "width": 1512,
+      "popup": {
+        "top": 347.09375,
+        "bottom": 1047.09375,
+        "height": 700,
+        "left": 1201,
+        "right": 1512
+      },
+      "scene": {
+        "top": 308.09375,
+        "bottom": 1011
+      }
+    },
+    {
+      "state": {
+        "version": "b",
+        "currentState": "repeats",
+        "mode": "repeats",
+        "selected": [
+          "2-6",
+          "2-7"
+        ],
+        "dirty": false,
+        "score": "base"
+      },
+      "width": 1512,
+      "popup": {
+        "top": 347.09375,
+        "bottom": 836.59375,
+        "height": 489.5,
+        "left": 1201,
+        "right": 1512
+      },
+      "scene": {
+        "top": 308.09375,
+        "bottom": 1011
+      }
+    },
+    {
+      "state": {
+        "version": "b",
+        "currentState": "house",
+        "mode": "house",
+        "selected": [
+          "2-6",
+          "2-7"
+        ],
+        "dirty": false,
+        "score": "base"
+      },
+      "width": 1512,
+      "popup": {
+        "top": 347.09375,
+        "bottom": 885.09375,
+        "height": 538,
+        "left": 1201,
+        "right": 1512
+      },
+      "scene": {
+        "top": 308.09375,
+        "bottom": 1011
+      }
+    },
+    {
+      "state": {
+        "version": "b",
+        "currentState": "applied",
+        "mode": "",
+        "selected": [
+          "2-6",
+          "2-7"
+        ],
+        "dirty": true,
+        "score": "house"
+      },
+      "width": 1512,
+      "popup": null,
+      "scene": {
+        "top": 308.09375,
+        "bottom": 1011
+      }
+    },
+    {
+      "state": {
+        "version": "b",
+        "currentState": "structure",
+        "mode": "form",
+        "selected": [],
+        "dirty": false,
+        "score": "base"
+      },
+      "width": 1512,
+      "popup": {
+        "top": 347.09375,
+        "bottom": 910.59375,
+        "height": 563.5,
+        "left": 1201,
+        "right": 1512
+      },
+      "scene": {
+        "top": 308.09375,
+        "bottom": 1011
+      }
+    },
+    {
+      "state": {
+        "version": "b",
+        "currentState": "structure-applied",
+        "mode": "",
+        "selected": [],
+        "dirty": true,
+        "score": "structure"
+      },
+      "width": 1512,
+      "popup": null,
+      "scene": {
+        "top": 308.09375,
+        "bottom": 1011
+      }
+    },
+    {
+      "state": {
+        "version": "b",
+        "currentState": "song",
+        "mode": "song",
+        "selected": [],
+        "dirty": false,
+        "score": "base"
+      },
+      "width": 1512,
+      "popup": {
+        "top": 347.09375,
+        "bottom": 1034.59375,
+        "height": 687.5,
+        "left": 1201,
+        "right": 1512
+      },
+      "scene": {
+        "top": 308.09375,
+        "bottom": 1011
+      }
+    },
+    {
+      "state": {
+        "version": "b",
+        "currentState": "layout",
+        "mode": "layout",
+        "selected": [
+          "1-4"
+        ],
+        "dirty": false,
+        "score": "base"
+      },
+      "width": 1512,
+      "popup": {
+        "top": 347.09375,
+        "bottom": 858.09375,
+        "height": 511,
+        "left": 1201,
+        "right": 1512
+      },
+      "scene": {
+        "top": 308.09375,
+        "bottom": 1011
+      }
+    }
+  ],
+  "interactiveChecks": "chord edit, undo, range selection, house, save, Escape, mobile overflow passed"
+}

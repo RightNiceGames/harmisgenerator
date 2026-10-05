@@ -1,0 +1,89 @@
+{
+  "errors": [],
+  "results": [
+    {
+      "name": "Nonempty part deletion asks and Cancel preserves music",
+      "passed": true
+    },
+    {
+      "name": "Part deletion also removes linked form blocks and undo restores all",
+      "passed": true
+    },
+    {
+      "name": "Empty part can be removed immediately through heading X",
+      "passed": true
+    },
+    {
+      "name": "Delete final part has an empty state and remains undoable",
+      "passed": true
+    },
+    {
+      "name": "Escape closes part deletion confirmation without deleting",
+      "passed": true
+    },
+    {
+      "name": "Reprise start/end move to next remaining bar",
+      "passed": true
+    },
+    {
+      "name": "Reprise moves to preceding bar if no next bar exists",
+      "passed": true
+    },
+    {
+      "name": "Variant text supports multiple chords and updates immediately",
+      "passed": true
+    },
+    {
+      "name": "Sequential variant typing preserves caret and groups undo",
+      "passed": true
+    },
+    {
+      "name": "Invalid live variant keeps last valid music and can be corrected",
+      "passed": true
+    },
+    {
+      "name": "Variant play count, subsequent passes and voice update without buttons",
+      "passed": true
+    },
+    {
+      "name": "Sidebar chord line edits whole bar with Enter",
+      "passed": true
+    },
+    {
+      "name": "Sidebar invalid text remains a draft with a visible error",
+      "passed": true
+    },
+    {
+      "name": "Menu scroll stays when resolution and reorder buttons update it",
+      "passed": true
+    },
+    {
+      "name": "Recent chord is inserted after selected chord without replacing neighbors",
+      "passed": true
+    },
+    {
+      "name": "Recent chord appends to whole selected bar using available grid",
+      "passed": true
+    },
+    {
+      "name": "Chord arrows move by chosen grid and cannot cross neighbors",
+      "passed": true
+    },
+    {
+      "name": "First chord can move later without leaving the measure",
+      "passed": true
+    },
+    {
+      "name": "Mobile chord controls and part confirmation fit the viewport",
+      "passed": true
+    },
+    {
+      "name": "Deleting a part with meter changes preserves remaining music",
+      "passed": true
+    },
+    {
+      "name": "Chord controls preserve focus and hide measure actions",
+      "passed": true
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "errors": [],
+  "results": [
+    {
+      "name": "First chord click selects without opening editor",
+      "passed": true
+    },
+    {
+      "name": "Second chord click edits the complete chord line",
+      "passed": true
+    },
+    {
+      "name": "Native double click opens full line",
+      "passed": true
+    },
+    {
+      "name": "Switching selected chord keeps editor closed",
+      "passed": true
+    },
+    {
+      "name": "Tool row stays fixed across chord selection and movement",
+      "passed": true
+    },
+    {
+      "name": "Blank chord line space opens editor immediately",
+      "passed": true
+    },
+    {
+      "name": "Populated measure lower area selects without editing",
+      "passed": true
+    },
+    {
+      "name": "Clearing chord text creates empty measure and supports undo",
+      "passed": true
+    },
+    {
+      "name": "Empty bar body directly opens editing while number strip selects",
+      "passed": true
+    },
+    {
+      "name": "Part title selects all measures and reveals both actions",
+      "passed": true
+    },
+    {
+      "name": "Renaming updates score, form and linked reuses and supports undo",
+      "passed": true
+    },
+    {
+      "name": "Rename Escape cancels and duplicate or empty names remain editable",
+      "passed": true
+    },
+    {
+      "name": "Deleting selected populated part still requires confirmation",
+      "passed": true
+    },
+    {
+      "name": "Chord keyboard selection and second activation edit",
+      "passed": true
+    },
+    {
+      "name": "Mobile selection, static tools and title actions fit screen",
+      "passed": true
+    },
+    {
+      "name": "Clicking the grid selector preserves the selected chord",
+      "passed": true
+    },
+    {
+      "name": "Clearing chords preserves repeat signs and rhythm",
+      "passed": true
+    },
+    {
+      "name": "Selecting a chord after a part clears whole-part selection",
+      "passed": true
+    }
+  ]
+}

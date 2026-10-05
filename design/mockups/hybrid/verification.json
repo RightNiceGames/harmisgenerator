@@ -1,0 +1,78 @@
+{
+  "checks": [
+    {
+      "name": "Direct typing, grouped parentheses and default starts",
+      "passed": true
+    },
+    {
+      "name": "One click commits draft and opens chord tool",
+      "passed": true
+    },
+    {
+      "name": "Variant, recent chord and fractional start",
+      "passed": true
+    },
+    {
+      "name": "Undo and redo preserve complete model",
+      "passed": true
+    },
+    {
+      "name": "Rhythm duration differs from placement grid and prevents overlap",
+      "passed": true
+    },
+    {
+      "name": "Exact house span and explicit return",
+      "passed": true
+    },
+    {
+      "name": "Form reuse, count, instruction and free reorder",
+      "passed": true
+    },
+    {
+      "name": "Local changes from both Infoga and Layout",
+      "passed": true
+    },
+    {
+      "name": "6/8 uses eighth-note units for start grid",
+      "passed": true
+    },
+    {
+      "name": "Song title, version, status, meter and tempo are data backed",
+      "passed": true
+    },
+    {
+      "name": "Reorder blocks invalid inherited meter",
+      "passed": true
+    },
+    {
+      "name": "Invalid input blocks tool switch and retains draft",
+      "passed": true
+    },
+    {
+      "name": "Extension parentheses and second-click full measure editing",
+      "passed": true
+    },
+    {
+      "name": "IME Enter does not commit and Tab commits",
+      "passed": true
+    },
+    {
+      "name": "Model numbering follows reordered originals",
+      "passed": true
+    },
+    {
+      "name": "Mobile direct typing leaves sheet closed",
+      "passed": true
+    },
+    {
+      "name": "Mobile tools use a bottom sheet",
+      "passed": true
+    },
+    {
+      "name": "Measure strip and bar actions",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "screenshots": 32
+}

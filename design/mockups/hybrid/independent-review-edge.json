@@ -1,0 +1,29 @@
+{
+  "errors": [],
+  "results": [
+    {
+      "name": "Partially overlapping houses await explicit choice without data loss",
+      "passed": true
+    },
+    {
+      "name": "Removing house from selected continuation removes owning house",
+      "passed": true
+    },
+    {
+      "name": "Inserting a bar inside house preserves its continuous span",
+      "passed": true
+    },
+    {
+      "name": "House bracket follows manual row break without crossing empty cells",
+      "passed": true
+    },
+    {
+      "name": "Form reorder blocks invalid inherited meter",
+      "passed": true
+    },
+    {
+      "name": "Mobile shorter viewport keeps popup within available height",
+      "passed": true
+    }
+  ]
+}

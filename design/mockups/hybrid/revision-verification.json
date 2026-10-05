@@ -1,0 +1,97 @@
+{
+  "errors": [],
+  "results": [
+    {
+      "name": "Measure-number strip selects without opening input",
+      "passed": true
+    },
+    {
+      "name": "Chord click places caret, typing corrects without replacing full text",
+      "passed": true
+    },
+    {
+      "name": "Select-all preference applies to opened field and persists reload",
+      "passed": true
+    },
+    {
+      "name": "Second activation edits the complete measure and scope is visible",
+      "passed": true
+    },
+    {
+      "name": "Bar-local duplicate inserts copy after source and selects it",
+      "passed": true
+    },
+    {
+      "name": "Bar-local delete removes one bar and undo restores contents",
+      "passed": true
+    },
+    {
+      "name": "Last remaining bar is emptied and part deletion remains separate",
+      "passed": true
+    },
+    {
+      "name": "Deleting first or middle house bar keeps span contiguous and valid",
+      "passed": true
+    },
+    {
+      "name": "Deleting a local meter change preserves successor meter and attacks",
+      "passed": true
+    },
+    {
+      "name": "Duplicate copies music and omits repeat/layout boundaries",
+      "passed": true
+    },
+    {
+      "name": "Changed base chord asks before retaining/removing variant",
+      "passed": true
+    },
+    {
+      "name": "Explicitly keeping variant and moving chord preserves its metadata",
+      "passed": true
+    },
+    {
+      "name": "New three/four chords use accepted standard positions",
+      "passed": true
+    },
+    {
+      "name": "Partial house overlap offers explicit replacement without early changes",
+      "passed": true
+    },
+    {
+      "name": "Declining conflicting house preserves old house",
+      "passed": true
+    },
+    {
+      "name": "Reuse moves before original and keeps source meter",
+      "passed": true
+    },
+    {
+      "name": "Detach preserves count/instruction, remaps houses and separates edits",
+      "passed": true
+    },
+    {
+      "name": "Detached 6/8 part before original keeps sixteenth placement",
+      "passed": true
+    },
+    {
+      "name": "Mobile two-tap range selects without keyboard or popup",
+      "passed": true
+    },
+    {
+      "name": "Range selection rejects crossing parts and can be cancelled",
+      "passed": true
+    },
+    {
+      "name": "Mobile settings and local bar actions have no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "Keyboard activates local delete as a button without opening editor",
+      "passed": true
+    },
+    {
+      "name": "Deleting meter change at end of part preserves following part",
+      "passed": true
+    }
+  ]
+}
