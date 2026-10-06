@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
-import { writeFile, unlink, readFile, mkdir } from 'node:fs/promises';
+import { writeFile, unlink, readFile, mkdir, readdir } from 'node:fs/promises';
 const fixture='songs/browser-check.yaml';
+let fixtureCreated=false;
 const content=`format: 1
 titel: Webbläsartest
 artist: Testartist
@@ -16,12 +17,13 @@ delar:
       - B6/9
       - Eb7
 `;
-test.beforeAll(async()=>{await mkdir('work/cache',{recursive:true});await writeFile(fixture,content,{flag:'wx'});});
-test.afterAll(async()=>{await unlink(fixture);});
+test.beforeAll(async()=>{await mkdir('work/cache',{recursive:true});await writeFile(fixture,content,{flag:'wx'});fixtureCreated=true;});
+test.afterAll(async()=>{if(!fixtureCreated)return;await unlink(fixture);for(const name of await readdir('work/backups').catch(()=>[]))if(name.startsWith('browser-check.yaml.')&&name.endsWith('.bak'))await unlink('work/backups/'+name);});
 test('edit, insert, transpose, undo, save, reload and export PDF',async({page})=>{
   const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto('/');await page.getByRole('button',{name:/Alla låtar/}).click();
   await page.getByRole('button',{name:/Webbläsartest/}).click();
+  await page.getByRole('button',{name:'Visa låtfil',exact:true}).click();
   const editor=page.getByRole('textbox',{name:'Låtfilens text'});
   await expect(editor).toHaveValue(content);
   await expect(page.locator('.paper')).toHaveCount(1);
@@ -47,7 +49,7 @@ test('edit, insert, transpose, undo, save, reload and export PDF',async({page})=
   await expect(page.locator('.live-label')).toHaveText('Live');
   const valid=await editor.inputValue();
   await editor.fill(valid+'\ntempo: [fel\n');
-  await expect(page.locator('.parse-error')).toBeVisible();
+  await expect(page.locator('.parse-error').first()).toBeVisible();
   await expect(page.getByRole('button',{name:'Spara',exact:true})).toBeDisabled();
   await expect(page.getByRole('button',{name:'Exportera PDF'})).toBeDisabled();
   await expect(page.locator('.paper')).toHaveCount(1);
@@ -65,16 +67,17 @@ test('library search, unsaved navigation and narrow screen',async({page})=>{
   await page.getByRole('textbox',{name:'Sök låt eller artist'}).fill('Newkid');
   await expect(page.locator('.song-item')).toHaveCount(1);
   await page.getByRole('button',{name:/Du måste finnas/}).click();
-  await expect(page.getByRole('heading',{level:1})).toHaveText('Du måste finnas');
+  await expect(page.locator('.paper').first()).toContainText('Du måste finnas');
+  await page.getByRole('button',{name:'Visa låtfil',exact:true}).click();
   const editor=page.getByRole('textbox',{name:'Låtfilens text'});
   await editor.fill((await editor.inputValue()).replace('tempo: 73','tempo: 74'));
   await page.getByRole('textbox',{name:'Sök låt eller artist'}).fill('');
   page.once('dialog',dialog=>dialog.dismiss());
   await page.getByRole('button',{name:/Flykten från vardagen/}).click();
-  await expect(page.getByRole('heading',{level:1})).toHaveText('Du måste finnas');
+  await expect(page.locator('.paper').first()).toContainText('Du måste finnas');
   page.once('dialog',dialog=>dialog.accept());
   await page.getByRole('button',{name:/Flykten från vardagen/}).click();
-  await expect(page.getByRole('heading',{level:1})).toHaveText('Flykten från vardagen');
+  await expect(page.locator('.paper').first()).toContainText('Flykten från vardagen');
   await page.setViewportSize({width:390,height:844});
   await expect(page.getByRole('button',{name:'Exportera PDF'})).toBeVisible();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
@@ -90,6 +93,7 @@ test('API rejects foreign-origin writes and stale revisions',async({request,base
 test('music buttons preserve the text viewport and edit the chosen bar',async({page})=>{
   await page.goto('/');await page.getByRole('button',{name:/Alla låtar/}).click();
   await page.getByRole('button',{name:/Webbläsartest/}).click();
+  await page.getByRole('button',{name:'Visa låtfil',exact:true}).click();
   const editor=page.getByRole('textbox',{name:'Låtfilens text'});
   const long=content.slice(0,content.indexOf('      - Abm'))+Array.from({length:120},(_,i)=>`      - ${i===90?'Bb7':'C'} # ${'en lång kommentar '.repeat(6)}\n`).join('');
   await editor.fill(long);
@@ -112,7 +116,8 @@ test('music buttons preserve the text viewport and edit the chosen bar',async({p
 });
 test('reuse a section and insert N.C. and percent from the music toolbar',async({page})=>{
  await page.goto('/');await page.getByRole('button',{name:/Alla låtar/}).click();await page.getByRole('button',{name:/Webbläsartest/}).click();
- const editor=page.getByRole('textbox',{name:'Låtfilens text'});await editor.fill(content);
+ await page.getByRole('button',{name:'Visa låtfil',exact:true}).click();
+  const editor=page.getByRole('textbox',{name:'Låtfilens text'});await editor.fill(content);
  await page.getByRole('button',{name:'Återanvänd del',exact:true}).click();
  await page.getByLabel('Låtdel att återanvända').selectOption('Intro');
  await page.getByLabel('Antal gånger').selectOption('2');
@@ -132,44 +137,40 @@ test('reuse a section and insert N.C. and percent from the music toolbar',async(
  await expect(page.locator('.parse-error')).toHaveCount(0);
 });
 test('edit an existing preview chord, validate input, undo and protect stale previews',async({page})=>{
+ const errors:string[]=[];page.on('pageerror',e=>errors.push(e.stack??e.message));
  await page.goto('/');await page.getByRole('button',{name:/Alla låtar/}).click();await page.getByRole('button',{name:/Webbläsartest/}).click();
+ await page.getByRole('button',{name:'Visa låtfil',exact:true}).click();
  const editor=page.getByRole('textbox',{name:'Låtfilens text'});await editor.fill(content);
  await expect(page.locator('.live-label')).toHaveText('Live');
- await page.getByRole('button',{name:'Ändra Abm6/9/Gb, Intro, takt 1',exact:true}).click();
- const dialog=page.getByRole('dialog',{name:'Ändra ackord',exact:true});
- await expect(dialog.getByLabel('Ackord',{exact:true})).toHaveValue('Abm6/9/Gb');
- await dialog.getByLabel('Ackord',{exact:true}).fill('H7');
- await dialog.getByRole('button',{name:'Ändra ackord',exact:true}).click();
- await expect(dialog.getByRole('alert')).toContainText('Ogiltigt ackord');
- await dialog.getByLabel('Ackord',{exact:true}).fill('Bb7/F');
- await dialog.getByLabel('Ackord',{exact:true}).press('Enter');
- await expect(dialog).toHaveCount(0);await expect(editor).toHaveValue(/- Bb7\/F/);
+ const target=page.locator('.chord-hit[data-section="0"][data-bar="0"][data-chord="0"]:not([data-variant])').first();
+ await target.click();await expect(page.locator('#score-edit')).toHaveCount(0);await target.click();
+ const input=page.locator('#score-edit');await expect(input).toHaveValue('Abm6/9/Gb');
+ await input.fill('H7');await input.press('Enter');await expect(input).toBeVisible();await expect(page.getByRole('alert').filter({visible:true}).first()).toContainText(/ackord/i);
+ await input.fill('Bb7/F');await input.press('Enter');await expect(input).toHaveCount(0);await expect(editor).toHaveValue(/ackord: Bb7\/F/);
  await expect(page.getByRole('button',{name:'Ändra Bb7/F, Intro, takt 1',exact:true})).toBeVisible();
- await page.getByRole('button',{name:'Ångra',exact:true}).click();await expect(editor).toHaveValue(content);
- await expect(page.locator('.live-label')).toHaveText('Live');
- await page.getByRole('button',{name:'Ändra Abm6/9/Gb, Intro, takt 1',exact:true}).focus();
- await page.keyboard.press('Enter');await expect(dialog).toBeVisible();await page.keyboard.press('Escape');await expect(dialog).toHaveCount(0);
- await editor.fill(content+'invalid: true\n');
- await page.locator('.chord-hit').first().dispatchEvent('click');
- await expect(dialog).toHaveCount(0);
+ await page.getByRole('button',{name:'Ångra',exact:true}).click();await expect(editor).toHaveValue(content);await expect(page.locator('.live-label')).toHaveText('Live');
+ await page.locator('.bar-number-hit[data-section="0"][data-bar="0"]').click();await target.focus();await page.keyboard.press('Enter');await expect(input).toHaveCount(0);await page.keyboard.press('Enter');await expect(input).toBeVisible();await input.press('Escape');await expect(input).toHaveCount(0);
+ await editor.fill(content+'invalid: true\n');await expect(page.locator('.parse-error').first()).toBeVisible();await expect(page.locator('.paper')).toHaveCount(1);await target.dispatchEvent('click');await target.dispatchEvent('click');await expect(input).toHaveCount(0);expect(errors).toEqual([]);
 });
 test('rename a section from its reuse block and update the form references',async({page})=>{
  await page.goto('/');await page.getByRole('button',{name:/Alla låtar/}).click();await page.getByRole('button',{name:/Webbläsartest/}).click();
- const editor=page.getByRole('textbox',{name:'Låtfilens text'});await editor.fill(content);
+ await page.getByRole('button',{name:'Visa låtfil',exact:true}).click();
+  const editor=page.getByRole('textbox',{name:'Låtfilens text'});await editor.fill(content);
  await page.getByRole('button',{name:'Återanvänd del',exact:true}).click();
  await page.getByLabel('Antal gånger').selectOption('2');await page.getByRole('button',{name:'Infoga återanvänd del'}).click();
  await expect(page.locator('.paper')).toContainText('ÅTERANVÄND DEL · AVSLUTNING');
- await page.getByRole('button',{name:'Ändra delnamn: Intro',exact:true}).last().click();
- const dialog=page.getByRole('dialog',{name:'Ändra delnamn',exact:true});
- await dialog.getByLabel('Delnamn',{exact:true}).fill('Mellanspel');await dialog.getByLabel('Delnamn',{exact:true}).press('Enter');
+ await page.locator('.reuse-hit').last().click();await page.getByRole('button',{name:'Visa original',exact:true}).click();
+ await page.getByRole('button',{name:'Ändra titel',exact:true}).click();
+ await page.locator('#part-name').fill('Mellanspel');await page.locator('#part-name').press('Enter');
  await expect(editor).toHaveValue(/namn: Mellanspel/);await expect(editor).not.toHaveValue(/del: Intro/);
  await expect(editor).toHaveValue(/ateranvand: Mellanspel/);
- await expect(page.getByRole('button',{name:'Ändra delnamn: Mellanspel',exact:true})).toHaveCount(2);
+ await expect(page.getByRole('button',{name:'Ändra delnamn: Mellanspel',exact:true})).toHaveCount(1);await expect(page.locator('.reuse-hit')).toHaveAttribute('aria-label','Återanvänd del: Mellanspel');
  await page.getByRole('button',{name:'Ångra',exact:true}).click();await expect(editor).toHaveValue(/namn: Intro/);
 });
 test('insert a reuse before later music, then add a new written section after the reuse',async({page})=>{
  await page.goto('/');await page.getByRole('button',{name:/Alla låtar/}).click();await page.getByRole('button',{name:/Webbläsartest/}).click();
- const editor=page.getByRole('textbox',{name:'Låtfilens text'});
+ await page.getByRole('button',{name:'Visa låtfil',exact:true}).click();
+  const editor=page.getByRole('textbox',{name:'Låtfilens text'});
  await editor.fill(content+'  - namn: Coda\n    takter:\n      - C\n');
  await page.getByRole('button',{name:'Återanvänd del',exact:true}).click();
  await page.getByLabel('Infoga efter',{exact:true}).selectOption('0');
@@ -180,39 +181,27 @@ test('insert a reuse before later music, then add a new written section after th
  await editor.evaluate((el:HTMLTextAreaElement)=>{const pos=el.value.indexOf('ateranvand: Intro')+3;el.focus();el.setSelectionRange(pos,pos);el.dispatchEvent(new Event('select',{bubbles:true}));});
  await editor.press('ArrowRight');
  await expect(page.getByRole('button',{name:'Reprisstart',exact:true})).toBeDisabled();
- await page.getByRole('button',{name:'Ny del',exact:true}).click();
+ await page.locator('.musical-tools').getByRole('button',{name:'Ny del',exact:true}).click();
  const result=await editor.inputValue();expect(result.indexOf('namn: Ny del')).toBeGreaterThan(result.indexOf('ateranvand: Intro'));expect(result.indexOf('namn: Ny del')).toBeLessThan(result.indexOf('namn: Coda'));
  await expect(page.locator('.paper')).toContainText('Ny del');await expect(page.locator('.parse-error')).toHaveCount(0);
 });
 test('toggle parentheses around an existing preview chord and undo',async({page})=>{
  await page.goto('/');await page.getByRole('button',{name:/Alla låtar/}).click();await page.getByRole('button',{name:/Webbläsartest/}).click();
- const editor=page.getByRole('textbox',{name:'Låtfilens text'});await editor.fill(content);
- await page.getByRole('button',{name:'Ändra Abm6/9/Gb, Intro, takt 1',exact:true}).click();
- let dialog=page.getByRole('dialog',{name:'Ändra ackord',exact:true});
- await dialog.getByLabel('Ackord inom parentes').check();
- await expect(dialog.getByLabel('Ackord',{exact:true})).toHaveValue('(Abm6/9/Gb)');
- await dialog.getByRole('button',{name:'Ändra ackord',exact:true}).click();
- await expect(editor).toHaveValue(/\(Abm6\/9\/Gb\)/);
- await page.getByRole('button',{name:'Ändra (Abm6/9/Gb), Intro, takt 1',exact:true}).click();
- dialog=page.getByRole('dialog',{name:'Ändra ackord',exact:true});
- await expect(dialog.getByLabel('Ackord inom parentes')).toBeChecked();
- await dialog.getByLabel('Ackord inom parentes').uncheck();
- await dialog.getByRole('button',{name:'Ändra ackord',exact:true}).click();
- await expect(editor).not.toHaveValue(/\(Abm6\/9\/Gb\)/);
+ await page.getByRole('button',{name:'Visa låtfil',exact:true}).click();
+ const editor=page.getByRole('textbox',{name:'Låtfilens text'});await editor.fill(content);await expect(page.locator('.live-label')).toHaveText('Live');
+ await page.locator('.chord-hit[data-section="0"][data-bar="0"][data-chord="0"]:not([data-variant])').first().click();
+ await page.getByRole('button',{name:'Inom parentes',exact:true}).click();await expect(editor).toHaveValue(/\(Abm6\/9\/Gb\)/);
+ await expect(page.locator('.live-label')).toHaveText('Live');await expect(page.getByRole('button',{name:'Inom parentes',exact:true})).toHaveAttribute('aria-pressed','true');await page.getByRole('button',{name:'Inom parentes',exact:true}).click();await expect(editor).not.toHaveValue(/\(Abm6\/9\/Gb\)/);
  await page.getByRole('button',{name:'Ångra',exact:true}).click();await expect(editor).toHaveValue(/\(Abm6\/9\/Gb\)/);
 });
 
-test('add chords within the selected bar from preview without replacing its other chords',async({page})=>{
+test('rewrite the full preview chord line with parentheses while retaining intended neighbors',async({page})=>{
  await page.goto('/');await page.getByRole('button',{name:/Alla låtar/}).click();await page.getByRole('button',{name:/Webbläsartest/}).click();
- const editor=page.getByRole('textbox',{name:'Låtfilens text'});await editor.fill(content.replace('      - Abm6/9/Gb','      - Abm6/9/Gb Eb7'));
- await page.getByRole('button',{name:'Ändra Abm6/9/Gb, Intro, takt 1',exact:true}).click();
- const dialog=page.getByRole('dialog',{name:'Ändra ackord',exact:true});
- await dialog.getByLabel('Ackord',{exact:true}).fill('Cm F7');
- await dialog.getByLabel('Ackord inom parentes').check();
- await expect(dialog.getByLabel('Ackord',{exact:true})).toHaveValue('(Cm) (F7)');
- await dialog.getByRole('button',{name:'Ändra ackord',exact:true}).click();
- await expect(editor).toHaveValue(/- \(Cm\) \(F7\) Eb7/);
- await expect(page.getByRole('button',{name:'Ändra (F7), Intro, takt 1',exact:true})).toBeVisible();
- await expect(page.getByRole('button',{name:'Ändra Eb7, Intro, takt 1',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Visa låtfil',exact:true}).click();
+ const editor=page.getByRole('textbox',{name:'Låtfilens text'});await editor.fill(content.replace('      - Abm6/9/Gb','      - Abm6/9/Gb Eb7'));await expect(page.locator('.live-label')).toHaveText('Live');
+ const target=page.locator('.chord-hit[data-section="0"][data-bar="0"][data-chord="0"]:not([data-variant])').first();await target.click();await target.click();
+ const input=page.locator('#score-edit');await expect(input).toHaveValue('Abm6/9/Gb Eb7');await input.fill('(Cm) (F7) Eb7');await input.press('Enter');
+ await expect(editor).toHaveValue(/ackord: \(Cm\) \(F7\) Eb7/);await expect(page.locator('.live-label')).toHaveText('Live');
+ await expect(page.getByRole('button',{name:'Ändra (F7), Intro, takt 1',exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Ändra Eb7, Intro, takt 1',exact:true})).toBeVisible();
  await page.getByRole('button',{name:'Ångra',exact:true}).click();await expect(editor).toHaveValue(/- Abm6\/9\/Gb Eb7/);
 });

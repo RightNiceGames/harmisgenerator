@@ -17,7 +17,7 @@ test('transposition includes variants while preserving timing and comments',()=>
 test('rhythms and chord starts respect meter, sequence and note duration',()=>{
   assert.doesNotThrow(()=>readSong(source()));
   for(const invalid of [
-    {...bar,slag:[1]}, {...bar,slag:[1,5]}, {...bar,slag:[2,4]},
+    {...bar,slag:[1]}, {...bar,slag:[1,5]}, {...bar,slag:[3,2]},
     {...bar,rytm:[{slag:4.75,notvarde:8}]},
     {...bar,rytm:[{slag:1,notvarde:4},{slag:1.5,notvarde:8}]},
     {...bar,synkop:{typ:'offbeat',ackord:2}},
@@ -25,6 +25,7 @@ test('rhythms and chord starts respect meter, sequence and note duration',()=>{
     {...bar,varianter:[{gang:2,ackord:'H11'}]},
     {...bar,varianter:[{gang:2,ackord:'C F',slag:[1,5]}]},
   ]) assert.throws(()=>readSong(source(invalid)));
+  assert.doesNotThrow(()=>readSong(source({...bar,slag:[2,4]})));
   assert.doesNotThrow(()=>readSong(source({ackord:'C',rytm:[{slag:6,notvarde:8}]},'6/8')));
   assert.throws(()=>readSong(source({ackord:'C',rytm:[{slag:6,notvarde:4}]},'6/8')));
 });

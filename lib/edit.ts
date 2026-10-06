@@ -1,5 +1,5 @@
 import { isMap, isSeq, isScalar, parseDocument, visit } from 'yaml';
-import { asBar, readSong, parseSongDocument, parseChord } from './song';
+import { asBar, readSong, parseSongDocument, parseChord, resolveSongMeters } from './song';
 export function selectedBar(text: string, cursor: number): { section: number; bar: number } | undefined {
   const doc = parseSongDocument(text);
   const sections = doc.get('delar', true);
@@ -34,13 +34,7 @@ export function insertFeature(text: string, cursor: number, action: EditAction):
   } else {
     if (!selected) throw new Error('Placera markören i den takt du vill ändra.');
     const { section, bar } = selected;
-    let meter = song.taktart;
-    const endMeters=new Map<string,string>();
-    song.delar.slice(0,section+1).forEach((part,si)=>{
-      if(part.ateranvand){meter=endMeters.get(part.ateranvand)??meter;return;}
-      part.takter.forEach((raw,bi)=>{if(si<section||bi<=bar)meter=asBar(raw).taktart??meter;});
-      endMeters.set(part.namn,meter);
-    });
+    const meter=resolveSongMeters(song).bars[section][bar];
     const [beats, denominator] = meter.split('/').map(Number);
     const base = ['delar', section, 'takter'];
     destination = [...base, bar];
@@ -118,13 +112,7 @@ export function replaceExistingChord(text: string, target: ChordTarget, replacem
     const fields = target.variant === undefined ? bar : bar.varianter![target.variant];
     const fieldPath = ['delar',target.section,'takter',target.bar,...(target.variant===undefined?[]:['varianter',target.variant])];
     if (fields.slag) {
-      let meter=song.taktart;
-      const endMeters=new Map<string,string>();
-      song.delar.slice(0,target.section+1).forEach((part,si)=>{
-        if(part.ateranvand){meter=endMeters.get(part.ateranvand)??meter;return;}
-        part.takter.forEach((raw,bi)=>{if(si<target.section||bi<=target.bar)meter=asBar(raw).taktart??meter;});
-        endMeters.set(part.namn,meter);
-      });
+      const meter=resolveSongMeters(song).bars[target.section][target.bar];
       const start=fields.slag[target.chord], end=fields.slag[target.chord+1]??(Number(meter.split('/')[0])+1);
       const slots=Math.round((end-start)*4);
       if(slots<replacements.length)throw new Error('Ackorden ryms inte mellan de befintliga slagen. Ändra slagplaceringen i låtfilen först.');
@@ -198,6 +186,7 @@ export function inlineLegacyForm(text: string) {
   }
   if(comments.length)doc.comment=[doc.comment,...comments].filter(Boolean).join('\n');
   parts.items=sequence;doc.delete('spelordning');
+  const originalMeters=resolveSongMeters(song).bars,converted=doc.toJS({maxAliasCount:0}) as typeof song,convertedMeters=resolveSongMeters(converted).bars;converted.delar.forEach((part,i)=>{if(part.ateranvand||!part.takter.length)return;const original=song.delar.findIndex(p=>p.namn===part.namn),meter=originalMeters[original]?.[0];if(!meter||meter===convertedMeters[i][0])return;const node=doc.getIn(['delar',i,'takter',0],true);if(isMap(node))node.set('taktart',meter);else{const next=doc.createNode({...asBar(part.takter[0]),taktart:meter});if(isScalar(node)){next.comment=node.comment;next.commentBefore=node.commentBefore;}doc.setIn(['delar',i,'takter',0],next);}});
   const result=doc.toString({lineWidth:110});readSong(result);return result;
 }
 
@@ -205,7 +194,7 @@ export function insertReuse(text: string, part: string, times: number, instructi
   const converted=inlineLegacyForm(text), song=readSong(converted),doc=parseSongDocument(converted);
   const index=after ?? song.delar.length-1;
   if (!Number.isInteger(index)||index<0||index>=song.delar.length) throw new Error('Välj en befintlig del att infoga efter.');
-  if (!song.delar.slice(0,index+1).some(section=>!section.ateranvand&&section.namn===part)) throw new Error('Välj en del som redan är utskriven före denna plats.');
+  if (!song.delar.some(section=>!section.ateranvand&&section.namn===part)) throw new Error('Välj en skriven del som finns i låten.');
   const parts=doc.get('delar',true);if(!isSeq(parts))throw new Error('Låtdelar saknas.');
   parts.items.splice(index+1,0,doc.createNode({ateranvand:part,...(times!==1?{ganger:times}:{}),...(instruction.trim()?{anvisning:instruction.trim()}: {})}));
   const result=doc.toString({lineWidth:110});readSong(result);return result;

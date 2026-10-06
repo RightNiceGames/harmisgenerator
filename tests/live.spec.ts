@@ -14,6 +14,7 @@ async function setup(page: Page) {
   });
   await page.goto('/');
   await expect(page.locator('.paper').first()).toBeVisible();
+  await page.getByRole('button',{name:'Visa låtfil',exact:true}).click();
   const original = await page.getByRole('textbox',{name:'Låtfilens text'}).inputValue();
   await page.getByRole('button',{name:/Liveset/}).click();
   await page.getByRole('button',{name:'Sortera i bokstavsordning'}).click();
@@ -148,9 +149,10 @@ test('Live starts at the active editor song with its unsaved text and retains ea
   await page.route(/\/api\/songs\/live-[ab]\.yaml$/,route=>route.fulfill({json:{text:source('Annan låt',1),revision:'0'}}));
   await page.goto('/');
   await expect(page.locator('.paper').first()).toBeVisible();
+  await page.getByRole('button',{name:'Visa låtfil',exact:true}).click();
   const editor = page.getByRole('textbox',{name:'Låtfilens text'});
   await editor.fill(source('Aktiv osparad låt',3));
-  await expect(page.getByRole('heading',{name:'Aktiv osparad låt'})).toBeVisible();
+  await expect(page.locator('.paper').first()).toContainText('Aktiv osparad låt');
   await page.getByRole('button',{name:/Liveset/}).click();
   await page.getByRole('button',{name:'Live',exact:true}).click();
   const live = page.getByRole('dialog',{name:'Live: Liveset'}), figures = live.locator('figure');

@@ -14,14 +14,16 @@ const rhythmSchema = z.array(z.strictObject({
 const variantSchema = z.strictObject({
   gang: z.number().int().min(2).max(16),
   och_foljande: z.boolean().optional(),
-  ackord: z.string().min(1).max(180),
+  ackord: z.string().max(180),
+  ackord_nr: z.number().int().min(1).max(4).optional(),
   stamma: z.string().min(1).max(30).optional(),
   slag: startsSchema.optional(),
+  rytm: rhythmSchema.optional(),
 });
 export type RhythmNote = z.infer<typeof rhythmSchema>[number];
 
 export const barSchema = z.strictObject({
-  ackord: z.string().min(1).max(180),
+  ackord: z.string().max(180),
   slag: startsSchema.optional(),
   rytm: rhythmSchema.optional(),
   varianter: z.array(variantSchema).min(1).max(4).optional(),
@@ -43,7 +45,7 @@ const sectionSchema = z.strictObject({
   ateranvand: z.string().min(1).max(80).optional(),
   ganger: z.number().int().min(1).max(16).default(1),
   skuggad: z.boolean().optional(), sidbrytning: z.boolean().optional(),
-  takter: z.array(z.union([z.string().min(1).max(180), barSchema])).max(300).default([]),
+  takter: z.array(z.union([z.string().max(180), barSchema])).max(300).default([]),
 });
 export const songSchema = z.strictObject({
   format: z.literal(1), titel: z.string().min(1).max(120), artist: shortText,
@@ -55,21 +57,21 @@ export const songSchema = z.strictObject({
   kallor: z.array(z.strictObject({ url: z.string().url(), beskrivning: z.string().max(600) })).max(20).optional(),
   anteckningar: z.array(z.string().max(1400)).max(30).optional(),
   spelordning: z.array(z.strictObject({ del: z.string().min(1).max(80), ganger: z.number().int().min(1).max(16).default(1), visa_block: z.boolean().optional(), anvisning: shortText.optional() })).min(1).max(60).optional(),
-  delar: z.array(sectionSchema).min(1).max(60),
+  delar: z.array(sectionSchema).max(60),
 }).superRefine((song, ctx) => {
-  const defined = new Set<string>();
+  const defined = new Set(song.delar.filter(part=>!part.ateranvand).map(part=>part.namn));
+  const visited = new Set<string>();
   const hasReuse = song.delar.some(part=>part.ateranvand);
   if (hasReuse && song.spelordning) ctx.addIssue({code:'custom',path:['spelordning'],message:'Blanda inte spelordning med återanvändning direkt i delar.'});
   song.delar.forEach((part,i)=>{
     const issue=(message:string)=>ctx.addIssue({code:'custom',path:['delar',i],message});
     if (part.ateranvand) {
-      if (!defined.has(part.ateranvand)) issue(`Låtdelen ${part.ateranvand} måste vara utskriven tidigare i låten.`);
+      if (!defined.has(part.ateranvand)) issue(`Låtdelen ${part.ateranvand} finns inte som utskriven del.`);
       if (part.namn || part.takter.length || part.skuggad !== undefined) issue('En återanvänd del har bara ateranvand, ganger, anvisning och eventuell sidbrytning.');
     } else {
       if (!part.namn || !part.takter.length) issue('En utskriven del behöver namn och minst en takt.');
-      if (part.ganger !== 1) issue('Ange ganger på en återanvänd del. Använd repris för en utskriven del.');
-      if (hasReuse && defined.has(part.namn)) issue('Utskrivna delar måste ha unika namn när delar återanvänds.');
-      defined.add(part.namn);
+      if (hasReuse && visited.has(part.namn)) issue('Utskrivna delar måste ha unika namn när delar återanvänds.');
+      visited.add(part.namn);
     }
   });
   if (song.spelordning) {
@@ -83,26 +85,24 @@ export const songSchema = z.strictObject({
     });
   }
   let count = 0;
-  let meter = song.taktart;
-  const endMeters=new Map<string,string>();
+  const meters = resolveSongMeters(song);
   song.delar.forEach((section, si) => {
-    if(section.ateranvand){meter=endMeters.get(section.ateranvand)??meter;return;}
+    if(section.ateranvand)return;
     section.takter.forEach((raw, bi) => {
     count++;
     const bar = asBar(raw);
-    meter = bar.taktart ?? meter;
+    const meter = meters.bars[si][bi];
     const [beats, denominator] = meter.split('/').map(Number);
     const path = ['delar', si, 'takter', bi];
     const error = (field: (string | number)[], message: string) => ctx.addIssue({ code: 'custom', path: [...path, ...field], message });
     const validateChords = (value: string, starts: number[] | undefined, field: (string | number)[]) => {
-      const chords = value.trim().split(/\s+/);
+      const chords = value.trim().split(/\s+/).filter(Boolean);
       if (chords.length > 4) error(field, 'Högst fyra ackord per takt.');
       for (const chord of chords) {
         try { parseChord(chord); } catch { error(field, `Okänt ackord: ${chord}. Använd t.ex. Bbmaj7, F6/9, C/G, N.C. eller %.`); }
       }
       if (starts) {
         if (starts.length !== chords.length) error(field, 'Ange ett slag för varje ackord.');
-        if (starts[0] !== 1) error(field, 'Första ackordet ska börja på slag 1.');
         if (starts.some((beat, i) => beat >= beats + 1 || (i > 0 && beat <= starts[i - 1]))) error(field, `Ackordslagen ska ligga i stigande ordning inom ${meter}.`);
       }
       return chords;
@@ -111,26 +111,57 @@ export const songSchema = z.strictObject({
     if (bar.fermat && bar.fermat > chords.length) error(['fermat'], 'Fermatens ackordnummer finns inte i takten.');
     if (bar.synkop && bar.synkop.ackord > chords.length) error(['synkop'], 'Synkopens ackordnummer finns inte i takten.');
     if (bar.rytm && bar.synkop) error(['rytm'], 'Välj egen rytm eller synkop i samma takt.');
-    bar.rytm?.forEach((note, i, notes) => {
+    const validateRhythm = (notes: RhythmNote[] | undefined, field: (string | number)[], start = 1, stop = beats + 1) => notes?.forEach((note, i) => {
       const end = note.slag + denominator / note.notvarde;
-      if (end > beats + 1) error(['rytm', i], `Noten går utanför takten i ${meter}.`);
-      if (i > 0 && note.slag < notes[i - 1].slag + denominator / notes[i - 1].notvarde) error(['rytm', i], 'Rytmens noter ska ligga i tidsordning utan överlapp.');
+      if (note.slag < start || end > stop) error([...field, i], start === 1 && stop === beats + 1 ? `Noten går utanför takten i ${meter}.` : 'Variantens rytm ska rymmas inom grundackordets spann.');
+      if (i > 0 && note.slag < notes[i - 1].slag + denominator / notes[i - 1].notvarde) error([...field, i], 'Rytmens noter ska ligga i tidsordning utan överlapp.');
     });
+    validateRhythm(bar.rytm, ['rytm']);
     const seen = new Set<string>();
     bar.varianter?.forEach((variant, i) => {
-      validateChords(variant.ackord, variant.slag, ['varianter', i]);
-      const identity = `${variant.gang}:${variant.stamma ?? ''}`;
+      const variantChords = validateChords(variant.ackord, variant.slag, ['varianter', i]);
+      const owner = variant.ackord_nr;
+      const baseStarts = chordStartPositions(bar, beats);
+      const start = owner === undefined ? 1 : baseStarts[owner - 1];
+      const stop = owner === undefined ? beats + 1 : (baseStarts[owner] ?? beats + 1);
+      if (owner !== undefined && owner > chords.length) error(['varianter', i, 'ackord_nr'], 'Variantens grundackord finns inte i takten.');
+      if (owner !== undefined && variant.slag?.some(beat=>beat < start || beat >= stop)) error(['varianter', i, 'slag'], 'Variantens ackordslag ska rymmas inom grundackordets spann.');
+      if (owner !== undefined && !variant.slag && variantChords.length > Math.round((stop-start)*4)) error(['varianter', i, 'ackord'], 'Variantens ackord ryms inte inom grundackordets spann.');
+      validateRhythm(variant.rytm, ['varianter', i, 'rytm'], start, stop);
+      const identity = `${variant.gang}:${variant.stamma ?? ''}:${owner ?? ''}`;
       if (seen.has(identity)) error(['varianter', i], 'Samma omgång och stämma får bara ha en variant per takt.');
       seen.add(identity);
     });
     });
-    endMeters.set(section.namn,meter);
   });
   if (count > 500) ctx.addIssue({ code: 'custom', path: ['delar'], message: 'Högst 500 skrivna takter per låt.' });
 });
 export type Song = z.infer<typeof songSchema>;
 export type Section = Song['delar'][number];
 export function asBar(raw: string | Bar): Bar { return typeof raw === 'string' ? { ackord: raw } : raw; }
+export function chordStartPositions(bar: Pick<Bar, 'ackord' | 'slag'>, beats: number): number[] {
+  const count = bar.ackord.trim().split(/\s+/).filter(Boolean).length;
+  return bar.slag ?? Array.from({length:count}, (_, i) => 1 + Math.floor(i * beats / count * 4) / 4);
+}
+// Forward references use the definition-order ending until the source has been visited.
+// Backward references retain the meter inherited by their actual original occurrence.
+export function resolveSongMeters(song: Pick<Song, 'taktart' | 'delar'>) {
+  const endMeters = new Map<string,string>();
+  let meter = song.taktart;
+  for (const section of song.delar) {
+    if (section.ateranvand) continue;
+    for (const raw of section.takter) meter = asBar(raw).taktart ?? meter;
+    endMeters.set(section.namn, meter);
+  }
+  meter = song.taktart;
+  const bars = song.delar.map(section => {
+    if (section.ateranvand) { meter = endMeters.get(section.ateranvand) ?? meter; return []; }
+    const result = section.takter.map(raw => { meter = asBar(raw).taktart ?? meter; return meter; });
+    endMeters.set(section.namn, meter);
+    return result;
+  });
+  return {bars, endMeters};
+}
 export function ascii(value: string) { return value.replaceAll('♭', 'b').replaceAll('♯', '#'); }
 export function pretty(value: string) { return value.replaceAll('b', '♭').replaceAll('#', '♯'); }
 export type Chord = { root: string; extension: string; bass?: string; special?: boolean; parenthesized?: boolean };

@@ -62,6 +62,7 @@ test('missing songs stay visible and cancelling leaves the setlist unchanged on 
   await page.route('**/api/setlists',route=>route.fulfill({json:library}));
   await page.setViewportSize({width:390,height:844});
   await page.goto('/');
+  const libraryToggle=page.getByRole('button',{name:'Visa bibliotek',exact:true});if(await libraryToggle.isVisible())await libraryToggle.click();
   await page.getByRole('button',{name:/Saknad låt/}).click();
   await expect(page.getByRole('button',{name:/saknad.yaml/})).toBeDisabled();
   await page.getByRole('button',{name:'Redigera',exact:true}).click();

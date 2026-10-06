@@ -17,11 +17,10 @@ test('reuse appears between written parts; new music may follow without a playli
  const cursor=text.indexOf('ateranvand:');assert.equal(selectedBar(text,cursor),undefined);
  const added=readSong(insertFeature(text,cursor,'del').text);assert.deepEqual(added.delar.map(p=>p.ateranvand||p.namn),['Vers','Vers','Ny del','Brygga']);
 });
-test('references must point backward to a unique written section',()=>{
- assert.throws(()=>insertReuse(base,'Brygga',1,'',0),/tidigare|före/);
- assert.throws(()=>readSong(base.replace('namn: Vers\n    takter:\n      - C G7','ateranvand: Brygga')),/tidigare/);
+test('references can point forward to a unique written section',()=>{
+ assert.doesNotThrow(()=>readSong(base.replace('namn: Vers\n    takter:\n      - C G7','ateranvand: Brygga')));
  const valid=insertReuse(base,'Vers',1);
- assert.throws(()=>readSong(valid.replace('ateranvand: Vers','ateranvand: Saknas')),/tidigare/);
+ assert.throws(()=>readSong(valid.replace('ateranvand: Vers','ateranvand: Saknas')),/finns inte/);
  assert.throws(()=>readSong(valid.replace('namn: Brygga','namn: Vers')),/unika/);
  assert.throws(()=>readSong(valid.replace('ateranvand: Vers','ateranvand: Vers\n    takter: [C]')),/bara/);
  assert.throws(()=>insertReuse(base,'Vers',0));

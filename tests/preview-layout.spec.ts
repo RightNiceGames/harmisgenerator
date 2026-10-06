@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test';
-test('preview toggles between stacked pages and pairs while retaining zoom and editing', async ({page}) => {
+test('paired print preview retains zoom and returns to direct editing in single-page view', async ({page}) => {
   await page.goto('/');
   await expect(page.locator('.paper')).toHaveCount(1);
+  await page.getByRole('button',{name:'Visa låtfil',exact:true}).click();
   const editor = page.getByRole('textbox',{name:'Låtfilens text'});
   await editor.fill(`format: 1
 titel: Tvåsidig visning
@@ -30,9 +31,20 @@ delar:
   expect(Math.abs(first!.y-second!.y)).toBeLessThan(1);
   expect(second!.x).toBeGreaterThan(first!.x+first!.width);
   expect(third!.y).toBeGreaterThan(first!.y+first!.height);
+  await expect(page.locator('.bar-number-hit')).toHaveCount(0);
+  await papers.nth(1).locator('.chord-hit').dispatchEvent('click');
+  await papers.nth(1).locator('.chord-hit').dispatchEvent('click');
+  await expect(page.locator('#score-edit')).toHaveCount(0);
+  await page.getByRole('button',{name:'Förhandsgranska utskrift',exact:true}).click();
+  await expect(toggle).toHaveAttribute('aria-pressed','false');
+  await expect(page.locator('.bar-number-hit').first()).toBeVisible();
   await papers.nth(1).locator('.chord-hit').click();
-  await expect(page.getByRole('dialog')).toBeVisible();
-  await page.getByRole('button',{name:'Avbryt',exact:true}).click();
+  await expect(page.locator('#score-edit')).toHaveCount(0);
+  await papers.nth(1).locator('.chord-hit').click();
+  await expect(page.locator('#score-edit')).toHaveValue('F');
+  await page.locator('#score-edit').press('Escape');
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-pressed','true');
   await page.getByLabel('Zoom',{exact:true}).selectOption('100');
   [first,second] = await boxes();
   expect(first!.width).toBeCloseTo(794,0);
