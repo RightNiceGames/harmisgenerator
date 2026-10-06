@@ -153,7 +153,7 @@ test('clear measure removes chords and owned variants while preserving signs and
 });
 test('checkbox subset duplicates only the selected measures in source order',async({page})=>{
  await openFixture(page);await page.locator('.bar-number-hit[data-section="0"][data-bar="0"]').click();
- await page.getByRole('checkbox',{name:'Markera takt 2',exact:true}).check();await page.getByRole('checkbox',{name:'Markera takt 4',exact:true}).check();
+ await page.locator('.paper .bar-number-hit[data-section="0"][data-bar="1"]').hover();await page.getByRole('checkbox',{name:'Markera takt 2',exact:true}).check();await page.locator('.paper .bar-number-hit[data-section="0"][data-bar="3"]').hover();await page.getByRole('checkbox',{name:'Markera takt 4',exact:true}).check();
  await expect(page.getByRole('checkbox',{name:'Markera takt 5',exact:true})).toHaveCount(0);
  await page.getByRole('button',{name:'Duplicera valda takter',exact:true}).click();await expect(page.locator('.live-label')).toHaveText('Live');
  const bars=parse(await sourceText(page)).delar[0].takter;expect(bars).toHaveLength(7);expect(bars.slice(4).map((b:string|{ackord:string})=>barData(b).ackord)).toEqual(['C G',barData(bars[1]).ackord,'F']);
@@ -184,7 +184,7 @@ test('Song fields and displayed score reflect undo of a global title edit',async
 });
 test('measure number remains clickable while contextual chord tools are shown',async({page})=>{
  await openFixture(page);await main(page,0,1).click();await expect(page.getByRole('group',{name:'Ackordverktyg',exact:true})).toBeVisible();
- const strip=page.locator('.bar-number-hit[data-section="0"][data-bar="0"]');const box=await strip.boundingBox();await strip.click({position:{x:5,y:box!.height*.7}});
+ const strip=page.locator('.paper .bar-number-hit[data-section="0"][data-bar="0"]');const point=await strip.evaluate(el=>{const r=el.getBoundingClientRect(),number=el.getAttribute('data-number');const text=[...el.closest('svg')!.querySelectorAll('text')].find(t=>{const b=t.getBoundingClientRect();return t.textContent===number&&b.x>=r.x&&b.x+b.width<=r.right+1&&b.y>=r.y-1&&b.y+b.height<=r.bottom+1;});if(!text)throw Error('Visible measure-number glyph missing');const b=text.getBoundingClientRect();return {x:b.x+b.width/2,y:b.y+b.height/2};});await page.mouse.click(point.x,point.y);
  await expect(page.locator('#score-edit,#variant-edit')).toHaveCount(0);await expect(page.getByRole('group',{name:'Ackordverktyg',exact:true})).toHaveCount(0);await expect(page.getByRole('group',{name:'Taktverktyg',exact:true})).toBeVisible();
 });
 test('external valid source edit removes a selected measure without leaving a stale target or crash',async({page})=>{
@@ -252,4 +252,35 @@ test('inline form drag reorders written and reused parts and one undo restores t
  await blocks.nth(2).dragTo(blocks.nth(0));await expect(blocks.locator('strong')).toHaveText(['Coda','Vers','Vers × 2']);await expect(page.locator('.live-label')).toHaveText('Live');
  const source=await sourceText(page),song=parse(source);expect(song.delar.map((part:{namn?:string;ateranvand?:string})=>part.ateranvand??part.namn)).toEqual(['Coda','Vers','Vers']);expect(song.delar[2].ganger).toBe(2);expect(song.delar[2].anvisning).toBe('Solo');
  await page.getByRole('button',{name:'Ångra',exact:true}).click();await expect(blocks.locator('strong')).toHaveText(['Vers','Vers × 2','Coda']);await expect(page.getByRole('textbox',{name:'Låtfilens text'})).toHaveValue(content);
+});
+test('desktop checkboxes hide initially reveal on hover and remain reachable by keyboard',async({page})=>{
+ await openFixture(page);await page.mouse.move(20,20);const first=page.getByRole('checkbox',{name:'Markera takt 1',exact:true}),second=page.getByRole('checkbox',{name:'Markera takt 2',exact:true}),firstLabel=page.locator('.score-bar-check').filter({has:first}),secondLabel=page.locator('.score-bar-check').filter({has:second});
+ await expect(firstLabel).toHaveCSS('opacity','0');await expect(firstLabel).toHaveCSS('pointer-events','none');await main(page).hover();await expect(firstLabel).toHaveCSS('opacity','1');await expect(firstLabel).toHaveCSS('pointer-events','auto');await first.check();await page.mouse.move(20,20);await expect(firstLabel).toHaveCSS('opacity','0');await expect(first).toBeChecked();
+ await page.keyboard.press('Tab');await second.focus();await expect(secondLabel).toHaveCSS('opacity','1');await page.keyboard.press('Space');await expect(second).toBeChecked();await expect(page.getByRole('button',{name:'Duplicera valda takter',exact:true})).toBeVisible();
+});
+test('new variant keeps its writing field focused when the new small row reaches the renderer',async({page})=>{
+ await openFixture(page);await main(page,0,1).click();await page.getByRole('group',{name:'Ackordverktyg',exact:true}).getByRole('button',{name:'Variantackord',exact:true}).click();const input=page.locator('#variant-edit');await expect(input).toHaveValue('');await expect(input).toBeFocused();await expect(page.locator('.live-label')).toHaveText('Live');await expect(page.locator('.paper .variant-area-hit[data-section="0"][data-bar="0"][data-variant="1"]')).toHaveCount(1);await expect(input).toBeFocused();
+ await input.pressSequentially('Dm Em');await expect(page.locator('.live-label')).toHaveText('Live');await expect(input).toBeFocused();await expect(input).toHaveValue('Dm Em');await input.press('Enter');const b=parse(await sourceText(page)).delar[0].takter[0];expect(b.varianter[1]).toMatchObject({ackord_nr:2,ackord:'Dm Em',slag:[3,4]});expect(b.varianter[0]).toEqual(parse(content).delar[0].takter[0].varianter[0]);
+});
+test.describe('touch measure selection',()=>{
+ test.use({hasTouch:true,isMobile:true,viewport:{width:375,height:844}});
+ test('number taps toggle a same-part subset without exposing other measure checkboxes',async({page})=>{
+  await openFixture(page);const label=(number:number)=>page.locator('.score-bar-check').filter({has:page.getByRole('checkbox',{name:'Markera takt '+number,exact:true})});await expect(label(1)).toHaveCSS('opacity','0');
+  const tap=async(bar:number)=>{const hit=page.locator(`.paper .bar-number-hit[data-section="0"][data-bar="${bar}"]`),box=await hit.boundingBox();await hit.tap({position:{x:3,y:box!.height/2}});};
+  await tap(0);await expect(label(1)).toHaveCSS('opacity','1');await expect(label(2)).toHaveCSS('opacity','0');await tap(1);await expect(page.getByRole('checkbox',{name:'Markera takt 1',exact:true})).toBeChecked();await expect(page.getByRole('checkbox',{name:'Markera takt 2',exact:true})).toBeChecked();await expect(label(3)).toHaveCSS('opacity','0');await expect(page.getByRole('button',{name:'Duplicera valda takter',exact:true})).toBeVisible();
+  await tap(0);await expect(page.getByRole('checkbox',{name:'Markera takt 1',exact:true})).not.toBeChecked();await expect(page.getByRole('checkbox',{name:'Markera takt 2',exact:true})).toBeChecked();await expect(label(1)).toHaveCSS('opacity','0');await expect(page.locator('#score-edit,#variant-edit')).toHaveCount(0);
+ });
+});
+test('mobile Zoom100 confines the writing field to the visible viewport and preserves Escape and saving',async({page})=>{
+ await page.setViewportSize({width:375,height:844});await openFixture(page);await page.getByLabel('Zoom',{exact:true}).selectOption('100');expect((await page.locator('.paper').first().boundingBox())!.width).toBeCloseTo(794,0);
+ const area=page.locator('.paper-scroll'),before=await area.evaluate(el=>el.scrollLeft);await editLine(main(page,1),page);const input=page.locator('#score-edit');await expect(input).toBeFocused();await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));const bounds=await input.boundingBox(),viewport=await area.boundingBox();expect(bounds!.x).toBeGreaterThanOrEqual(viewport!.x-1);expect(bounds!.x+bounds!.width).toBeLessThanOrEqual(viewport!.x+viewport!.width+1);
+ await input.press('Escape');await expect(input).toHaveCount(0);expect(await area.evaluate(el=>el.scrollLeft)).toBe(before);
+ await editLine(main(page,1),page);await input.fill('Dm7');await input.press('Control+s');await expect(page.getByRole('status').filter({hasText:'Sparad i låtbiblioteket'})).toHaveText('Sparad i låtbiblioteket');expect(barData(parse(await readFile(fixture,'utf8')).delar[0].takter[1]).ackord).toBe('Dm7');expect((await page.locator('.paper').first().boundingBox())!.width).toBeCloseTo(794,0);
+});
+test('same click point near the lower viewport edge still edits without dock resizing the canvas',async({page})=>{
+ await openFixture(page);const target=page.locator('.paper .chord-hit[data-section="2"][data-bar="0"][data-chord="0"]:not([data-variant])');
+ await target.evaluate(el=>{const area=el.closest('.paper-stack')!.closest('.paper-scroll')!;const box=el.getBoundingClientRect(),view=area.getBoundingClientRect();area.scrollTop+=box.y+box.height/2-(view.bottom-22);});
+ const area=page.locator('.paper-scroll'),height=await area.evaluate(el=>el.clientHeight),box=await target.boundingBox(),point={x:box!.x+box!.width/2,y:box!.y+box!.height/2};
+ await page.mouse.click(point.x,point.y);await expect(page.getByRole('group',{name:'Ackordverktyg',exact:true})).toBeVisible();expect(await area.evaluate(el=>el.clientHeight)).toBe(height);const selected=await target.boundingBox();expect(selected!.x+selected!.width/2).toBeCloseTo(point.x,0);expect(selected!.y+selected!.height/2).toBeCloseTo(point.y,0);await expect(page.locator('.score-context-dock')).toHaveAttribute('data-placement','top');
+ await page.mouse.click(point.x,point.y);await expect(page.locator('#score-edit')).toHaveValue('C');await expect(page.locator('#score-edit')).toBeFocused();expect(await area.evaluate(el=>el.clientHeight)).toBe(height);await page.locator('#score-edit').press('Escape');await expect(page.getByRole('group',{name:'Taktverktyg',exact:true})).toBeVisible();expect(await area.evaluate(el=>el.clientHeight)).toBe(height);
 });
