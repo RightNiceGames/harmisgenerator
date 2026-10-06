@@ -130,3 +130,10 @@ export function copySection(text:string,index:number,empty=false,detach=false){c
   let name=empty?'Ny del':song.delar[source].namn+' · kopia',n=2;const base=name;while(song.delar.some(s=>s.namn===name))name=base+' '+n++;
   const node=empty?doc.createNode({namn:name,takter:['','','','']}):cloneNode(seq.items[source]);if(!isMap(node))throw Error('Delen kan inte kopieras.');const map=node as YAMLMap;map.set('namn',name);if(detach){map.set('ganger',part.ganger);if(part.anvisning)map.set('anvisning',part.anvisning);seq.items.splice(index,1,node);}else seq.items.splice(index+1,0,node);return write(doc);
 }
+
+export function patchFormInstruction(text:string,index:number,value:string){
+  const song=readSong(text),step=song.spelordning?.[index];
+  if(!step)throw Error('Återkomsten finns inte längre.');
+  const instruction=value.trim()||undefined;if(step.anvisning===instruction)return text;
+  const doc=parseSongDocument(text);setValue(doc,['spelordning',index,'anvisning'],step.anvisning,instruction);return write(doc);
+}

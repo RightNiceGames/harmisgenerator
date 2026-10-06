@@ -46,7 +46,7 @@ test('edit, insert, transpose, undo, save, reload and export PDF',async({page})=
   await page.getByRole('button',{name:'Läs in på nytt'}).click();
   await expect(editor).toHaveValue(/Gm6\/9\/F/);
   await expect(page.locator('.paper')).toHaveCount(1);
-  await expect(page.locator('.live-label')).toHaveText('Live');
+  await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
   const valid=await editor.inputValue();
   await editor.fill(valid+'\ntempo: [fel\n');
   await expect(page.locator('.parse-error').first()).toBeVisible();
@@ -54,7 +54,7 @@ test('edit, insert, transpose, undo, save, reload and export PDF',async({page})=
   await expect(page.getByRole('button',{name:'Exportera PDF'})).toBeDisabled();
   await expect(page.locator('.paper')).toHaveCount(1);
   await editor.fill(valid);
-  await expect(page.locator('.live-label')).toHaveText('Live');
+  await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
   const downloadPromise=page.waitForEvent('download');
   await page.getByRole('button',{name:'Exportera PDF'}).click();
   const download=await downloadPromise;
@@ -112,7 +112,7 @@ test('music buttons preserve the text viewport and edit the chosen bar',async({p
   await expect(editor).toHaveValue(/ackord: Bb7/);
   await expect(editor).toHaveValue(/varianter:/);
   await expect(page.locator('.parse-error')).toHaveCount(0);
-  await expect(page.locator('.live-label')).toHaveText('Live');
+  await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
 });
 test('reuse a section and insert N.C. and percent from the music toolbar',async({page})=>{
  await page.goto('/');await page.getByRole('button',{name:/Alla låtar/}).click();await page.getByRole('button',{name:/Webbläsartest/}).click();
@@ -141,14 +141,14 @@ test('edit an existing preview chord, validate input, undo and protect stale pre
  await page.goto('/');await page.getByRole('button',{name:/Alla låtar/}).click();await page.getByRole('button',{name:/Webbläsartest/}).click();
  await page.getByRole('button',{name:'Visa låtfil',exact:true}).click();
  const editor=page.getByRole('textbox',{name:'Låtfilens text'});await editor.fill(content);
- await expect(page.locator('.live-label')).toHaveText('Live');
+ await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
  const target=page.locator('.chord-hit[data-section="0"][data-bar="0"][data-chord="0"]:not([data-variant])').first();
  await target.click();await expect(page.locator('#score-edit')).toHaveCount(0);await target.click();
  const input=page.locator('#score-edit');await expect(input).toHaveValue('Abm6/9/Gb');
  await input.fill('H7');await input.press('Enter');await expect(input).toBeVisible();await expect(page.getByRole('alert').filter({visible:true}).first()).toContainText(/ackord/i);
  await input.fill('Bb7/F');await input.press('Enter');await expect(input).toHaveCount(0);await expect(editor).toHaveValue(/ackord: Bb7\/F/);
  await expect(page.getByRole('button',{name:'Ändra Bb7/F, Intro, takt 1',exact:true})).toBeVisible();
- await page.getByRole('button',{name:'Ångra',exact:true}).click();await expect(editor).toHaveValue(content);await expect(page.locator('.live-label')).toHaveText('Live');
+ await page.getByRole('button',{name:'Ångra',exact:true}).click();await expect(editor).toHaveValue(content);await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
  await page.locator('.bar-number-hit[data-section="0"][data-bar="0"]').click();await target.focus();await page.keyboard.press('Enter');await expect(input).toHaveCount(0);await page.keyboard.press('Enter');await expect(input).toBeVisible();await input.press('Escape');await expect(input).toHaveCount(0);
  await editor.fill(content+'invalid: true\n');await expect(page.locator('.parse-error').first()).toBeVisible();await expect(page.locator('.paper')).toHaveCount(1);await target.dispatchEvent('click');await target.dispatchEvent('click');await expect(input).toHaveCount(0);expect(errors).toEqual([]);
 });
@@ -177,7 +177,7 @@ test('insert a reuse before later music, then add a new written section after th
  await page.getByLabel('Låtdel att återanvända').selectOption('Intro');
  await page.getByRole('button',{name:'Infoga återanvänd del'}).click();
  const value=await editor.inputValue();expect(value.indexOf('ateranvand: Intro')).toBeLessThan(value.indexOf('namn: Coda'));
- await expect(page.locator('.live-label')).toHaveText('Live');
+ await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
  await editor.evaluate((el:HTMLTextAreaElement)=>{const pos=el.value.indexOf('ateranvand: Intro')+3;el.focus();el.setSelectionRange(pos,pos);el.dispatchEvent(new Event('select',{bubbles:true}));});
  await editor.press('ArrowRight');
  await expect(page.getByRole('button',{name:'Reprisstart',exact:true})).toBeDisabled();
@@ -188,20 +188,20 @@ test('insert a reuse before later music, then add a new written section after th
 test('toggle parentheses around an existing preview chord and undo',async({page})=>{
  await page.goto('/');await page.getByRole('button',{name:/Alla låtar/}).click();await page.getByRole('button',{name:/Webbläsartest/}).click();
  await page.getByRole('button',{name:'Visa låtfil',exact:true}).click();
- const editor=page.getByRole('textbox',{name:'Låtfilens text'});await editor.fill(content);await expect(page.locator('.live-label')).toHaveText('Live');
+ const editor=page.getByRole('textbox',{name:'Låtfilens text'});await editor.fill(content);await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
  await page.locator('.chord-hit[data-section="0"][data-bar="0"][data-chord="0"]:not([data-variant])').first().click();
  await page.getByRole('button',{name:'Inom parentes',exact:true}).click();await expect(editor).toHaveValue(/\(Abm6\/9\/Gb\)/);
- await expect(page.locator('.live-label')).toHaveText('Live');await expect(page.getByRole('button',{name:'Inom parentes',exact:true})).toHaveAttribute('aria-pressed','true');await page.getByRole('button',{name:'Inom parentes',exact:true}).click();await expect(editor).not.toHaveValue(/\(Abm6\/9\/Gb\)/);
+ await expect(page.locator('.live-label')).toHaveText('Uppdaterad');await expect(page.getByRole('button',{name:'Inom parentes',exact:true})).toHaveAttribute('aria-pressed','true');await page.getByRole('button',{name:'Inom parentes',exact:true}).click();await expect(editor).not.toHaveValue(/\(Abm6\/9\/Gb\)/);
  await page.getByRole('button',{name:'Ångra',exact:true}).click();await expect(editor).toHaveValue(/\(Abm6\/9\/Gb\)/);
 });
 
 test('rewrite the full preview chord line with parentheses while retaining intended neighbors',async({page})=>{
  await page.goto('/');await page.getByRole('button',{name:/Alla låtar/}).click();await page.getByRole('button',{name:/Webbläsartest/}).click();
  await page.getByRole('button',{name:'Visa låtfil',exact:true}).click();
- const editor=page.getByRole('textbox',{name:'Låtfilens text'});await editor.fill(content.replace('      - Abm6/9/Gb','      - Abm6/9/Gb Eb7'));await expect(page.locator('.live-label')).toHaveText('Live');
+ const editor=page.getByRole('textbox',{name:'Låtfilens text'});await editor.fill(content.replace('      - Abm6/9/Gb','      - Abm6/9/Gb Eb7'));await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
  const target=page.locator('.chord-hit[data-section="0"][data-bar="0"][data-chord="0"]:not([data-variant])').first();await target.click();await target.click();
  const input=page.locator('#score-edit');await expect(input).toHaveValue('Abm6/9/Gb Eb7');await input.fill('(Cm) (F7) Eb7');await input.press('Enter');
- await expect(editor).toHaveValue(/ackord: \(Cm\) \(F7\) Eb7/);await expect(page.locator('.live-label')).toHaveText('Live');
+ await expect(editor).toHaveValue(/ackord: \(Cm\) \(F7\) Eb7/);await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
  await expect(page.getByRole('button',{name:'Ändra (F7), Intro, takt 1',exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Ändra Eb7, Intro, takt 1',exact:true})).toBeVisible();
  await page.getByRole('button',{name:'Ångra',exact:true}).click();await expect(editor).toHaveValue(/- Abm6\/9\/Gb Eb7/);
 });

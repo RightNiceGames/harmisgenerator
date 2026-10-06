@@ -3,11 +3,12 @@ import assert from 'node:assert/strict';
 import {readFile, readdir} from 'node:fs/promises';
 import {stringify} from 'yaml';
 import {PDFDocument} from 'pdf-lib';
+import fontkit from '@pdf-lib/fontkit';
 import {asBar, readSong, resolveSongMeters, transposeText} from '../lib/song';
 import {PAGE_HEIGHT, PAGE_WIDTH, renderChart} from '../lib/render';
 
 const source = (parts: unknown[] = [{namn:'Vers',takter:['C G7']}], meter='4/4') => stringify({format:1,titel:'Blad',artist:'Test',grundtonart:'C',taktart:meter,delar:parts});
-const rects = (svg: string, kind: string) => [...svg.matchAll(new RegExp(`<rect class="${kind}" [^>]+>`,'g'))].map(match=>Object.fromEntries([...match[0].matchAll(/([\w-]+)="([^"]*)"/g)].map(m=>[m[1],m[2]])));
+const rects = (svg: string, kind: string) => [...svg.matchAll(new RegExp(`<(?:rect|g) class="${kind}" [^>]+>`,'g'))].map(match=>Object.fromEntries([...match[0].matchAll(/([\w-]+)="([^"]*)"/g)].map(m=>[m[1],m[2]])));
 
 test('empty scores and empty chord fields round trip and render as SVG and PDF',async()=>{
  for(const parts of [[],[{namn:'Tom del',takter:['',{ackord:'',rytm:[{slag:1,notvarde:4}]}]}]]){
@@ -75,7 +76,7 @@ test('owned variant rhythm and empty chord variants also render in ordinary expo
 });
 
 
-const visibleSvg = (svg: string) => svg.replace(/<rect\b[^>]*fill="transparent"[^>]*>[\s\S]*?<\/rect>/g,'');
+const visibleSvg = (svg: string) => svg.replace(/<g class="rhythm-hit"[^>]*>[\s\S]*?<\/g>/g,'').replace(/<rect\b[^>]*fill="transparent"[^>]*>[\s\S]*?<\/rect>/g,'');
 const samePrintedScore = async (song: ReturnType<typeof readSong>, label='score') => {
  const printed=(await renderChart(song)).pages!;
  for(const options of [{editable:true},{editable:true,columns:2 as const},{editable:true,columns:4 as const}]){
@@ -155,6 +156,91 @@ test('automatic A4 pagination, explicit page breaks and headers are identical wh
  printed=await samePrintedScore(song);
  assert.ok(printed.length>1);
  assert.ok(printed.slice(1).some(svg=>svg.includes('A (forts.)')));
+});
+
+test('instruction and rhythm targets identify their exact source and sit above chord and bar targets',async()=>{
+ const song=readSong(source([{namn:'A',anvisning:'Lugnt',takter:[
+  {ackord:'C G',anvisning:'Bas',rytm:[{slag:1,notvarde:8,text:'Kort'}],varianter:[{gang:2,ackord_nr:1,ackord:'F',rytm:[{slag:1.5,notvarde:8}]}]},
+  {ackord:'C G',anvisning:'Solo',tonart:'C',synkop:{typ:'offbeat',ackord:2}},
+  {ackord:'C',synkop:{typ:'foruttag',ackord:1}},
+  {ackord:'G',radbrytning:true,synkop:{typ:'foruttag',ackord:1}},
+ ]},{ateranvand:'A',anvisning:'Utan bas'}]));
+ await samePrintedScore(song);
+ const svg=(await renderChart(song,'svg',{editable:true})).pages!.join('');
+ const instructions=rects(svg,'instruction-hit'),rhythms=rects(svg,'rhythm-hit');
+ assert.ok(instructions.some(h=>h['data-scope']==='section' && h['data-section']==='0' && h['data-bar']===undefined));
+ assert.ok(instructions.some(h=>h['data-scope']==='reuse' && h['data-section']==='1'));
+ assert.deepEqual(instructions.filter(h=>h['data-scope']==='bar').map(h=>h['data-bar']),['0','1']);
+ assert.equal(rhythms.filter(h=>h['data-rhythm-kind']==='rytm').length,2);
+ assert.ok(rhythms.some(h=>h['data-rhythm-kind']==='rytm' && h['data-variant']==='0' && h['data-section']==='0' && h['data-bar']==='0'));
+ assert.equal(rhythms.filter(h=>h['data-rhythm-kind']==='offbeat').length,1);
+ assert.equal(rhythms.filter(h=>h['data-rhythm-kind']==='foruttag').length,2);
+ const anticipation=rhythms.find(h=>h['data-rhythm-kind']==='foruttag' && h['data-bar']==='2')!;
+ const bar=rects(svg,'bar-hit').find(h=>h['data-bar']==='2')!;
+ assert.ok(Number(anticipation.x)<Number(bar.x),'anticipation still belongs to the next bar when drawn in the preceding bar');
+ assert.ok(svg.lastIndexOf('class="chord-hit"')<svg.indexOf('class="rhythm-hit"'));
+ assert.ok(svg.lastIndexOf('class="rhythm-hit"')<svg.indexOf('class="instruction-hit"'));
+ assert.ok(svg.lastIndexOf('class="chord-area-hit"')<svg.indexOf('class="instruction-hit"'));
+ const legacy=readSong(source([{namn:'A',takter:['C']}])+'spelordning:\n  - del: A\n    anvisning: Solo\n');
+ const legacyHit=rects((await renderChart(legacy,'svg',{editable:true})).pages!.join(''),'instruction-hit')[0];
+ assert.equal(legacyHit['data-form-step'],'0');
+ assert.equal(legacyHit['data-scope'],'reuse');
+});
+
+test('blank instructions and rhythm note text draw nothing and add no spacing in any view',async()=>{
+ const parts=[{namn:'A',takter:[{ackord:'C',rytm:[{slag:1,notvarde:8}],varianter:[{gang:2,ackord:'F',rytm:[{slag:1,notvarde:8}]}]},{ackord:'G',tonart:'C'}]},{ateranvand:'A'}];
+ const original=readSong(source(parts));
+ for(const blank of ['', '  ', '\n\t  ']){
+  const altered=structuredClone(original);
+  altered.delar.forEach(part=>part.anvisning=blank);
+  altered.delar[0].takter.forEach(raw=>{const bar=asBar(raw);bar.anvisning=blank;bar.rytm?.forEach(n=>n.text=blank);bar.varianter?.forEach(v=>v.rytm?.forEach(n=>n.text=blank));});
+  for(const options of [{},{editable:true}]){
+   const before=(await renderChart(original,'svg',options)).pages!;
+   const after=(await renderChart(altered,'svg',options)).pages!;
+   assert.deepEqual(after,before,JSON.stringify(blank));
+   assert.equal(rects(after.join(''),'instruction-hit').length,0);
+  }
+  const legacyBase=readSong(source([{namn:'A',takter:['C']}])+'spelordning:\n  - del: A\n');
+  const legacyBlank=structuredClone(legacyBase);legacyBlank.spelordning![0].anvisning=blank;
+  assert.deepEqual((await renderChart(legacyBlank)).pages,(await renderChart(legacyBase)).pages);
+ }
+ await samePrintedScore(original);
+});
+
+test('sync targets cover upper note stems while leaving actual number glyphs clickable',async()=>{
+ const song=readSong(source([{namn:'A',takter:[{ackord:'C',synkop:{typ:'offbeat',ackord:1}}]}]));
+ await samePrintedScore(song);
+ const svg=(await renderChart(song,'svg',{editable:true})).pages![0];
+ const group=svg.match(/<g class="rhythm-hit"[^>]*>[\s\S]*?<\/g>/)![0];
+ const pieces=[...group.matchAll(/<rect x="([\d.]+)" y="([\d.]+)" width="([\d.]+)" height="([\d.]+)"/g)].map(m=>({x:Number(m[1]),y:Number(m[2]),w:Number(m[3]),h:Number(m[4])}));
+ const number=rects(svg,'bar-number-hit')[0],chord=rects(svg,'chord-hit')[0];
+ const rowY=Number(number.y)+1;
+ const contains=(x:number,y:number)=>pieces.some(r=>x>=r.x && x<=r.x+r.w && y>=r.y && y<=r.y+r.h);
+ const attack=Number(chord.x)+3;
+ assert.equal(contains(attack+2,rowY+8),true,'stem above the notehead');
+ assert.equal(contains(Number(number.x)+7,rowY+7.5),false,'actual measure digit');
+ assert.ok(svg.indexOf('class="bar-number-hit"')<svg.indexOf('class="rhythm-hit"'));
+});
+
+test('fermatas avoid actual measure number bounds without an editor-only layout change',async()=>{
+ const metrics=await PDFDocument.create();metrics.registerFontkit(fontkit);
+ const regular=await metrics.embedFont(await readFile('fonts/DejaVuSans.ttf'));
+ for(const [number,chords,fermat] of [[1,'C',1],[10,'C G',1],[100,'C G Am F',1],[100,'C G Am F',2],[100,'C G Am F',4]] as const){
+  const song=readSong(source([{namn:'A',takter:[{ackord:chords,nummer:number,fermat}]}]));
+  await samePrintedScore(song);
+  const svg=(await renderChart(song)).pages!.join('');
+  const numberText=[...svg.matchAll(/<text x="([\d.]+)" y="([\d.]+)"[^>]*font-size="6.8"[^>]*>(.*?)<\/text>/g)].find(m=>m[3]===String(number))!;
+  const [nx,ny]=[Number(numberText[1]),Number(numberText[2])];
+  const numberWidth=regular.widthOfTextAtSize(numberText[3],6.8);
+  const path=[...svg.matchAll(/<path d="([^"]+)"[^>]*stroke-width="1.15"/g)][0];
+  assert.ok(path,'one fermata arch');
+  const values=path[1].match(/-?[\d.]+/g)!.map(Number);
+  const xs=values.filter((_,i)=>i%2===0),ys=values.filter((_,i)=>i%2===1);
+  const left=Math.min(...xs)-.575,right=Math.max(...xs)+.575,top=Math.min(...ys)-.575,bottom=Math.max(...ys)+.575;
+  const overlaps=left<nx+numberWidth && right>nx && top<ny+2 && bottom>ny-6.8;
+  assert.equal(overlaps,false,'number '+number+', chord '+fermat);
+  assert.ok(right<PAGE_WIDTH-31);
+ }
 });
 
 test('empty sheets and every checked-in song have exact printed and editable visible output',async()=>{

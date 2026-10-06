@@ -14,9 +14,10 @@ type EllipseOp = { kind: 'ellipse'; x: number; y: number; rx: number; ry: number
 type PathOp = { kind: 'path'; d: string; color: string; width: number };
 type ChordHitOp = { kind: 'chord-hit'; x: number; y: number; w: number; h: number; section: number; bar: number; chord: number; variant?: number; label: string };
 type SectionHitOp = {kind:'section-hit';x:number;y:number;w:number;h:number;section:number;label:string};
-export type BarHitOp = {kind:'bar-hit'|'bar-number-hit'|'chord-area-hit'|'variant-area-hit';x:number;y:number;w:number;h:number;section:number;bar:number;number:number;variant?:number;label:string;beats:number;meter:string};
+export type BarHitOp = {kind:'bar-hit'|'bar-number-hit'|'chord-area-hit'|'variant-area-hit'|'rhythm-hit';x:number;y:number;w:number;h:number;section:number;bar:number;number:number;variant?:number;label:string;beats:number;meter:string;rhythmKind?:'rytm'|'offbeat'|'foruttag';numberHole?:{x:number;y:number;w:number;h:number}};
 export type ReuseHitOp = {kind:'reuse-hit';x:number;y:number;w:number;h:number;section:number;label:string};
-export type DrawOp = BarHitOp | ReuseHitOp | SectionHitOp | ChordHitOp | TextOp | LineOp | RectOp | EllipseOp | PathOp;
+export type InstructionHitOp = {kind:'instruction-hit';x:number;y:number;w:number;h:number;section:number;bar?:number;scope:'bar'|'section'|'reuse';formStep?:number;label:string};
+export type DrawOp = InstructionHitOp | BarHitOp | ReuseHitOp | SectionHitOp | ChordHitOp | TextOp | LineOp | RectOp | EllipseOp | PathOp;
 export type ChartPage = DrawOp[];
 // Editable adds transparent targets to the same four-column print layout.
 // Keep columns accepted for older callers; it never changes the score's layout.
@@ -34,6 +35,12 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont, options
   const width = (s: string, size: number, strong = false) => (strong ? bold : regular).widthOfTextAtSize(s, size);
   const text = (x: number, y: number, value: string, size = 9, strong = false, col = INK) => ops.push({ kind: 'text', x, y, text: value, size, bold: strong, color: col });
   const fitText = (x: number, y: number, value: string, size: number, max: number, strong = false, col = INK) => text(x, y, value, Math.min(size, size * max / Math.max(1, width(value, size, strong))), strong, col);
+  const hasInstruction = (value:string|undefined) => Boolean(value?.trim());
+  const instructionHit = (x:number,baseline:number,value:string,size:number,max:number,target:Pick<InstructionHitOp,'section'|'bar'|'scope'|'formStep'>,drawnValue=value,strong=false) => {
+    if(!editable || !hasInstruction(value))return;
+    const fitted=Math.min(size,size*max/Math.max(1,width(drawnValue,size,strong)));
+    ops.push({kind:'instruction-hit',x:x-2,y:baseline-fitted,w:Math.min(max,width(value,fitted,strong))+4,h:fitted*1.3,...target,label:'Ändra anvisning: '+value.trim()});
+  };
   // Keep each annotation in its note's horizontal slot, wrapping before the next note.
   const rhythmTexts = (bar: Pick<Bar,'rytm'>, beats: number, stop?:number, axis?:(beat:number)=>number) => (bar.rytm ?? []).map((event, index, events) => {
     const position = axis ?? ((beat:number)=>7 + (beat - 1) * (CW - 14) / beats);
@@ -118,11 +125,11 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont, options
       sectionRanges.set(section.namn,[...(sectionRanges.get(section.namn) ?? []),rangeNumber++]);
     }
   }
-  const drawReuse = (step: {del:string;ganger:number;anvisning?:string}, last:boolean, reuseIndex?:number) => {
+  const drawReuse = (step: {del:string;ganger:number;anvisning?:string}, last:boolean, reuseIndex?:number,formStep?:number) => {
     const instructionLines: string[] = [];
-    if (step.anvisning) {
+    if (hasInstruction(step.anvisning)) {
       let current = '';
-      for (const word of step.anvisning.split(/\s+/)) {
+      for (const word of step.anvisning!.trim().split(/\s+/)) {
         const next = current ? current+' '+word : word;
         if (current && width(next,9,true)>R-L-20) { instructionLines.push(current);current=word; }
         else current=next;
@@ -139,7 +146,10 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont, options
     if(editable && reuseIndex !== undefined) ops.push({kind:'reuse-hit',x:L,y:y-5,w:R-L,h:66+extra,section:reuseIndex,label:`Återanvänd del: ${step.del}`});
     else ops.push({kind:'section-hit',x:L+8,y:y+14,w:Math.min(R-L-16,width(step.del,15,true)+8),h:19,section,label:`Ändra delnamn: ${step.del}`});
     fitText(L+10,y+48,`Se ${step.del}, takt ${range[0]}–${range.at(-1)}. Spela ${step.ganger} ${step.ganger===1?'gång':'gånger'}${last ? ', sedan SLUT.' : '.'}`,8,R-L-20,false,GREY);
-    instructionLines.forEach((value,i)=>fitText(L+10,y+64+i*14,value,9,R-L-20,true,ACCENT));
+    instructionLines.forEach((value,i)=>{
+      fitText(L+10,y+64+i*14,value,9,R-L-20,true,ACCENT);
+      instructionHit(L+10,y+64+i*14,value,9,R-L-20,{section:reuseIndex??section,scope:'reuse',formStep},value,true);
+    });
     y+=77+extra;
   };
   for (const [sectionIndex, section] of song.delar.entries()) {
@@ -168,7 +178,7 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont, options
       const hasHouse = !!house || row.cells.some(({ bar }) => bar.hus);
       const overhead = hasHouse ? 8 : 0;
       const labelSpace = first ? 7 : 0;
-      const rhythmLabelSpace = row.cells.some(({ bar }) => bar.rytm && bar.anvisning) ? 10 : 0;
+      const rhythmLabelSpace = row.cells.some(({ bar }) => bar.rytm && hasInstruction(bar.anvisning)) ? 10 : 0;
       const annotations = new Map(row.cells.map(cell => [cell.barIndex, rhythmTexts(cell.bar, cell.beats)]));
       const textLines = Math.max(0, ...[...annotations.values()].flatMap(notes => notes.map(note => note.lines.length)));
       const rhythmTextSpace = textLines ? textLines * annotationLine + 3 : 0;
@@ -192,7 +202,10 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont, options
         const partLabel = section.namn + (section.ganger > 1 ? ' × '+section.ganger : '') + (continued ? ' (forts.)' : '');
         fitText(L, y, partLabel, 10, 260, true, ACCENT);
         ops.push({kind:'section-hit',x:L-2,y:y-11,w:Math.min(262,width(partLabel,10,true)+5),h:14,section:sectionIndex,label:`Ändra delnamn: ${section.namn}`});
-        if (section.anvisning) fitText(L + 275, y, section.anvisning, 7.1, R-L-275, false, GREY);
+        if (hasInstruction(section.anvisning)) {
+          fitText(L + 275, y, section.anvisning!, 7.1, R-L-275, false, GREY);
+          instructionHit(L+275,y,section.anvisning!,7.1,R-L-275,{section:sectionIndex,scope:'section'});
+        }
         y += 7; first = false;
       }
       y += overhead;
@@ -205,6 +218,12 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont, options
       for (const { bar, number: n, col: column, beats, barIndex,meter:cellMeter } of row.cells) {
         const x = L + column * CW;
         const target = {section:sectionIndex,bar:barIndex,number:n,beats,meter:cellMeter};
+        const syncHit = (left:number,top:number,w:number,h:number,rhythmKind:'offbeat'|'foruttag',label:string) => {
+          if(!editable)return;
+          const numberBox={x:x+4.5,y:y-1,w:width(String(n),6.8)+1,h:11};
+          const intersects=left<numberBox.x+numberBox.w && left+w>numberBox.x && top<numberBox.y+numberBox.h && top+h>numberBox.y;
+          ops.push({kind:'rhythm-hit',x:left,y:top,w,h,...target,rhythmKind,label,numberHole:intersects?numberBox:undefined});
+        };
         if(editable) {
           ops.push({kind:'bar-hit',x,y:y+4,w:CW,h:cellBottom-4,...target,label:`Markera ${section.namn}, takt ${n}`});
           ops.push({kind:'bar-number-hit',x,y:y-1,w:CW,h:11,...target,label:`Markera ${section.namn}, takt ${n}`});
@@ -238,7 +257,12 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont, options
             const rw = width(root, 23, true) * factor;
             text(rootX + rw + .5*factor, baseline - 5*factor, ext, 10*factor);
             if (chord.bass) text(rootX + rw + (width(ext,10)+1)*factor, baseline, '/'+pretty(chord.bass), 13*factor, true);
-            if (main && bar.fermat === i+1) fermata(xx + widths[i]*factor/2, baseline-19);
+            if (main && bar.fermat === i+1) {
+              let center=xx+widths[i]*factor/2;
+              const fermatY=baseline-19,numberRight=x+5+width(String(n),6.8);
+              if(center-6.575<numberRight && center+6.575>x+5 && fermatY-8.575<y+10 && fermatY+.575>y+1)center=numberRight+8;
+              fermata(center,fermatY);
+            }
             if (starts && main && !bar.rytm) text(xx, baseline-19, String(starts[i]).replace('.5', 'å'), 5.5, false, GREY);
             const naturalTop=baseline-23*factor;
             const areaTop=main ? y+10+rhythmExtra : baseline-14;
@@ -282,11 +306,17 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont, options
               text(bx-2,base+52,label,5,false,GREY);
               note(bx,base+61,durations[event.notvarde]);
             }
-            for(const annotation of rhythmTexts(variant,beats,variant.ackord_nr === undefined ? undefined : stop))annotation.lines.forEach((value,j)=>fitText(x+annotation.offset,base+70+j*annotationLine,value,annotationSize,annotation.maxWidth,false,ACCENT));
+            const annotations=rhythmTexts(variant,beats,variant.ackord_nr === undefined ? undefined : stop);
+            for(const annotation of annotations)annotation.lines.forEach((value,j)=>fitText(x+annotation.offset,base+70+j*annotationLine,value,annotationSize,annotation.maxWidth,false,ACCENT));
+            const lines=Math.max(0,...annotations.map(note=>note.lines.length));
+            if(editable)ops.push({kind:'rhythm-hit',x:x+4,y:base+46,w:CW-8,h:Math.max(64,lines?72+(lines-1)*annotationLine:0)-46,...target,variant:i,rhythmKind:'rytm',label:`Ändra rytm i variant ${i+1}, ${section.namn}, takt ${n}`});
           }
         });
         if (bar.rytm) {
-          if (bar.anvisning) fitText(x+6,y+17,bar.anvisning,6.3,CW-12,false,ACCENT);
+          if (hasInstruction(bar.anvisning)) {
+            fitText(x+6,y+17,bar.anvisning!,6.3,CW-12,false,ACCENT);
+            instructionHit(x+6,y+17,bar.anvisning!,6.3,CW-12,{section:sectionIndex,bar:barIndex,scope:'bar'});
+          }
           const beatLabels = new Set([...Array.from({length:beats},(_,i)=>i+1), ...bar.rytm.map(n=>n.slag)]);
           for (const beat of [...beatLabels].sort((a,b)=>a-b)) {
             const bx = beatX(beat);
@@ -300,6 +330,8 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont, options
           for (const annotation of annotations.get(barIndex)!) {
             annotation.lines.forEach((value, index) => fitText(x + annotation.offset, y + 36 + rhythmLabelSpace + index * annotationLine, value, annotationSize, annotation.maxWidth, false, ACCENT));
           }
+          const lines=Math.max(0,...annotations.get(barIndex)!.map(note=>note.lines.length));
+          if(editable)ops.push({kind:'rhythm-hit',x:x+4,y:y+11+rhythmLabelSpace,w:CW-8,h:Math.max(32,lines?38+(lines-1)*annotationLine:0)-11,...target,rhythmKind:'rytm',label:`Ändra rytm i ${section.namn}, takt ${n}`});
           if (bar.break) text(x+6,y+39+extra,'BREAK',6.3,true,ACCENT);
         }
         if (bar.synkop) {
@@ -310,15 +342,22 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont, options
             const end = column > 0 ? x+19 : x+38;
             note(start, yy, 'eighth'); note(end, yy, 'eighth'); tie(start, end, yy);
             if (column === 0) text(x+48, yy, 'från föreg. takt', 5, false, GREY);
+            const right=column===0?Math.max(end+10,x+48+width('från föreg. takt',5)+2):end+10;
+            syncHit(Math.min(start,end)-4,yy-7,right-Math.min(start,end)+4,14,'foruttag',`Ändra föruttag i ${section.namn}, takt ${n}`);
             if (bar.break) text(end+12, yy-1, 'BREAK', 6.2, true, ACCENT);
           } else {
             const attack = positions[bar.synkop.ackord-1]+2;
             note(attack, yy, 'eighth'); note(attack+16, yy, 'half'); tie(attack,attack+16,yy);
+            syncHit(attack-4,yy-7,28,14,'offbeat',`Ändra synkop i ${section.namn}, takt ${n}`);
             if (bar.break) text(x+6,y+39+extra,'BREAK',6.3,true,ACCENT);
           }
         } else if (bar.break && !bar.rytm) { note(x+19,y+13.5,'quarter'); text(x+31,y+12.5,'BREAK',6.2,true,ACCENT); }
-        const instructions = [bar.rytm ? undefined : bar.anvisning, bar.tonart ? pretty(bar.tonart) : '', bar.taktart, bar.slut ? 'SLUT' : ''].filter(Boolean).join(' · ');
-        if (instructions) fitText(x+6,y+39+extra,instructions,6.3,CW-12,false,ACCENT);
+        const barInstruction=hasInstruction(bar.anvisning)?bar.anvisning:undefined;
+        const instructions = [bar.rytm ? undefined : barInstruction, bar.tonart ? pretty(bar.tonart) : '', bar.taktart, bar.slut ? 'SLUT' : ''].filter(Boolean).join(' · ');
+        if (instructions) {
+          fitText(x+6,y+39+extra,instructions,6.3,CW-12,false,ACCENT);
+          if(!bar.rytm && barInstruction)instructionHit(x+6,y+39+extra,barInstruction,6.3,CW-12,{section:sectionIndex,bar:barIndex,scope:'bar'},instructions);
+        }
         if (bar.coda) { coda(x+CW-13,y+9); if (bar.coda === 'hopp') text(x+CW-48,y+8,'Till',5.5,false,ACCENT); }
         if (bar.segno) { text(x+CW-26,y+12,'S',12,true,ACCENT); line(x+CW-28,y+14,x+CW-14,y,.8,ACCENT); circle(x+CW-28,y+4,1,ACCENT); circle(x+CW-14,y+12,1,ACCENT); }
         if (bar.repris_start) repeat(x,y,true,cellBottom);
@@ -334,15 +373,15 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont, options
     y += 12;
   }
   song.spelordning?.forEach((step,index)=>{
-    const reused=song.spelordning!.slice(0,index).some(previous=>previous.del===step.del)||step.ganger>1||!!step.anvisning;
-    if(step.visa_block??reused)drawReuse(step,index===song.spelordning!.length-1);
+    const reused=song.spelordning!.slice(0,index).some(previous=>previous.del===step.del)||step.ganger>1||hasInstruction(step.anvisning);
+    if(step.visa_block??reused)drawReuse(step,index===song.spelordning!.length-1,undefined,index);
   });
   pages.forEach((page, i) => page.push({kind:'text', x:R-30, y:PAGE_HEIGHT-16,text:`${i+1} / ${pages.length}`,size:6.5,bold:false,color:GREY}));
   return pages;
 }
 
 export function pageSvg(page: ChartPage) {
-  const targetOrder: Record<string,number> = {'bar-hit':1,'chord-area-hit':2,'variant-area-hit':2,'bar-number-hit':3,'reuse-hit':4,'section-hit':5,'chord-hit':6};
+  const targetOrder: Record<string,number> = {'bar-hit':1,'chord-area-hit':2,'variant-area-hit':2,'reuse-hit':3,'section-hit':4,'chord-hit':5,'bar-number-hit':6,'rhythm-hit':7,'instruction-hit':8};
   const editablePage = page.some(op=>op.kind==='bar-hit'||op.kind==='reuse-hit');
   const commands = editablePage ? [...page.filter(op=>!targetOrder[op.kind]),...page.filter(op=>targetOrder[op.kind]).sort((a,b)=>targetOrder[a.kind]-targetOrder[b.kind])] : page;
   const content = commands.map(op => {
@@ -350,7 +389,15 @@ export function pageSvg(page: ChartPage) {
       case 'bar-hit':
       case 'bar-number-hit':
       case 'chord-area-hit':
-      case 'variant-area-hit': return `<rect class="${op.kind}" x="${op.x}" y="${op.y}" width="${op.w}" height="${op.h}" fill="transparent" role="button" tabindex="0" aria-label="${xml(op.label)}" data-section="${op.section}" data-bar="${op.bar}" data-number="${op.number}" data-beats="${op.beats}" data-meter="${xml(op.meter)}"${op.variant === undefined ? '' : ` data-variant="${op.variant}"`}><title>${xml(op.label)}</title></rect>`;
+      case 'variant-area-hit':
+      case 'rhythm-hit': {
+        const attributes=`class="${op.kind}" x="${op.x}" y="${op.y}" width="${op.w}" height="${op.h}" fill="transparent" role="button" tabindex="0" aria-label="${xml(op.label)}" data-section="${op.section}" data-bar="${op.bar}" data-number="${op.number}" data-beats="${op.beats}" data-meter="${xml(op.meter)}"${op.variant === undefined ? '' : ` data-variant="${op.variant}"`}${op.rhythmKind===undefined?'':` data-rhythm-kind="${op.rhythmKind}"`}`;
+        if(!op.numberHole)return `<rect ${attributes}><title>${xml(op.label)}</title></rect>`;
+        const hole=op.numberHole,left=Math.max(op.x,hole.x),right=Math.min(op.x+op.w,hole.x+hole.w),top=Math.max(op.y,hole.y),bottom=Math.min(op.y+op.h,hole.y+hole.h);
+        const regions=[{x:op.x,y:op.y,w:op.w,h:top-op.y},{x:op.x,y:bottom,w:op.w,h:op.y+op.h-bottom},{x:op.x,y:top,w:left-op.x,h:bottom-top},{x:right,y:top,w:op.x+op.w-right,h:bottom-top}];
+        return `<g ${attributes}><title>${xml(op.label)}</title>${regions.filter(r=>r.w>0&&r.h>0).map(r=>`<rect x="${r.x}" y="${r.y}" width="${r.w}" height="${r.h}" fill="transparent"/>`).join('')}</g>`;
+      }
+      case 'instruction-hit': return `<rect class="instruction-hit" x="${op.x}" y="${op.y}" width="${op.w}" height="${op.h}" fill="transparent" role="button" tabindex="0" aria-label="${xml(op.label)}" data-scope="${op.scope}" data-section="${op.section}"${op.bar===undefined?'':` data-bar="${op.bar}"`}${op.formStep===undefined?'':` data-form-step="${op.formStep}"`}><title>${xml(op.label)}</title></rect>`;
       case 'reuse-hit': return `<rect class="reuse-hit" x="${op.x}" y="${op.y}" width="${op.w}" height="${op.h}" fill="transparent" role="button" tabindex="0" aria-label="${xml(op.label)}" data-section="${op.section}"><title>${xml(op.label)}</title></rect>`;
       case 'section-hit': return `<rect class="section-hit" x="${op.x}" y="${op.y}" width="${op.w}" height="${op.h}" fill="transparent" role="button" tabindex="0" aria-label="${xml(op.label)}" data-section="${op.section}"><title>${xml(op.label)}</title></rect>`;
       case 'chord-hit': return `<rect class="chord-hit" x="${op.x}" y="${op.y}" width="${op.w}" height="${op.h}" fill="transparent" role="button" tabindex="0" aria-label="${xml(op.label)}" data-section="${op.section}" data-bar="${op.bar}" data-chord="${op.chord}"${op.variant === undefined ? '' : ` data-variant="${op.variant}"`}><title>${xml(op.label)}</title></rect>`;
@@ -378,6 +425,8 @@ export async function renderChart(song: Song, format: 'svg' | 'pdf' = 'svg', opt
         case 'bar-number-hit':
         case 'chord-area-hit':
         case 'variant-area-hit':
+        case 'rhythm-hit':
+        case 'instruction-hit':
         case 'reuse-hit':
         case 'section-hit':
         case 'chord-hit': break; // Interactive targets are only part of the screen preview.

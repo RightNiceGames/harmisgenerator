@@ -138,3 +138,10 @@
 
 .score-touch-hint{display:none;font-size:10px;color:#62755d;line-height:1.4;margin:0 3px}
 @media(hover:none){.score-touch-hint{display:block}}
+
+.score-main:fullscreen{width:100vw;max-width:none;height:100dvh;margin:0;background:#e8ede1}
+.score-main::backdrop{background:#e8ede1}
+
+.score-preview :is(.instruction-hit,.rhythm-hit){cursor:pointer;stroke:transparent;stroke-width:.6;rx:2}
+.score-preview .instruction-hit{cursor:text}
+.score-preview :is(.instruction-hit,.rhythm-hit):hover,.score-preview .score-selected-detail{fill:#28564a10;stroke:#528f79}
