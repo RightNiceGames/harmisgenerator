@@ -28,22 +28,54 @@ delar:
         rytm:
           - slag: 4
             notvarde: 4
-            text: Fling
+            text: FLING
+        markeringar:
+          - element: text:Fling:0
+            farg: gul
+            fran: 0
+            till: 5
+          - element: text:FLING:0
+            farg: gul
+            fran: 0
+            till: 5
       - ackord: G
         rytm:
           - slag: 1
             notvarde: 4
-            text: Fling
+            text: FLING
+        markeringar:
+          - element: text:Fling:0
+            farg: gul
+            fran: 0
+            till: 5
+          - element: text:FLING:0
+            farg: gul
+            fran: 0
+            till: 5
       - ackord: C
         rytm:
           - slag: 4
             notvarde: 4
-            text: Fling
+            text: FLING
+        markeringar:
+          - element: text:Fling:0
+            farg: gul
+            fran: 0
+            till: 5
+          - element: text:FLING:0
+            farg: gul
+            fran: 0
+            till: 5
       - ackord: Am
         rytm:
           - slag: 1
             notvarde: 4
-            text: Fling
+            text: FLING
+        markeringar:
+          - element: text:Fling:0
+            farg: gul
+            fran: 0
+            till: 5
       - ackord: Dm
         rytm:
           - slag: 4
@@ -84,11 +116,21 @@ delar:
           - slag: 4
             notvarde: 4
             text: FLING
+        markeringar:
+          - element: text:FLING:0
+            farg: gul
+            fran: 0
+            till: 5
       - ackord: C
         rytm:
           - slag: 1
             notvarde: 4
             text: FLING
+        markeringar:
+          - element: text:FLING:0
+            farg: gul
+            fran: 0
+            till: 5
       - F
       - G
       - C
@@ -104,8 +146,18 @@ delar:
           - slag: 4.5
             notvarde: 8
             text: som
+    markeringar:
+      - element: text:A+B:0
+        farg: bla
+        fran: 0
+        till: 3
   - ateranvand: A+B
     ganger: 2
+    markeringar:
+      - element: text:A+B × 2:0
+        farg: bla
+        fran: 0
+        till: 7
 
   - namn: Sista A
     takter:
@@ -116,22 +168,50 @@ delar:
         rytm:
           - slag: 4
             notvarde: 4
-            text: Fling
+            text: FLING
+        markeringar:
+          - element: text:Fling:0
+            farg: gul
+            fran: 0
+            till: 5
+          - element: text:FLING:0
+            farg: gul
+            fran: 0
+            till: 5
       - ackord: G
         rytm:
           - slag: 1
             notvarde: 4
-            text: Fling
+            text: FLING
+        markeringar:
+          - element: text:Fling:0
+            farg: gul
+            fran: 0
+            till: 5
+          - element: text:FLING:0
+            farg: gul
+            fran: 0
+            till: 5
       - ackord: C
         rytm:
           - slag: 4
             notvarde: 4
-            text: Fling
+            text: FLING
+        markeringar:
+          - element: text:FLING:0
+            farg: gul
+            fran: 0
+            till: 5
       - ackord: Am
         rytm:
           - slag: 1
             notvarde: 4
-            text: Fling
+            text: FLING
+        markeringar:
+          - element: text:FLING:0
+            farg: gul
+            fran: 0
+            till: 5
       - ackord: Dm
         rytm:
           - slag: 4
@@ -175,6 +255,17 @@ delar:
         slag:
           - 1
           - 4
+        markeringar:
+          - element: text:FLING:0
+            farg: gul
+            fran: 0
+            till: 5
+          - element: text:FLING:1
+            farg: gul
+            fran: 0
+            till: 5
+          - element: ackord:1
+            farg: gron
       - ackord: C
         break: true
         rytm:
@@ -187,6 +278,17 @@ delar:
           - slag: 3
             notvarde: 4
             text: FLING
+        markeringar:
+          - element: text:FLING:0
+            farg: gul
+            fran: 0
+            till: 5
+          - element: text:FLING:1
+            farg: gul
+            fran: 0
+            till: 5
+          - element: ackord:0
+            farg: gron
 kallor:
   - url: https://chordify.net/es/chords/robert-broberg-songs/det-som-goms-i-sno-chords
     beskrivning: Ackordöversikt märkt 1991, med C-dur, 130 BPM och återkommande pauser.

@@ -24,6 +24,11 @@ delar:
     takter:
       - ackord: Ebmaj7
         anvisning: Bas In
+        markeringar:
+          - element: text:Bas In:0
+            farg: gul
+            fran: 0
+            till: 6
       - ackord: Dbmaj7
         varianter:
           - gang: 2
@@ -57,6 +62,16 @@ delar:
             notvarde: 8
             text: Bb
         anvisning: "Rytm: bas"
+        markeringar:
+          - element: "text:Rytm: bas:0"
+            farg: gul
+            fran: 0
+            till: 9
+    markeringar:
+      - element: text:Vers:0
+        farg: bla
+        fran: 0
+        till: 4
 
   - namn: Refräng
     takter:
@@ -78,6 +93,17 @@ delar:
             notvarde: 8
             text: Eb
         slut: true
+        markeringar:
+          - element: text:SLUT:0
+            farg: rod
+            fran: 0
+            till: 4
+          - element: text:24:0
+            farg: rod
+            fran: 0
+            till: 2
+          - element: ackord:0
+            farg: rod
       - B
       - Bbm Bbm/Ab
       - Ab Cm/G
@@ -103,7 +129,30 @@ delar:
       - Ebm Ebm/Db
       - Db Fm/C
       - ackord: Bbm
+    markeringar:
+      - element: text:Refräng:0
+        farg: gron
+        fran: 0
+        till: 7
   - ateranvand: Vers
+    markeringar:
+      - element: text:Vers:0
+        farg: bla
+        fran: 0
+        till: 4
   - ateranvand: Refräng
     ganger: 1
-    anvisning: SLUTA INNAN TAKT 25
+    anvisning: SLUTA EFTER TAKT 24
+    markeringar:
+      - element: text:Refräng:0
+        farg: gron
+        fran: 0
+        till: 7
+      - element: text:SLUTA INNAN TAKT 25:0
+        farg: rod
+        fran: 0
+        till: 19
+      - element: text:SLUTA EFTER TAKT 24:0
+        farg: rod
+        fran: 0
+        till: 19

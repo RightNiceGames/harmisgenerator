@@ -14,6 +14,13 @@ delar:
     takter:
       - ackord: Em D/F#
         anvisning: Piano och Bas
+        markeringar:
+          - element: text:Piano och Bas:0
+            farg: bla
+            fran: 0
+            till: 13
+          - element: ackord:0
+            farg: bla
       - G G/B C
       - Am G/B
       - Cmaj7 D
@@ -22,6 +29,13 @@ delar:
     takter:
       - ackord: G C
         anvisning: Piano
+        markeringar:
+          - element: text:Piano:0
+            farg: rod
+            fran: 0
+            till: 5
+          - element: ackord:0
+            farg: rod
       - Dsus4 D
       - G C
       - Dsus4 D
@@ -34,6 +48,11 @@ delar:
       - Dsus4 D
       - ackord: G C
         anvisning: Bas in
+        markeringar:
+          - element: text:Bas in:0
+            farg: bla
+            fran: 0
+            till: 6
       - ackord: D C/E D/F#
         slag:
           - 1
@@ -76,6 +95,13 @@ delar:
     takter:
       - ackord: G C
         anvisning: Piano
+        markeringar:
+          - element: text:Piano:0
+            farg: rod
+            fran: 0
+            till: 5
+          - element: ackord:0
+            farg: rod
       - Dsus4 D
       - G C
       - Dsus4 D
@@ -88,8 +114,20 @@ delar:
       - Dsus4 D
       - ackord: G C
         anvisning: Bas in
+        markeringar:
+          - element: text:Bas in:0
+            farg: bla
+            fran: 0
+            till: 6
+          - element: ackord:0
+            farg: bla
       - ackord: D
         anvisning: ----------------------------basfill
+        markeringar:
+          - element: text:----------------------------basfill:0
+            farg: gul
+            fran: 0
+            till: 35
       - G C
       - Dsus4 D7
       - Em Bm
@@ -123,6 +161,11 @@ delar:
       - C/E D/F#
       - ackord: G
         anvisning: -----------------------------Fill
+        markeringar:
+          - element: text:-----------------------------Fill:0
+            farg: gul
+            fran: 0
+            till: 33
       - Am7 G/B
       - C
       - D C/E
@@ -137,6 +180,13 @@ delar:
     takter:
       - ackord: Cmaj7
         anvisning: Piano
+        markeringar:
+          - element: text:Piano:0
+            farg: rod
+            fran: 0
+            till: 5
+          - element: ackord:0
+            farg: rod
       - G/B
       - Am D
       - ackord: Gadd9 G/B
@@ -151,6 +201,13 @@ delar:
           - 1
           - 3
           - 4
+        markeringar:
+          - element: text:Bas in:0
+            farg: bla
+            fran: 0
+            till: 6
+          - element: ackord:0
+            farg: bla
       - ackord: Em
         rytm:
           - slag: 3
@@ -184,22 +241,53 @@ delar:
     takter:
       - ackord: G C
         anvisning: Piano
+        markeringar:
+          - element: text:Piano:0
+            farg: rod
+            fran: 0
+            till: 5
+          - element: ackord:0
+            farg: rod
       - Dsus4 D
       - G C
       - Dsus4 D/F#
       - ackord: Em Bm
         anvisning: BAS IN
+        markeringar:
+          - element: text:BAS IN:0
+            farg: bla
+            fran: 0
+            till: 6
+          - element: ackord:0
+            farg: bla
       - ackord: C
       - ackord: C D/F#
         anvisning: Piano
+        markeringar:
+          - element: text:Piano:0
+            farg: rod
+            fran: 0
+            till: 5
       - ackord: Em Bm
         slag: [ 1, 4 ]
         anvisning: Basfill
+        markeringar:
+          - element: text:Basfill:0
+            farg: gul
+            fran: 0
+            till: 7
       - ackord: Am G/B
         anvisning: Bas med
         slag:
           - 1
           - 3
+        markeringar:
+          - element: text:Bas med:0
+            farg: bla
+            fran: 0
+            till: 7
+          - element: ackord:0
+            farg: bla
       - ackord: C Dsus4 D
         slag:
           - 1
@@ -209,6 +297,11 @@ delar:
       - ackord: Em C Am D
         fermat: 4
         anvisning: Bas och Piano
+        markeringar:
+          - element: text:Bas och Piano:0
+            farg: bla
+            fran: 0
+            till: 13
       - ackord: G
         fermat: 1
         slut: true

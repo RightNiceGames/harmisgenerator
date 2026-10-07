@@ -27,6 +27,11 @@ delar:
       - C
       - ackord: D
         repris_slut: true
+    markeringar:
+      - element: text:Vers:0
+        farg: bla
+        fran: 0
+        till: 4
   - namn: Refräng
     takter:
       - ackord: G
@@ -35,15 +40,35 @@ delar:
       - Am
       - ackord: D
         repris_slut: true
+    markeringar:
+      - element: text:Refräng:0
+        farg: gron
+        fran: 0
+        till: 7
   - namn: Mellanspel
     takter:
       - C
       - ackord: C
         break: true
+        markeringar:
+          - element: text:BREAK:0
+            farg: rod
+            fran: 0
+            till: 5
   - ateranvand: Vers
     anvisning: Utan Repeat
+    markeringar:
+      - element: text:Vers:0
+        farg: bla
+        fran: 0
+        till: 4
   - ateranvand: Refräng
     anvisning: Med Repeat
+    markeringar:
+      - element: text:Refräng:0
+        farg: gron
+        fran: 0
+        till: 7
   - namn: Stick
     takter:
       - Em
@@ -56,6 +81,11 @@ delar:
       - D
   - ateranvand: Refräng
     anvisning: Sista (med Repeat)
+    markeringar:
+      - element: text:Refräng:0
+        farg: gron
+        fran: 0
+        till: 7
 
   - namn: Outro
     takter:
@@ -70,6 +100,11 @@ delar:
       - ackord: C
         break: true
         fermat: 1
+        markeringar:
+          - element: text:BREAK:0
+            farg: rod
+            fran: 0
+            till: 5
       - ackord: G
         slut: true
         fermat: 1

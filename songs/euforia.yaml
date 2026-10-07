@@ -25,12 +25,45 @@ delar:
     takter:
       - ackord: Em D
         repris_start: true
+        anvisning: "REF 3: MED REPRIS"
+        markeringar:
+          - element: "text:REF 3: MED REPRIS:0"
+            farg: gul
+            fran: 0
+            till: 17
       - G G/B C
-      - Em D
+      - ackord: Em D
+        anvisning: "-------------------------Ref 3: Till Outro"
+        markeringar:
+          - element: text:Coda efter repris!:0
+            farg: rod
+            fran: 0
+            till: 18
+          - element: text:Outro efter Repris:0
+            farg: gron
+            fran: 0
+            till: 18
+          - element: text:----------Outro efter Repris:0
+            farg: gron
+            fran: 0
+            till: 28
+          - element: "text:----------Ref 3: Gå till Outro (efter Repris):0"
+            farg: gron
+            fran: 0
+            till: 45
+          - element: "text:-------------------------Ref 3: Till Outro:0"
+            farg: gron
+            fran: 0
+            till: 42
       - ackord: G D C
         repris_slut: true
         hus: "1."
         hus_slut: true
+    markeringar:
+      - element: text:Refräng:0
+        farg: bla
+        fran: 0
+        till: 7
   - namn: Mellanspel
     takter:
       - ackord: G D/G C/G
@@ -67,16 +100,55 @@ delar:
       - "%"
       - Bm A
   - ateranvand: Refräng
-    anvisning: Första refrängen (kortare)
+    markeringar:
+      - element: text:Refräng:0
+        farg: bla
+        fran: 0
+        till: 7
+      - element: text:Med Repris, gå till Coda:0
+        farg: rod
+        fran: 0
+        till: 24
+      - element: text:Spela REPRIS - Gå till Outro:0
+        farg: gul
+        fran: 0
+        till: 28
+      - element: text:Spela MED REPRIS - Till Outro innan hus 1:0
+        farg: gul
+        fran: 0
+        till: 41
+      - element: text:Spela MED REPRIS:0
+        farg: gul
+        fran: 0
+        till: 16
+    ganger: 1
+    anvisning: Spela MED REPRIS
 
   - namn: Outro
     takter:
-      - G D/G C/G
+      - ackord: G D/G C/G
       - G D/G C/G
       - G D/G C/G
       - ackord: G D/G C/G
         slut: true
         fermat: 3
+        markeringar:
+          - element: ackord:0
+            farg: rod
+          - element: ackord:1
+            farg: rod
+          - element: ackord:2
+            farg: rod
+          - element: text:Markera ackorden · SLUT:0
+            farg: rod
+            fran: 0
+            till: 23
+        anvisning: Markera ackorden
+    markeringar:
+      - element: text:Outro:0
+        farg: gron
+        fran: 0
+        till: 5
 kallor:
   - url: https://chordify.net/chords/euforia-sa-mycket-battre-2020-helen-sjoholm-topic
     beskrivning: "Analys av Så mycket bättre-versionen: G-dur, 115 BPM och ackordöversikt."

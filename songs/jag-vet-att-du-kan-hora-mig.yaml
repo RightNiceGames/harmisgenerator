@@ -16,6 +16,11 @@ delar:
       - Ab
       - Eb
       - Ab
+    markeringar:
+      - element: text:Intro:0
+        farg: gron
+        fran: 0
+        till: 5
   - namn: Vers
     takter:
       - ackord: Eb
@@ -51,6 +56,11 @@ delar:
       - Bb/C
       - F
       - Ab Bb
+    markeringar:
+      - element: text:Vers:0
+        farg: bla
+        fran: 0
+        till: 4
   - namn: Refräng
     takter:
       - Eb
@@ -72,6 +82,11 @@ delar:
       - ackord: Ab Eb/G
       - Fm
       - Bb
+    markeringar:
+      - element: text:Refräng:0
+        farg: gul
+        fran: 0
+        till: 7
   - namn: MSP
     takter:
       - ackord: "Eb"
@@ -86,9 +101,32 @@ delar:
           - 1
   - ateranvand: Vers
     anvisning: Bas in från början
+    markeringar:
+      - element: text:Vers:0
+        farg: bla
+        fran: 0
+        till: 4
+      - element: text:Bas in från början:0
+        farg: bla
+        fran: 0
+        till: 18
   - ateranvand: Refräng
+    markeringar:
+      - element: text:Refräng:0
+        farg: gul
+        fran: 0
+        till: 7
   - ateranvand: Intro
     anvisning: Full fräs
+    markeringar:
+      - element: text:Intro:0
+        farg: gron
+        fran: 0
+        till: 5
+      - element: text:Full fräs:0
+        farg: rod
+        fran: 0
+        till: 9
 
   - namn: Stick
     takter:
@@ -143,6 +181,11 @@ delar:
             notvarde: 4
           - slag: 3
             notvarde: 4
+        markeringar:
+          - element: text:MARKERINGAR:0
+            farg: gul
+            fran: 0
+            till: 11
       - ackord: Gm
         rytm:
           - slag: 1

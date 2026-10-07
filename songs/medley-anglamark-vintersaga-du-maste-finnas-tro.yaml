@@ -160,6 +160,11 @@ delar:
       - ackord: E
       - ackord: F#m
       - ackord: F#m
+    markeringar:
+      - element: text:Vintersaga · Refräng:0
+        farg: bla
+        fran: 0
+        till: 20
   - namn: Vintersaga · Vers 2
     anvisning: I Malmö … Stockholm city
     takter:
@@ -183,6 +188,11 @@ delar:
   - ateranvand: Vintersaga · Refräng
     ganger: 2
     anvisning: Refräng + extra repris. Därefter sololoop.
+    markeringar:
+      - element: text:Vintersaga · Refräng × 2:0
+        farg: bla
+        fran: 0
+        till: 24
   - namn: Vintersaga · Solo på cue
     anvisning: Sista 4 takterna · upprepa fritt till cue
     takter:
@@ -190,16 +200,32 @@ delar:
         repris_start: true
         anvisning: "On Cue: Slutet, kör fermat"
         fermat: 1
+        markeringar:
+          - element: Fermat:0
+            farg: rod
+          - element: "text:On Cue: Slutet, kör fermat:0"
+            farg: rod
+            fran: 0
+            till: 26
       - ackord: E
         fermat: 1
         anvisning: "On Cue: Slutet, kör fermat"
+        markeringar:
+          - element: Fermat:0
+            farg: rod
       - ackord: F#m
         fermat: 1
         anvisning: "On Cue: Break"
+        markeringar:
+          - element: Fermat:0
+            farg: rod
       - ackord: (B11)
         repris_slut: true
         anvisning: Vidare på cue (Breaka på 4e takt!)
         break: true
+        markeringar:
+          - element: ackord:0
+            farg: rod
   - namn: Du måste finnas · Refräng
     anvisning: Direkt in · Keys
     sidbrytning: true
@@ -219,6 +245,11 @@ delar:
       - ackord: B/D# B/D#
       - ackord: E
       - ackord: E
+    markeringar:
+      - element: text:Du måste finnas · Refräng:0
+        farg: bla
+        fran: 0
+        till: 25
   - namn: Du måste finnas · Vers
     anvisning: Trummor in · Vem skulle känna min ånger
     takter:
@@ -236,7 +267,12 @@ delar:
 
   - ateranvand: Du måste finnas · Refräng
     ganger: 1
-    anvisning: Förslag (2å) på ackord 2 i varje takt. Alla spelar. Därefter fyra takter bara gitarr.
+    anvisning: För-slag (2å) på ackord 2 i varje takt. Alla spelar. Därefter fyra takter bara gitarr.
+    markeringar:
+      - element: text:Du måste finnas · Refräng:0
+        farg: bla
+        fran: 0
+        till: 25
   - namn: Du måste finnas · Gitarrövergång
     anvisning: Bara gitarr · direkt vidare till Tro
     takter:
@@ -260,11 +296,24 @@ delar:
         slag:
           - 1
           - 4
+        markeringar:
+          - element: text:---------------------På sista dubbelrefräng:0
+            farg: gul
+            fran: 0
+            till: 43
       - ackord: Bm Bm7/A
       - ackord: G
         coda: mal
+        markeringar:
+          - element: Coda:0
+            farg: rod
       - ackord: D
         anvisning: drumfill - SKIPPA I SISTA
+    markeringar:
+      - element: text:Tro · Refräng:0
+        farg: bla
+        fran: 0
+        till: 13
   - namn: Tro · Vers
     anvisning: Drömmarna vi har
     takter:
@@ -281,6 +330,15 @@ delar:
   - ateranvand: Tro · Refräng
     ganger: 1
     anvisning: "Därefter stick/solo."
+    markeringar:
+      - element: text:Tro · Refräng:0
+        farg: bla
+        fran: 0
+        till: 13
+      - element: text:Därefter stick/solo.:0
+        farg: gron
+        fran: 0
+        till: 20
   - namn: Tro · Stick / solo
     anvisning: Na, na, na … · 8 takter, harmonik som förslag
     takter:
@@ -292,10 +350,24 @@ delar:
       - ackord: G/B
       - ackord: C
       - ackord: A/C#
+    markeringar:
+      - element: text:Tro · Stick / solo:0
+        farg: gron
+        fran: 0
+        till: 18
 
   - ateranvand: Tro · Refräng
     ganger: 1
     anvisning: "TILL CODA (SKIPPA TAKT 110)"
+    markeringar:
+      - element: text:Tro · Refräng:0
+        farg: bla
+        fran: 0
+        till: 13
+      - element: text:TILL CODA (SKIPPA TAKT 110):0
+        farg: rod
+        fran: 0
+        till: 27
   - namn: Tro · Sista refräng, andra varvet
     anvisning: "Till och med: här i lugn och ro"
     takter:

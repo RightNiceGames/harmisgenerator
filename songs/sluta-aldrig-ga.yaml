@@ -36,6 +36,9 @@ delar:
     takter:
       - ackord: G
         repris_start: true
+        markeringar:
+          - element: Reprisstart:0
+            farg: gul
       - A/C# A
       - ackord: D/F# D D/F#
         slag:
@@ -68,6 +71,11 @@ delar:
         break: true
         hus: "1."
         hus_slut: true
+        markeringar:
+          - element: text:1.:0
+            farg: rod
+            fran: 0
+            till: 2
   - namn: Vers 2
     takter:
       - G
@@ -79,6 +87,9 @@ delar:
       - G
       - ackord: A
         repris_slut: true
+        markeringar:
+          - element: Reprisslut:0
+            farg: gul
   - namn: Sista refräng
     takter:
       - ackord: Bb
@@ -87,6 +98,11 @@ delar:
         repris_start: true
       - ackord: C/E C
         hus_slut: true
+        markeringar:
+          - element: text:2.:0
+            farg: rod
+            fran: 0
+            till: 2
       - F/A F F/A
       - ackord: Bb Dm/A Dm/F
         slag: [ 1, 3, 4 ]
