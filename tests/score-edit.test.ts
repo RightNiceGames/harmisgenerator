@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {stringify} from 'yaml';
 import {asBar,readSong,resolveSongMeters} from '../lib/song';
-import {addVariant,clearHouse,copySection,deleteBars,deleteChord,duplicateBars,insertBar,insertChord,moveChord,moveSection,normalizeChordLine,patchBar,patchFormInstruction,patchSong,removeSection,removeVariant,reorderChord,reuseSection,setChordLine,setHouse,VariantChoiceError} from '../lib/score-edit';
+import {addVariant,clearHouse,copySection,deleteBars,deleteChord,duplicateBars,insertBar,insertChord,moveChord,moveSection,normalizeChordLine,patchBar,patchFormInstruction,patchSong,patchSongEntry,removeSection,removeVariant,reorderChord,reuseSection,setChordLine,setHouse,setVariantScope,VariantChoiceError} from '../lib/score-edit';
 
 const source=stringify({format:1,titel:'Bladtest',artist:'Artist',grundtonart:'C',taktart:'4/4',kallor:[{url:'https://example.com',beskrivning:'Behåll källan'}],anteckningar:['Orörd arbetsanteckning'],delar:[{namn:'Vers',takter:[{ackord:'C G',slag:[1,3.5],fermat:1,synkop:{typ:'offbeat',ackord:2},repris_start:true,varianter:[{gang:2,ackord:'F Am',slag:[1,2],ackord_nr:1,rytm:[{slag:1,notvarde:8,text:'Bas'}],stamma:'bas'}]},'D','Am','G']},{namn:'Coda',takter:['C']} ]})+'# behåll slutkommentaren\n';
 const bar=(text:string,index=0)=>asBar(readSong(text).delar[0].takter[index]);
@@ -58,4 +58,32 @@ test('legacy form instruction changes only its occurrence while preserving sourc
   const updated=patchFormInstruction(text,1,'  Utan bas  '),song=readSong(updated);
   assert.equal(song.delar[0].anvisning,'Original');assert.equal(song.spelordning![0].anvisning,undefined);assert.equal(song.spelordning![1].anvisning,'Utan bas');assert.ok(updated.includes('# återkomstkommentar'));
   assert.equal(readSong(patchFormInstruction(updated,1,'  ')).spelordning![1].anvisning,undefined);assert.throws(()=>patchFormInstruction(text,4,'Fel'),/finns inte/);
+});
+
+test('expanding a variant to the whole bar preserves implicit timing and rhythm',()=>{
+  const initial=patchBar(source,{section:0,bar:1},{ackord:'C G',slag:[1,3],varianter:[{gang:2,ackord_nr:2,ackord:'G7 Am',rytm:[{slag:3.5,notvarde:8,text:'Bas'}],stamma:'bas'}]});
+  const next=setVariantScope(initial,{section:0,bar:1,variant:0},undefined),variant=bar(next,1).varianter![0];
+  assert.equal(variant.ackord_nr,undefined);assert.deepEqual(variant.slag,[3,4]);
+  assert.deepEqual(variant.rytm,bar(initial,1).varianter![0].rytm);assert.equal(variant.stamma,'bas');
+  assert.equal(setVariantScope(next,{section:0,bar:1,variant:0},undefined),next);
+  assert.equal(bar(setVariantScope(next,{section:0,bar:1,variant:0},2),1).varianter![0].ackord_nr,2);
+});
+test('narrowing a variant refuses lost timing and empty variants can expand',()=>{
+  const initial=patchBar(source,{section:0,bar:1},{ackord:'C G',slag:[1,3],varianter:[{gang:2,ackord:'F Am',slag:[1,4],rytm:[{slag:4,notvarde:8}]}]});
+  assert.throws(()=>setVariantScope(initial,{section:0,bar:1,variant:0},1),/ryms inte/);
+  assert.equal(bar(initial,1).varianter![0].ackord_nr,undefined);
+  const empty=addVariant(source,{section:0,bar:1},1),expanded=setVariantScope(empty.text,{section:0,bar:1,variant:0},undefined);
+  assert.equal(bar(expanded,1).varianter![0].ackord_nr,undefined);assert.equal(bar(expanded,1).varianter![0].slag,undefined);
+});
+test('editing and removing underlay entries preserves comments on surviving sources and notes',()=>{
+  const initial=source.replace('beskrivning: Behåll källan','beskrivning: Behåll källan # källkommentar').replace('  - Orörd arbetsanteckning','  - Orörd arbetsanteckning # anteckningskommentar');
+  const added=patchSongEntry(patchSongEntry(initial,'kallor',undefined,{url:'https://example.com/two',beskrivning:'Andra källan'}),'anteckningar',undefined,'Andra anteckningen');
+  const edited=patchSongEntry(patchSongEntry(added,'kallor',0,{url:'https://example.com/new',beskrivning:'Ny beskrivning'}),'anteckningar',0,'Ny anteckning\nPå två rader');
+  assert.ok(edited.includes('# källkommentar'));assert.ok(edited.includes('# anteckningskommentar'));
+  const removed=patchSongEntry(patchSongEntry(edited,'kallor',1,undefined),'anteckningar',1,undefined),song=readSong(removed);
+  assert.deepEqual(song.kallor,[{url:'https://example.com/new',beskrivning:'Ny beskrivning'}]);assert.deepEqual(song.anteckningar,['Ny anteckning\nPå två rader']);
+  assert.ok(removed.includes('# källkommentar'));assert.ok(removed.includes('# anteckningskommentar'));assert.deepEqual(song.delar,readSong(source).delar);
+  assert.equal(patchSongEntry(removed,'anteckningar',0,song.anteckningar![0]),removed);
+  assert.equal(readSong(patchSongEntry(removed,'kallor',0,undefined)).kallor,undefined);
+  assert.throws(()=>patchSongEntry(source,'kallor',0,{url:'fel',beskrivning:'Fel'}));assert.throws(()=>patchSongEntry(source,'anteckningar',4,'Fel'),/finns inte/);
 });

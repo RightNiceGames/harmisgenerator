@@ -97,6 +97,20 @@ export function addVariant(text:string,t:ScoreTarget,owner?:number) {
   return {text:patchBar(text,t,{varianter:[...(bar.varianter??[]),{gang,ackord:'',...(owner===undefined?{}:{ackord_nr:owner})}]}),variant:bar.varianter?.length??0};
 }
 export function removeVariant(text:string,t:ScoreTarget) {const song=readSong(text),bar=asBar(song.delar[t.section].takter[t.bar]),next=bar.varianter?.filter((_,i)=>i!==t.variant);return patchBar(text,{section:t.section,bar:t.bar},{varianter:next?.length?next:undefined},bar.varianter?.flatMap((_,i)=>i===t.variant?[]:[i]));}
+export function setVariantScope(text:string,t:ScoreTarget,owner:number|undefined) {
+  const song=readSong(text),{bar}=fieldsAt(song,t);
+  if(t.variant===undefined)throw Error('Välj en variantrad.');
+  const variant=bar.varianter![t.variant];
+  if(variant.ackord_nr===owner)return text;
+  if(owner!==undefined&&(!Number.isInteger(owner)||owner<1||owner>tokens(bar.ackord).length))throw Error('Välj ett grundackord som finns i takten.');
+  // Expanding a chord variant keeps its actual timing rather than spreading it across the bar.
+  const starts=startsFor(song,t),timing=owner===undefined?{slag:starts.length?starts:undefined}:{};
+  try {return patchBar(text,t,{ackord_nr:owner,...timing});}
+  catch(e) {
+    if(e instanceof Error&&/spann|grundackordets/.test(e.message))throw Error('Variantens ackord eller rytm ryms inte inom valt ackord. Justera startpunkterna och rytmen, eller välj hela takten.');
+    throw e;
+  }
+}
 export function barCursor(text:string,t:ScoreTarget) {const node=parseSongDocument(text).getIn(pathOf(t),true);return node&&typeof node==='object'&&'range'in node?(node as {range?:number[]}).range?.[0]??0:0;}
 function barSequence(doc:Document,section:number){const node=doc.getIn(['delar',section,'takter'],true);if(!isSeq(node))throw Error('Välj en skriven del.');return node;}
 function cloneNode(node:unknown){if(!isNode(node))throw Error('Delen kan inte kopieras.');return node.clone();}
@@ -120,6 +134,21 @@ export function setHouse(text:string,section:number,indices:number[],number:stri
   let result=clearHouse(text,section,sorted);result=patchBar(result,{section,bar:sorted[0]},{hus:number.endsWith('.')?number:number+'.'});return patchBar(result,{section,bar:sorted.at(-1)!},{hus_slut:true});
 }
 export function patchSong(text:string,fields:Record<string,unknown>){const song=readSong(text);if(fields.titel==='')throw Error('Ge låten en titel.');const normalized=Object.fromEntries(Object.entries(fields).map(([key,value])=>[key,value===''&&key!=='artist'?undefined:value]));if(Object.entries(normalized).every(([key,value])=>JSON.stringify((song as Record<string,unknown>)[key])===JSON.stringify(value)))return text;const doc=parseSongDocument(text);for(const [key,value] of Object.entries(normalized))if(value===undefined)doc.delete(key);else doc.set(key,value);return write(doc);}
+export function patchSongEntry(text:string,field:'kallor'|'anteckningar',index:number|undefined,value:NonNullable<Song['kallor']>[number]|string|undefined) {
+  const song=readSong(text),before=song[field]??[],next:unknown[]=[...before],origins=before.map((_,i)=>i);
+  if(index===undefined) {
+    if(value===undefined)throw Error('Ange en källa eller arbetsanteckning.');
+    next.push(value);origins.push(-1);
+  } else {
+    if(!Number.isInteger(index)||index<0||index>=before.length)throw Error('Källan eller arbetsanteckningen finns inte längre.');
+    if(value===undefined) {next.splice(index,1);origins.splice(index,1);}
+    else next[index]=value;
+  }
+  if(JSON.stringify(before)===JSON.stringify(next))return text;
+  const doc=parseSongDocument(text);
+  setValue(doc,[field],before,next.length?next:undefined,origins);
+  return write(doc);
+}
 export function patchSection(text:string,section:number,fields:Record<string,unknown>){const song=readSong(text);if(!song.delar[section])throw Error('Delen finns inte längre.');const doc=parseSongDocument(text);for(const [k,v]of Object.entries(fields))if(v===undefined||v==='')doc.deleteIn(['delar',section,k]);else doc.setIn(['delar',section,k],v);return write(doc);}
 function pinMeters(doc:Document,song:Song){const meters=resolveSongMeters(song).bars;song.delar.forEach((s,si)=>{if(s.ateranvand||!s.takter.length||asBar(s.takter[0]).taktart)return;const p=barMap(doc,song,{section:si,bar:0});doc.setIn([...p,'taktart'],meters[si][0]);});}
 function canonicalSection(text:string,index:number){const original=readSong(text),converted=inlineLegacyForm(text),song=readSong(converted);if(!original.spelordning)return {converted,song,index};const part=original.delar[index],resolved=part?song.delar.findIndex(p=>!p.ateranvand&&p.namn===part.namn):index;if(resolved<0)throw Error('Delen finns inte i spelordningen.');return {converted,song,index:resolved};}

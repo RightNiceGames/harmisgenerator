@@ -140,21 +140,21 @@ for(const width of [375,430])test(`mobile ${width}: direct input and selection s
 });
 test('measure duplicate preserves musical contents and omits repeat boundaries',async({page})=>{
  await openFixture(page);await page.locator('.bar-number-hit[data-section="0"][data-bar="0"]').click();
- await expect(page.locator('#score-edit,#variant-edit')).toHaveCount(0);await page.getByRole('button',{name:'Duplicera takten',exact:true}).click();
+ await expect(page.locator('#score-edit,#variant-edit')).toHaveCount(0);await page.locator('.paper .bar-number-hit[data-section="0"][data-bar="0"]').hover();await page.getByRole('button',{name:'Duplicera takt 1',exact:true}).click();
  await expect(page.locator('.live-label')).toHaveText('Uppdaterad');const song=parse(await sourceText(page)),bars=song.delar[0].takter;
  expect(bars).toHaveLength(5);expect(bars[1].ackord).toBe('C G');expect(bars[1].varianter).toEqual(bars[0].varianter);expect(bars[1].rytm).toEqual(bars[0].rytm);expect(bars[0].repris_start).toBe(true);expect(bars[1].repris_start).toBeUndefined();
  await page.getByRole('button',{name:'Ångra',exact:true}).click();expect(parse(await page.getByRole('textbox',{name:'Låtfilens text'}).inputValue()).delar[0].takter).toHaveLength(4);
 });
 test('clear measure removes chords and owned variants while preserving signs and rhythm',async({page})=>{
  await openFixture(page);await page.locator('.bar-number-hit[data-section="0"][data-bar="0"]').click();
- await page.getByRole('button',{name:'Töm ackordraden',exact:true}).click();await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
+ await page.getByRole('button',{name:'Mer',exact:true}).click();await page.getByRole('button',{name:'Töm ackordraden',exact:true}).click();await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
  const cleared=parse(await sourceText(page)).delar[0].takter[0];expect(cleared.ackord).toBe('');expect(cleared.varianter).toBeUndefined();expect(cleared.repris_start).toBe(true);expect(cleared.rytm).toEqual([{slag:1,notvarde:4}]);
  await page.getByRole('button',{name:'Ångra',exact:true}).click();const restored=parse(await page.getByRole('textbox',{name:'Låtfilens text'}).inputValue()).delar[0].takter[0];expect(restored.ackord).toBe('C G');expect(restored.varianter[0].ackord).toBe('F Am');
 });
 test('checkbox subset duplicates only the selected measures in source order',async({page})=>{
  await openFixture(page);await page.locator('.bar-number-hit[data-section="0"][data-bar="0"]').click();
  await page.locator('.paper .bar-number-hit[data-section="0"][data-bar="1"]').hover();await page.getByRole('checkbox',{name:'Markera takt 2',exact:true}).check();await page.locator('.paper .bar-number-hit[data-section="0"][data-bar="3"]').hover();await page.getByRole('checkbox',{name:'Markera takt 4',exact:true}).check();
- await expect(page.getByRole('checkbox',{name:'Markera takt 5',exact:true})).toHaveCount(0);
+ await expect(page.getByRole('checkbox',{name:'Markera takt 5',exact:true})).not.toBeChecked();
  await page.getByRole('button',{name:'Duplicera valda takter',exact:true}).click();await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
  const bars=parse(await sourceText(page)).delar[0].takter;expect(bars).toHaveLength(7);expect(bars.slice(4).map((b:string|{ackord:string})=>barData(b).ackord)).toEqual(['C G',barData(bars[1]).ackord,'F']);
  await page.getByRole('button',{name:'Ångra',exact:true}).click();expect(parse(await page.getByRole('textbox',{name:'Låtfilens text'}).inputValue()).delar[0].takter).toHaveLength(4);
@@ -205,7 +205,7 @@ test('invalid title remains blocked after other valid Song fields change until t
  await expect(page.getByRole('status').filter({hasText:'Sparad i låtbiblioteket'})).toHaveText('Sparad i låtbiblioteket');expect(requests).toEqual(['save']);expect(parse(await readFile(fixture,'utf8'))).toMatchObject({titel:fixtureTitle,artist:'Ändrad artist'});
 });
 test('deleting an owned main chord asks first and preserves remaining start rhythm and one undo',async({page})=>{
- await openFixture(page);await main(page).click();page.once('dialog',dialog=>dialog.dismiss());await page.getByRole('button',{name:'Ta bort ackord',exact:true}).click();expect(await sourceText(page)).toBe(content);
+ await openFixture(page);await main(page).click();await page.getByRole('button',{name:'Mer',exact:true}).click();page.once('dialog',dialog=>dialog.dismiss());await page.getByRole('button',{name:'Ta bort ackord',exact:true}).click();expect(await sourceText(page)).toBe(content);
  page.once('dialog',dialog=>dialog.accept());await page.getByRole('button',{name:'Ta bort ackord',exact:true}).click();await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
  const b=parse(await sourceText(page)).delar[0].takter[0];expect(b).toMatchObject({ackord:'G',slag:[3],rytm:[{slag:1,notvarde:4}],repris_start:true});expect(b.varianter).toBeUndefined();
  await page.getByRole('button',{name:'Ångra',exact:true}).click();await expect(page.getByRole('textbox',{name:'Låtfilens text'})).toHaveValue(content);
@@ -213,7 +213,7 @@ test('deleting an owned main chord asks first and preserves remaining start rhyt
 test('deleting a middle chord preserves remaining starts and remaps fermata and syncopation',async({page})=>{
  await openFixture(page);const original=await sourceText(page),editor=page.getByRole('textbox',{name:'Låtfilens text'});
  await editor.fill(original.replace('      - Dm # Kommentar om en enkel takt','      - ackord: Dm G Bm # Kommentar om en enkel takt\n        slag: [1, 2, 4]\n        synkop: { typ: offbeat, ackord: 3 }\n        fermat: 3'));await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
- const before=await editor.inputValue();await main(page,1,1).click();await page.getByRole('button',{name:'Ta bort ackord',exact:true}).click();await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
+ const before=await editor.inputValue();await main(page,1,1).click();await page.getByRole('button',{name:'Mer',exact:true}).click();await page.getByRole('button',{name:'Ta bort ackord',exact:true}).click();await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
  const song=parse(await editor.inputValue());expect(song.delar[0].takter[1]).toMatchObject({ackord:'Dm Bm',slag:[1,4],fermat:2,synkop:{typ:'offbeat',ackord:2}});expect(song.delar[0].takter[0].rytm).toEqual([{slag:1,notvarde:4}]);
  await page.getByRole('button',{name:'Ångra',exact:true}).click();await expect(editor).toHaveValue(before);
 });
@@ -235,7 +235,7 @@ test('recent chord inserts after selection on a free grid slot without moving ex
  await page.getByRole('button',{name:'Ångra',exact:true}).click();await expect(page.getByRole('textbox',{name:'Låtfilens text'})).toHaveValue(content);
 });
 test('Plus measure opens and focuses its new blank row after rendering while Escape retains insertion',async({page})=>{
- await openFixture(page);await page.locator('.bar-number-hit[data-section="0"][data-bar="3"]').click();await page.getByRole('button',{name:'Ny tom takt efter markeringen',exact:true}).click();
+ await openFixture(page);await page.locator('.bar-number-hit[data-section="0"][data-bar="3"]').click();await page.locator('.paper .bar-number-hit[data-section="0"][data-bar="3"]').hover();await page.getByRole('button',{name:'Ny tom takt efter takt 4',exact:true}).click();
  const input=page.locator('#score-edit');await expect(input).toHaveValue('');await expect(input).toBeFocused();await input.press('Escape');await expect(input).toHaveCount(0);await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
  const bars=parse(await sourceText(page)).delar[0].takter;expect(bars).toHaveLength(5);expect(barData(bars[1]).ackord).toBe('Dm');expect(barData(bars[2]).ackord).toBe('');expect(barData(bars[3]).ackord).toBe('F');expect(barData(bars[4]).ackord).toBe('');
  await page.getByRole('button',{name:'Ångra',exact:true}).click();await expect(page.getByRole('textbox',{name:'Låtfilens text'})).toHaveValue(content);
@@ -255,7 +255,7 @@ test('inline form drag reorders written and reused parts and one undo restores t
 });
 test('desktop checkboxes hide initially reveal on hover and remain reachable by keyboard',async({page})=>{
  await openFixture(page);await page.mouse.move(20,20);const first=page.getByRole('checkbox',{name:'Markera takt 1',exact:true}),second=page.getByRole('checkbox',{name:'Markera takt 2',exact:true}),firstLabel=page.locator('.score-bar-check').filter({has:first}),secondLabel=page.locator('.score-bar-check').filter({has:second});
- await expect(firstLabel).toHaveCSS('opacity','0');await expect(firstLabel).toHaveCSS('pointer-events','none');await main(page).hover();await expect(firstLabel).toHaveCSS('opacity','1');await expect(firstLabel).toHaveCSS('pointer-events','auto');await first.check();await page.mouse.move(20,20);await expect(firstLabel).toHaveCSS('opacity','0');await expect(first).toBeChecked();
+ await expect(firstLabel).toHaveCSS('opacity','0');await expect(firstLabel).toHaveCSS('pointer-events','none');await main(page).hover();await expect(firstLabel).toHaveCSS('opacity','1');await expect(firstLabel).toHaveCSS('pointer-events','auto');await first.check();await page.mouse.move(20,20);await expect(firstLabel).toHaveCSS('opacity','1');await expect(first).toBeChecked();
  await page.keyboard.press('Tab');await second.focus();await expect(secondLabel).toHaveCSS('opacity','1');await page.keyboard.press('Space');await expect(second).toBeChecked();await expect(page.getByRole('button',{name:'Duplicera valda takter',exact:true})).toBeVisible();
 });
 test('new variant keeps its writing field focused when the new small row reaches the renderer',async({page})=>{
@@ -295,7 +295,7 @@ test('opening direct Liveläge from editor fullscreen exits fullscreen before pr
  await openFixture(page);await page.getByRole('button',{name:'Helskärm',exact:true}).click();await expect.poll(()=>page.evaluate(()=>!!document.fullscreenElement)).toBe(true);await page.getByRole('button',{name:'Liveläge',exact:true}).click();await expect(page.locator('.live-view')).toBeVisible();await expect.poll(()=>page.evaluate(()=>!!document.fullscreenElement)).toBe(false);await page.keyboard.press('Escape');await expect(page.locator('.live-view')).toHaveCount(0);await expect(page.getByRole('button',{name:'Helskärm',exact:true})).toBeVisible();
 });
 test('selected variant exposes removal of its full row and one undo restores its harmony and rhythm',async({page})=>{
- await openFixture(page);await variant(page).click();await page.getByRole('button',{name:'Ta bort variantraden',exact:true}).click();await expect(page.locator('.live-label')).toHaveText('Uppdaterad');const b=parse(await sourceText(page)).delar[0].takter[0];expect(b.varianter).toBeUndefined();expect(b).toMatchObject({ackord:'C G',slag:[1,3],rytm:[{slag:1,notvarde:4}],repris_start:true});
+ await openFixture(page);await variant(page).click();await page.getByRole('button',{name:'Variantrad',exact:true}).click();await page.getByRole('button',{name:'Ta bort variantraden',exact:true}).click();await expect(page.locator('.live-label')).toHaveText('Uppdaterad');const b=parse(await sourceText(page)).delar[0].takter[0];expect(b.varianter).toBeUndefined();expect(b).toMatchObject({ackord:'C G',slag:[1,3],rytm:[{slag:1,notvarde:4}],repris_start:true});
  await page.getByRole('button',{name:'Ångra',exact:true}).click();await expect(page.getByRole('textbox',{name:'Låtfilens text'})).toHaveValue(content);
 });
 test('instruction text hits edit the intended measure section or reused occurrence and support undo',async({page})=>{
@@ -322,4 +322,155 @@ test('syncopation hit edits its existing pattern instead of silently replacing i
  await openFixture(page);await sourceText(page);const editor=page.getByRole('textbox',{name:'Låtfilens text'}),configured=content.replace('      - Dm # Kommentar om en enkel takt','      - ackord: Dm G # Kommentar om en enkel takt\n        slag: [1, 3]\n        synkop: { typ: offbeat, ackord: 2 }');await editor.fill(configured);await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
  await page.locator('.paper .rhythm-hit[data-section="0"][data-bar="1"][data-rhythm-kind="offbeat"]').click();await expect(page.locator('.score-parameters')).toContainText(/synkop|föruttag/i);expect(parse(await editor.inputValue()).delar[0].takter[1]).toMatchObject({synkop:{typ:'offbeat',ackord:2}});expect(parse(await editor.inputValue()).delar[0].takter[1].rytm).toBeUndefined();
  await page.getByLabel('Synkopens typ',{exact:true}).selectOption('foruttag');await expect(page.locator('.live-label')).toHaveText('Uppdaterad');await expect(page.locator('.paper .rhythm-hit[data-section="0"][data-bar="1"][data-rhythm-kind="foruttag"]')).toHaveCount(1);expect(parse(await editor.inputValue()).delar[0].takter[1]).toMatchObject({synkop:{typ:'foruttag',ackord:2}});await page.getByRole('button',{name:'Ångra',exact:true}).click();await expect(editor).toHaveValue(configured);
+});
+
+test('section layout tools shade written parts and toggle page breaks on definitions and returns',async({page})=>{
+ await openFixture(page);await page.locator('.score-form li').nth(0).getByRole('button').click();
+ const tools=page.getByRole('group',{name:'Delverktyg',exact:true});await tools.getByRole('button',{name:'Layout',exact:true}).click();await expect(tools.getByRole('button',{name:'Ny sida före delen',exact:true})).toBeDisabled();
+ await tools.getByRole('button',{name:'Skugga delen',exact:true}).click();await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
+ expect(parse(await sourceText(page)).delar[0].skuggad).toBe(true);await expect(tools.getByRole('button',{name:'Ta bort skuggning',exact:true})).toHaveAttribute('aria-pressed','true');
+ await page.getByRole('button',{name:'Ångra',exact:true}).click();await expect(page.getByRole('textbox',{name:'Låtfilens text'})).toHaveValue(content);
+ await page.locator('.score-form li').nth(2).getByRole('button').click();await tools.getByRole('button',{name:'Layout',exact:true}).click();await tools.getByRole('button',{name:'Ta bort sidbrytning före delen',exact:true}).click();await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
+ expect(parse(await sourceText(page)).delar[2].sidbrytning).toBeUndefined();await expect(page.locator('.paper')).toHaveCount(1);
+ await page.locator('.score-form li').nth(1).getByRole('button').click();await expect(tools.getByRole('button',{name:'Skugga delen',exact:true})).toHaveCount(0);
+ await tools.getByRole('button',{name:'Layout',exact:true}).click();await tools.getByRole('button',{name:'Ny sida före delen',exact:true}).click();await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
+ const song=parse(await sourceText(page));expect(song.delar[1].sidbrytning).toBe(true);expect(song.delar[0].sidbrytning).toBeUndefined();
+});
+test('measure meter picker adds 2/4 and arbitrary meters and rejects invalid pending input',async({page})=>{
+ await openFixture(page);await page.locator('.bar-number-hit[data-section="0"][data-bar="1"]').click();await page.getByRole('button',{name:'Musik & tecken',exact:true}).click();await page.getByRole('button',{name:'Tonart och taktart',exact:true}).click();
+ await page.getByLabel('Taktart i takten',{exact:true}).selectOption('2/4');await expect(page.locator('.live-label')).toHaveText('Uppdaterad');expect(parse(await sourceText(page)).delar[0].takter[1].taktart).toBe('2/4');
+ await page.getByLabel('Taktart i takten',{exact:true}).selectOption('custom');const input=page.getByLabel('Egen taktart i takten',{exact:true});await input.fill('5/8');await input.press('Enter');
+ await expect(page.locator('.live-label')).toHaveText('Uppdaterad');expect(parse(await sourceText(page)).delar[0].takter[1].taktart).toBe('5/8');
+ await input.fill('3/5');await input.press('Enter');await expect(input).toHaveAttribute('aria-invalid','true');await expect(page.getByRole('alert').filter({visible:true}).first()).toContainText('Ange taktart som');await page.getByRole('button',{name:'Spara',exact:true}).click();await expect(input).toBeFocused();expect(await readFile(fixture,'utf8')).toBe(content);
+ await input.press('Escape');await page.getByRole('button',{name:'Ångra',exact:true}).click();expect(parse(await sourceText(page)).delar[0].takter[1].taktart).toBe('2/4');
+});
+test('variant settings edit voice and scope while keeping attack positions and original music',async({page})=>{
+ await openFixture(page);await variant(page).click();await page.getByRole('button',{name:'Variantens inställningar',exact:true}).click();
+ const voice=page.getByLabel('Stämma för varianten',{exact:true});await voice.fill('bas');await voice.press('Enter');await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
+ await page.getByLabel('Variantens omfattning',{exact:true}).selectOption('bar');await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
+ const bar=parse(await sourceText(page)).delar[0].takter[0];expect(bar.ackord).toBe('C G');expect(bar.varianter[0]).toMatchObject({stamma:'bas',slag:[1,2],rytm:[{slag:1.5,notvarde:8}]});expect(bar.varianter[0].ackord_nr).toBeUndefined();
+ await page.getByRole('button',{name:'Ångra',exact:true}).click();await expect(page.locator('.live-label')).toHaveText('Uppdaterad');const previous=parse(await sourceText(page)).delar[0].takter[0].varianter[0];expect(previous.ackord_nr).toBe(1);expect(previous.stamma).toBe('bas');
+});
+test('whole-measure variants can be created from measure tools and additional passes retain the chosen scope',async({page})=>{
+ await openFixture(page);await page.locator('.bar-number-hit[data-section="0"][data-bar="0"]').click();await page.getByRole('button',{name:'Musik & tecken',exact:true}).click();await page.getByRole('button',{name:'Variant för hela takten',exact:true}).click();
+ const input=page.locator('#variant-edit');await expect(input).toBeFocused();await input.fill('Bb C/G');await input.press('Enter');await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
+ let bar=parse(await sourceText(page)).delar[0].takter[0];expect(bar.varianter).toHaveLength(2);expect(bar.varianter[1].ackord).toBe('Bb C/G');expect(bar.varianter[1].ackord_nr).toBeUndefined();expect(bar.varianter[0].ackord_nr).toBe(1);
+ await page.getByRole('button',{name:'Variantens inställningar',exact:true}).click();await page.getByLabel('Variantens omfattning',{exact:true}).selectOption('2');await expect(page.getByRole('alert').filter({visible:true}).first()).toContainText('ryms inte');await expect(page.getByLabel('Variantens omfattning',{exact:true})).toHaveValue('bar');
+ await page.getByRole('button',{name:'Variantrad',exact:true}).click();await page.getByRole('button',{name:'Ny variantrad',exact:true}).click();await expect(input).toHaveValue('');await input.fill('Dm G7');await input.press('Enter');await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
+ bar=parse(await sourceText(page)).delar[0].takter[0];expect(bar.varianter[2]).toMatchObject({gang:3,ackord:'Dm G7'});expect(bar.varianter[2].ackord_nr).toBeUndefined();
+ await page.getByRole('button',{name:'Ångra',exact:true}).click();await expect(page.locator('.live-label')).toHaveText('Uppdaterad');expect(parse(await sourceText(page)).delar[0].takter[0].varianter).toHaveLength(2);
+});
+async function referencesPanel(page:Page){await page.getByRole('button',{name:'Låt',exact:true}).click();await page.getByRole('button',{name:/Källor & arbetsanteckningar/}).click();}
+test('song references offer add edit and remove actions with undo and multiline notes',async({page})=>{
+ await openFixture(page);await referencesPanel(page);await page.getByRole('button',{name:'Redigera källa 1',exact:true}).click();await page.getByLabel('Källans webbadress',{exact:true}).fill('https://example.com/new-chart');await page.getByLabel('Beskrivning av källan',{exact:true}).fill('Kontrollerat ackordunderlag');await page.getByRole('button',{name:'Bekräfta källa',exact:true}).click();
+ await page.getByRole('button',{name:'Lägg till arbetsanteckning',exact:true}).click();await page.getByLabel('Arbetsanteckning',{exact:true}).fill('Bas in i versen\nKontrollera avslutet');await page.getByRole('button',{name:'Bekräfta arbetsanteckning',exact:true}).click();
+ await page.getByRole('button',{name:'Redigera arbetsanteckning 1',exact:true}).click();await page.getByLabel('Arbetsanteckning',{exact:true}).fill('Nytt arrangementsbeslut');await page.getByRole('button',{name:'Bekräfta arbetsanteckning',exact:true}).click();
+ let song=parse(await sourceText(page));expect(song.kallor).toEqual([{url:'https://example.com/new-chart',beskrivning:'Kontrollerat ackordunderlag'}]);expect(song.anteckningar).toEqual(['Nytt arrangementsbeslut','Bas in i versen\nKontrollera avslutet']);expect(song.delar).toEqual(parse(content).delar);
+ await page.getByRole('button',{name:'Ta bort källa 1',exact:true}).click();expect(parse(await sourceText(page)).kallor).toBeUndefined();await page.getByRole('button',{name:'Ångra',exact:true}).click();song=parse(await sourceText(page));expect(song.kallor).toHaveLength(1);
+ await page.getByRole('button',{name:'Ta bort arbetsanteckning 2',exact:true}).click();expect(parse(await sourceText(page)).anteckningar).toEqual(['Nytt arrangementsbeslut']);
+});
+test('saving commits pending source and note drafts while invalid addresses stay editable',async({page})=>{
+ await openFixture(page);await referencesPanel(page);await page.getByRole('button',{name:'Lägg till källa',exact:true}).click();const url=page.getByLabel('Källans webbadress',{exact:true});await url.fill('ogiltig');await page.getByRole('button',{name:'Spara',exact:true}).click();await expect(url).toBeFocused();await expect(page.getByRole('alert').filter({visible:true}).first()).toContainText('giltig webbadress');expect(await readFile(fixture,'utf8')).toBe(content);
+ await url.fill('https://example.com/recording');await page.getByLabel('Beskrivning av källan',{exact:true}).fill('Inspelning från repetitionen');await page.getByRole('button',{name:'Spara',exact:true}).click();await expect(page.getByRole('status')).toHaveText('Sparad i låtbiblioteket');expect(parse(await readFile(fixture,'utf8')).kallor).toHaveLength(2);
+ await page.getByRole('button',{name:'Lägg till arbetsanteckning',exact:true}).click();const note=page.getByLabel('Arbetsanteckning',{exact:true});await note.fill('Första raden');await note.press('Enter');await note.press('End');await note.press('a');await expect(note).toBeVisible();await page.keyboard.press('Control+s');await expect(page.getByRole('status')).toHaveText('Sparad i låtbiblioteket');const saved=await readFile(fixture,'utf8');expect(parse(saved).anteckningar[1]).toBe('Första raden\na');expect(saved).toContain('# Kommentar om variantharmonik');
+ await page.reload();await page.getByRole('button',{name:/Alla låtar/}).click();await page.getByRole('button',{name:new RegExp(fixtureTitle)}).click();await expect(page.locator('.live-label')).toHaveText('Uppdaterad');expect(parse(await sourceText(page)).kallor).toHaveLength(2);
+});
+test('new contextual controls and references remain usable on a narrow screen',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await openFixture(page);await page.getByRole('button',{name:'Form',exact:true}).click();await page.locator('.score-form li').nth(2).getByRole('button').click();await page.getByRole('button',{name:'Layout',exact:true}).click();await page.getByRole('group',{name:'Delverktyg',exact:true}).getByRole('button',{name:'Skugga delen',exact:true}).click();await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
+ await page.getByRole('button',{name:'Låt',exact:true}).click();await page.getByRole('button',{name:/Källor & arbetsanteckningar/}).click();await page.getByRole('button',{name:'Lägg till arbetsanteckning',exact:true}).click();await page.getByLabel('Arbetsanteckning',{exact:true}).fill('Mobil anteckning');await page.getByRole('button',{name:'Bekräfta arbetsanteckning',exact:true}).click();
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);await page.screenshot({path:'work/cache/editor-references-mobile.png'});const source=await sourceText(page);expect(parse(source).anteckningar.at(-1)).toBe('Mobil anteckning');expect(parse(source).delar[2].skuggad).toBe(true);
+});
+test('switching between underlay entries commits the previous draft and keeps the new editor open',async({page})=>{
+ await openFixture(page);await referencesPanel(page);await page.getByRole('button',{name:'Redigera källa 1',exact:true}).click();await page.getByLabel('Beskrivning av källan',{exact:true}).fill('Kontrollerat underlag');await page.getByRole('button',{name:'Lägg till arbetsanteckning',exact:true}).click();
+ const note=page.getByLabel('Arbetsanteckning',{exact:true});await expect(note).toBeVisible();await expect(note).toBeFocused();await note.fill('Kontrollera på repetition');await page.getByRole('button',{name:'Form',exact:true}).click();await expect(note).toHaveCount(0);const song=parse(await sourceText(page));expect(song.kallor[0].beskrivning).toBe('Kontrollerat underlag');expect(song.anteckningar.at(-1)).toBe('Kontrollera på repetition');
+});
+
+test('measure hover works across parts and pages after chord and section selection',async({page})=>{
+ const errors=await openFixture(page);await main(page).click();
+ const coda=page.locator('.paper .bar-number-hit[data-section="2"][data-bar="0"]');
+ await coda.hover();const check=page.getByRole('checkbox',{name:'Markera takt 5',exact:true});
+ await expect(page.locator('.score-bar-check').filter({has:check})).toHaveCSS('opacity','1');
+ await check.check();await expect(check).toBeChecked();await expect(page.getByRole('checkbox',{name:'Markera takt 1',exact:true})).not.toBeChecked();
+ await expect(page.getByRole('group',{name:'Taktverktyg',exact:true})).toContainText('Coda · Takt 5');
+ await coda.hover();await page.getByRole('button',{name:'Duplicera takt 5',exact:true}).click();await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
+ expect(parse(await sourceText(page)).delar[2].takter).toEqual(['C','C']);await page.getByRole('button',{name:'Ångra',exact:true}).click();
+ await page.locator('.score-form li').nth(1).getByRole('button').click();
+ const first=page.locator('.paper .bar-number-hit[data-section="0"][data-bar="0"]');await first.hover();
+ const firstCheck=page.getByRole('checkbox',{name:'Markera takt 1',exact:true});
+ await expect(page.locator('.score-bar-check').filter({has:firstCheck})).toHaveCSS('opacity','1');await firstCheck.check();
+ await expect(page.getByRole('group',{name:'Taktverktyg',exact:true})).toContainText('Vers · Takt 1');expect(errors).toEqual([]);
+});
+
+test('named tool groups show one set of actions and preserve keyboard focus and selection',async({page})=>{
+ await openFixture(page);await page.locator('.paper .bar-number-hit[data-section="0"][data-bar="1"]').click();
+ const tools=page.getByRole('group',{name:'Taktverktyg',exact:true});await expect(tools.getByRole('button')).toHaveCount(6);
+ await expect(page.getByRole('button',{name:'Coda',exact:true})).toHaveCount(0);
+ const music=tools.getByRole('button',{name:'Musik & tecken',exact:true});await music.focus();await page.keyboard.press('Enter');await expect(music).toHaveAttribute('aria-expanded','true');
+ await expect(tools.getByRole('button',{name:'Coda',exact:true})).toBeVisible();
+ const layout=tools.getByRole('button',{name:'Layout',exact:true});await layout.click();await expect(music).toHaveAttribute('aria-expanded','false');await expect(tools.getByRole('button',{name:'Coda',exact:true})).toHaveCount(0);
+ await tools.getByRole('button',{name:'Ny rad',exact:true}).focus();await page.keyboard.press('Escape');await expect(layout).toBeFocused();await expect(layout).toHaveAttribute('aria-expanded','false');await expect(tools).toBeVisible();
+ await tools.getByRole('button',{name:'Repris & hus',exact:true}).click();await tools.getByRole('button',{name:'Första hus',exact:true}).click();await expect(page.locator('.live-label')).toHaveText('Uppdaterad');expect(parse(await sourceText(page)).delar[0].takter[1].hus).toBeDefined();
+ await main(page).click();await expect(tools).toHaveCount(0);await expect(page.getByRole('group',{name:'Ackordverktyg',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Visa taktverktyg',exact:true}).click();await expect(tools).toBeVisible();await expect(tools.getByRole('button',{name:'Repris & hus',exact:true})).toHaveAttribute('aria-expanded','false');
+});
+
+for(const width of [375,760,1512])test(`contextual tool layout at ${width}px stays within the viewport`,async({page},testInfo)=>{
+ await page.setViewportSize({width,height:900});await openFixture(page);await page.locator('.paper .bar-number-hit[data-section="0"][data-bar="1"]').click();
+ const tools=page.getByRole('group',{name:'Taktverktyg',exact:true});await tools.getByRole('button',{name:'Musik & tecken',exact:true}).click();
+ await expect(tools.getByRole('button',{name:'Slut',exact:true})).toBeVisible();
+ expect(await tools.evaluate(el=>el.scrollWidth<=el.clientWidth)).toBe(true);
+ for(const button of await tools.getByRole('button').all()){
+  const box=(await button.boundingBox())!;expect(box.x).toBeGreaterThanOrEqual(0);expect(box.x+box.width).toBeLessThanOrEqual(width);expect(box.y).toBeGreaterThanOrEqual(0);expect(box.y+box.height).toBeLessThanOrEqual(900);
+ }
+ await page.screenshot({path:testInfo.outputPath('measure-tools.png')});
+ await main(page,1).click();await expect(tools).toHaveCount(0);const chord=page.getByRole('group',{name:'Ackordverktyg',exact:true});await chord.getByRole('button',{name:'Uttryck',exact:true}).click();
+ expect(await chord.evaluate(el=>el.scrollWidth<=el.clientWidth)).toBe(true);await page.screenshot({path:testInfo.outputPath('chord-tools.png')});
+ const strip=page.locator('.paper .bar-number-hit').first();await expect(strip).toHaveCSS('cursor','pointer');expect(await strip.evaluate(el=>getComputedStyle(el).fill)).not.toBe('rgba(0, 0, 0, 0)');
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+
+test('parameter panels replace expanded groups and stay reachable in short windows',async({page})=>{
+ await page.setViewportSize({width:1100,height:600});await openFixture(page);
+ await page.locator('.paper .bar-number-hit[data-section="0"][data-bar="1"]').click();
+ const music=page.getByRole('button',{name:'Musik & tecken',exact:true});await music.click();await page.getByRole('button',{name:'Rytm',exact:true}).click();
+ const parameters=page.locator('.score-context-dock .score-parameters');await expect(parameters).toBeVisible();await expect(music).toHaveAttribute('aria-expanded','false');
+ const box=(await parameters.boundingBox())!;expect(box.y).toBeGreaterThanOrEqual(0);expect(box.y+box.height).toBeLessThanOrEqual(600);
+ await page.getByRole('button',{name:'Stäng parametrar',exact:true}).click();await expect(parameters).toHaveCount(0);await expect(music).toHaveAttribute('aria-expanded','false');
+ await music.click();await expect(page.getByRole('button',{name:'Rytm',exact:true})).toBeVisible();
+});
+
+test('desktop quick actions stay reachable across the hover boundary and edit the hovered part',async({page},testInfo)=>{
+ const errors=await openFixture(page);await main(page).click();
+ const number=page.locator('.paper .bar-number-hit[data-section="2"][data-bar="0"]');await number.hover();
+ const quick=page.getByRole('group',{name:'Snabbverktyg för takt 5',exact:true});await expect(quick).toHaveCSS('opacity','1');
+ const target=(await number.boundingBox())!,button=quick.getByRole('button',{name:'Duplicera takt 5',exact:true}),box=(await button.boundingBox())!;
+ await page.mouse.move(target.x+target.width/2,target.y+target.height/2);await page.mouse.move(box.x+box.width/2,box.y+box.height/2,{steps:12});await expect(quick).toHaveCSS('opacity','1');
+ const paper=await page.locator('.paper').last().boundingBox();await page.screenshot({path:testInfo.outputPath('desktop-hover.png')});await button.click();await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
+ const changed=parse(await sourceText(page));expect(changed.delar[2].takter).toEqual(['C','C']);expect(changed.delar[0]).toEqual(parse(content).delar[0]);
+ await page.getByRole('button',{name:'Ångra',exact:true}).click();await expect(page.getByRole('textbox',{name:'Låtfilens text'})).toHaveValue(content);expect(paper!.width).toBeGreaterThan(0);expect(errors).toEqual([]);
+});
+
+test('quick insert supports keyboard focus without selecting another measure first',async({page})=>{
+ await openFixture(page);await page.mouse.move(0,0);const quick=page.getByRole('group',{name:'Snabbverktyg för takt 2',exact:true});await expect(quick).toHaveCSS('opacity','0');
+ const insert=quick.getByRole('button',{name:'Ny tom takt efter takt 2',exact:true});await insert.focus();await expect(quick).toHaveCSS('opacity','1');await page.keyboard.press('Enter');
+ const input=page.locator('#score-edit');await expect(input).toBeFocused();await input.fill('Em');await input.press('Enter');await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
+ const bars=parse(await sourceText(page)).delar[0].takter;expect(bars.map((b:string|{ackord:string})=>barData(b).ackord)).toEqual(['C G','Dm','Em','','F']);
+});
+
+test('multiple selection keeps operations together and suppresses per-measure shortcuts',async({page})=>{
+ await openFixture(page);await page.locator('.paper .bar-number-hit[data-section="0"][data-bar="0"]').click();await page.locator('.paper .bar-number-hit[data-section="0"][data-bar="1"]').hover();await page.getByRole('checkbox',{name:'Markera takt 2',exact:true}).check();
+ await expect(page.locator('.score-bar-quick')).toHaveCount(0);const tools=page.getByRole('group',{name:'Taktverktyg',exact:true});await expect(tools.getByRole('button',{name:'Ny tom takt efter markeringen',exact:true})).toBeVisible();await tools.getByRole('button',{name:'Duplicera valda takter',exact:true}).click();await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
+ const bars=parse(await sourceText(page)).delar[0].takter;expect(bars.map((b:string|{ackord:string})=>barData(b).ackord)).toEqual(['C G','Dm','C G','Dm','','F']);
+});
+
+test('desktop menus use compact icon rows while mobile retains labelled touch controls',async({page},testInfo)=>{
+ await openFixture(page);const number=page.locator('.paper .bar-number-hit[data-section="0"][data-bar="1"]');await number.click();
+ const tools=page.getByRole('group',{name:'Taktverktyg',exact:true}),before=await page.locator('.paper').first().boundingBox();
+ expect((await tools.boundingBox())!.height).toBeLessThanOrEqual(42);expect((await tools.boundingBox())!.width).toBeLessThan(440);
+ await expect(tools.getByRole('button',{name:'Skriv ackord',exact:true}).locator('.score-button-label')).toBeHidden();await tools.getByRole('button',{name:'Musik & tecken',exact:true}).click();
+ expect((await tools.boundingBox())!.height).toBeLessThanOrEqual(80);for(const label of await tools.locator('.score-button-label').all())await expect(label).toBeHidden();
+ expect(await page.locator('.paper').first().boundingBox()).toEqual(before);await page.screenshot({path:testInfo.outputPath('desktop-compact.png')});
+ await page.setViewportSize({width:375,height:844});await expect(page.locator('.score-bar-quick')).toHaveCount(0);
+ await expect(tools.getByRole('button',{name:'Ny tom takt efter markeringen',exact:true})).toBeVisible();await expect(tools.getByRole('button',{name:'Duplicera takten',exact:true})).toBeVisible();
+ const write=tools.getByRole('button',{name:'Skriv ackord',exact:true});await expect(write.locator('.score-button-label')).toBeVisible();expect((await write.boundingBox())!.height).toBeGreaterThanOrEqual(44);
 });

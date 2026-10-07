@@ -37,7 +37,7 @@ export const barSchema = z.strictObject({
   break: z.boolean().optional(), coda: z.enum(['mal', 'hopp']).optional(), segno: z.boolean().optional(),
   slut: z.boolean().optional(), anvisning: shortText.optional(),
   tonart: z.string().regex(keyPattern, 'Ange tonart som C, Bb eller F#m.').optional(),
-  taktart: z.string().regex(/^[1-9]\d?\/(?:1|2|4|8|16)$/).optional(),
+  taktart: z.string().regex(/^[1-9]\d?\/(?:1|2|4|8|16)$/, 'Ange taktart som 4/4, 6/8 eller 5/8.').optional(),
 });
 export type Bar = z.infer<typeof barSchema>;
 const sectionSchema = z.strictObject({
@@ -51,7 +51,7 @@ export const songSchema = z.strictObject({
   format: z.literal(1), titel: z.string().min(1).max(120), artist: shortText,
   version: shortText.optional(), upphov: shortText.optional(),
   grundtonart: z.string().regex(keyPattern, 'Ange tonart som C, Bb eller F#m.'),
-  taktart: z.string().regex(/^[1-9]\d?\/(?:1|2|4|8|16)$/),
+  taktart: z.string().regex(/^[1-9]\d?\/(?:1|2|4|8|16)$/, 'Ange taktart som 4/4, 6/8 eller 5/8.'),
   tempo: z.number().min(20).max(300).optional(), stil: z.string().max(80).optional(),
   status: z.enum(['utkast', 'granskad']).default('utkast'),
   kallor: z.array(z.strictObject({ url: z.string().url(), beskrivning: z.string().max(600) })).max(20).optional(),

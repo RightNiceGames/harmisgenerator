@@ -190,7 +190,7 @@ test('toggle parentheses around an existing preview chord and undo',async({page}
  await page.getByRole('button',{name:'Visa låtfil',exact:true}).click();
  const editor=page.getByRole('textbox',{name:'Låtfilens text'});await editor.fill(content);await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
  await page.locator('.chord-hit[data-section="0"][data-bar="0"][data-chord="0"]:not([data-variant])').first().click();
- await page.getByRole('button',{name:'Inom parentes',exact:true}).click();await expect(editor).toHaveValue(/\(Abm6\/9\/Gb\)/);
+ await page.getByRole('button',{name:'Uttryck',exact:true}).click();await page.getByRole('button',{name:'Inom parentes',exact:true}).click();await expect(editor).toHaveValue(/\(Abm6\/9\/Gb\)/);
  await expect(page.locator('.live-label')).toHaveText('Uppdaterad');await expect(page.getByRole('button',{name:'Inom parentes',exact:true})).toHaveAttribute('aria-pressed','true');await page.getByRole('button',{name:'Inom parentes',exact:true}).click();await expect(editor).not.toHaveValue(/\(Abm6\/9\/Gb\)/);
  await page.getByRole('button',{name:'Ångra',exact:true}).click();await expect(editor).toHaveValue(/\(Abm6\/9\/Gb\)/);
 });
