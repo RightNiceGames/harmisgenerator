@@ -188,8 +188,14 @@ delar:
     takter:
       - ackord: D
         repris_start: true
+        anvisning: "On Cue: Slutet, kör fermat"
+        fermat: 1
       - ackord: E
+        fermat: 1
+        anvisning: "On Cue: Slutet, kör fermat"
       - ackord: F#m
+        fermat: 1
+        anvisning: "On Cue: Break"
       - ackord: (B11)
         repris_slut: true
         anvisning: Vidare på cue (Breaka på 4e takt!)
@@ -302,7 +308,4 @@ delar:
         break: true
         fermat: 1
       - ackord: D
-      - ackord: Am
-      - ackord: D
-        fermat: 1
         slut: true

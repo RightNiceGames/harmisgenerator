@@ -77,6 +77,13 @@ delar:
       - ackord: "Eb"
         anvisning: Som Intro
         break: true
+      - ackord: "Ab/Eb"
+        slag:
+          - 1
+      - ackord: "Eb"
+      - ackord: "Ab/Eb"
+        slag:
+          - 1
   - ateranvand: Vers
     anvisning: Bas in från början
   - ateranvand: Refräng
