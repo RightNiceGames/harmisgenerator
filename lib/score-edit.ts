@@ -1,5 +1,7 @@
+import { remapChordHighlights } from './highlight';
 import { isMap, isScalar, isSeq, isNode, type YAMLMap } from 'yaml';
 import { asBar, chordStartPositions, parseChord, parseSongDocument, readSong, resolveSongMeters, type Song } from './song';
+import type { Highlight, HighlightColor, HighlightOwner } from './highlight';
 import { inlineLegacyForm } from './edit';
 
 export type ScoreTarget = { section:number; bar:number; variant?:number };
@@ -51,6 +53,7 @@ export function setChordLine(text:string,t:ScoreTarget,value:string,choice?:'kee
   if(t.variant===undefined&&bar.varianter?.some(v=>v.ackord_nr===undefined?(before.length!==after.length||changed.some(Boolean)):changed[v.ackord_nr-1])&&!choice)throw new VariantChoiceError();
   const starts=before.length===after.length?oldStarts:Array.from({length:after.length},(_,i)=>b.start+(after.length===2&&b.end-b.start>=4?i*2:Math.floor(i*(b.end-b.start)/Math.max(after.length,b.end-b.start)*4)/4));
   if(starts.some((n,i)=>n>=b.end||(i&&n<=starts[i-1])))throw Error('Ackorden ryms inte i spannet. Skriv färre ackord eller ändra slagplaceringen.');
+  setValue(doc,[...path,'markeringar'],fields.markeringar,remapChordHighlights(fields.markeringar,i=>mapped(i)<after.length?mapped(i):undefined));
   setValue(doc,[...path,'ackord'],fields.ackord,normalized);setValue(doc,[...path,'slag'],fields.slag,starts.length?starts:undefined);
   if(t.variant===undefined){
     if(bar.fermat){const index=mapped(bar.fermat-1);if(index>=after.length)doc.deleteIn([...path,'fermat']);else doc.setIn([...path,'fermat'],index+1);}if(bar.synkop){const index=mapped(bar.synkop.ackord-1);if(index>=after.length)doc.deleteIn([...path,'synkop']);else setValue(doc,[...path,'synkop'],bar.synkop,{...bar.synkop,ackord:index+1});}
@@ -71,7 +74,7 @@ export function moveChord(text:string,t:ScoreTarget,index:number,start:number) {
 }
 export function reorderChord(text:string,t:ScoreTarget,index:number,direction:number){
   const song=readSong(text),{bar,fields}=fieldsAt(song,t),list=tokens(fields.ackord),next=index+direction;if(next<0||next>=list.length)return text;
-  [list[index],list[next]]=[list[next],list[index]];const patch:Record<string,unknown>={ackord:list.join(' ')};
+  [list[index],list[next]]=[list[next],list[index]];const patch:Record<string,unknown>={ackord:list.join(' '),markeringar:remapChordHighlights(fields.markeringar,i=>i===index?next:i===next?index:i)};
   if(t.variant===undefined){const map=(i:number)=>i===index?next:i===next?index:i,starts=startsFor(song,t);
     if(bar.fermat)patch.fermat=map(bar.fermat-1)+1;if(bar.synkop)patch.synkop={...bar.synkop,ackord:map(bar.synkop.ackord-1)+1};
     if(bar.varianter)patch.varianter=bar.varianter.map(v=>{if(v.ackord_nr===undefined)return v;const old=v.ackord_nr-1,owner=map(old),delta=starts[owner]-starts[old];return {...v,ackord_nr:owner+1,...(v.slag?{slag:v.slag.map(n=>n+delta)}:{}),...(v.rytm?{rytm:v.rytm.map(n=>({...n,slag:n.slag+delta}))}:{})};});
@@ -79,7 +82,7 @@ export function reorderChord(text:string,t:ScoreTarget,index:number,direction:nu
   return patchBar(text,t,patch);
 }
 export function deleteChord(text:string,t:ScoreTarget,index:number){
-  const song=readSong(text),{bar,fields}=fieldsAt(song,t),list=tokens(fields.ackord),starts=startsFor(song,t);if(index<0||index>=list.length)throw Error('Ackordet finns inte längre.');list.splice(index,1);starts.splice(index,1);const patch:Record<string,unknown>={ackord:list.join(' '),slag:starts.length?starts:undefined};
+  const song=readSong(text),{bar,fields}=fieldsAt(song,t),list=tokens(fields.ackord),starts=startsFor(song,t);if(index<0||index>=list.length)throw Error('Ackordet finns inte längre.');list.splice(index,1);starts.splice(index,1);const patch:Record<string,unknown>={ackord:list.join(' '),slag:starts.length?starts:undefined,markeringar:remapChordHighlights(fields.markeringar,i=>i===index?undefined:i>index?i-1:i)};
   if(t.variant===undefined){if(bar.fermat)patch.fermat=bar.fermat===index+1?undefined:bar.fermat-(bar.fermat>index+1?1:0);if(bar.synkop)patch.synkop=bar.synkop.ackord===index+1?undefined:{...bar.synkop,ackord:bar.synkop.ackord-(bar.synkop.ackord>index+1?1:0)};if(bar.varianter){const next=bar.varianter.filter(v=>v.ackord_nr!==index+1).map(v=>v.ackord_nr!==undefined&&v.ackord_nr>index+1?{...v,ackord_nr:v.ackord_nr-1}:v);patch.varianter=next.length?next:undefined;}}
   return patchBar(text,t,patch,bar.varianter?.flatMap((v,i)=>v.ackord_nr===index+1?[]:[i]));
 }
@@ -87,7 +90,7 @@ export function insertChord(text:string,t:ScoreTarget,after:number|undefined,val
   const name=normalizeChordLine(value);if(tokens(name).length!==1)throw Error('Välj ett ackord att lägga till.');const song=readSong(text),{bar,fields}=fieldsAt(song,t),list=tokens(fields.ackord),starts=startsFor(song,t),bs=bounds(song,t);if(list.length>=4)throw Error('Högst fyra ackord på en rad.');const index=after===undefined?list.length:after+1,previous=starts[index-1]??bs.start-.001,end=starts[index]??bs.end;
   const grid=Array.from({length:Math.ceil((bs.end-bs.start)*resolution/bs.denominator)},(_,i)=>bs.start+i*bs.denominator/resolution).filter(n=>n>previous&&n<end);const owned=t.variant===undefined?(bar.varianter??[]).map((v,i)=>({v,i})).filter(({v})=>v.ackord_nr===index):[];
   const available=grid.filter(n=>owned.every(({v,i})=>startsFor(song,{...t,variant:i}).every(start=>start<n)&&(v.rytm??[]).every(note=>note.slag+bs.denominator/note.notvarde<=n)));
-  const start=list.length===1&&previous===1&&available.includes(3)?3:available[0];if(start===undefined)throw Error('Ingen ledig startpunkt efter ackordet på valt rutnät. Välj ett finare notvärde eller justera varianten först.');list.splice(index,0,name);starts.splice(index,0,start);const patch:Record<string,unknown>={ackord:list.join(' '),slag:starts};
+  const start=list.length===1&&previous===1&&available.includes(3)?3:available[0];if(start===undefined)throw Error('Ingen ledig startpunkt efter ackordet på valt rutnät. Välj ett finare notvärde eller justera varianten först.');list.splice(index,0,name);starts.splice(index,0,start);const patch:Record<string,unknown>={ackord:list.join(' '),slag:starts,markeringar:remapChordHighlights(fields.markeringar,i=>i>=index?i+1:i)};
   if(t.variant===undefined){if(bar.fermat)patch.fermat=bar.fermat+(bar.fermat>index?1:0);if(bar.synkop)patch.synkop={...bar.synkop,ackord:bar.synkop.ackord+(bar.synkop.ackord>index?1:0)};if(bar.varianter)patch.varianter=bar.varianter.map((v,i)=>v.ackord_nr!==undefined?{...v,ackord_nr:v.ackord_nr+(v.ackord_nr>index?1:0),...(v.ackord_nr===index&&!v.slag?{slag:startsFor(song,{...t,variant:i})}:{})}:v);}
   return {text:patchBar(text,t,patch),chord:index,start};
 }
@@ -165,4 +168,25 @@ export function patchFormInstruction(text:string,index:number,value:string){
   if(!step)throw Error('Återkomsten finns inte längre.');
   const instruction=value.trim()||undefined;if(step.anvisning===instruction)return text;
   const doc=parseSongDocument(text);setValue(doc,['spelordning',index,'anvisning'],step.anvisning,instruction);return write(doc);
+}
+
+export function setHighlight(text:string,owner:HighlightOwner,element:string,color:HighlightColor|null,range?:{fran:number;till:number}) {
+  const song=readSong(text),doc=parseSongDocument(text);
+  let path:Path=[];
+  if(owner.formStep!==undefined){if(!song.spelordning?.[owner.formStep])throw Error('Återkomsten finns inte längre.');path=['spelordning',owner.formStep];}
+  else if(owner.section!==undefined){
+    if(!song.delar[owner.section])throw Error('Delen finns inte längre.');path=['delar',owner.section];
+    if(owner.bar!==undefined){path=barMap(doc,song,{section:owner.section,bar:owner.bar});if(owner.variant!==undefined){fieldsAt(song,{section:owner.section,bar:owner.bar,variant:owner.variant});path.push('varianter',owner.variant);}}
+  }
+  const node=doc.getIn([...path,'markeringar']) as {toJSON?:()=>Highlight[]}|undefined;
+  const before:Highlight[]=node?.toJSON?.()??[];
+  const next=before.flatMap(mark=>{
+    if(mark.element!==element)return [mark];
+    if(!color||!range||mark.fran===undefined||mark.till===undefined)return [];
+    if(mark.till<=range.fran||mark.fran>=range.till)return [mark];
+    return [...(mark.fran<range.fran?[{...mark,till:range.fran}]:[]),...(mark.till>range.till?[{...mark,fran:range.till}]:[])];
+  });
+  if(color)next.push({element,farg:color,...range});
+  setValue(doc,[...path,'markeringar'],before,next.length?next:undefined);
+  return write(doc);
 }

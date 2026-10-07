@@ -1,3 +1,5 @@
+import { chartHighlighter } from './render-highlight';
+import type { HighlightOwner, HighlightTarget } from './highlight';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { PDFDocument, PDFFont, rgb } from 'pdf-lib';
@@ -9,7 +11,7 @@ const L = 31, R = PAGE_WIDTH - 31, CW = (R - L) / 4;
 const INK = '#111111', GREY = '#626262', ACCENT = '#173f50';
 type TextOp = { kind: 'text'; x: number; y: number; text: string; size: number; bold: boolean; color: string };
 type LineOp = { kind: 'line'; x: number; y: number; x2: number; y2: number; width: number; color: string };
-type RectOp = { kind: 'rect'; x: number; y: number; w: number; h: number; color: string };
+type RectOp = { kind: 'rect'; x: number; y: number; w: number; h: number; color: string; highlight?:boolean };
 type EllipseOp = { kind: 'ellipse'; x: number; y: number; rx: number; ry: number; fill: string; color: string; width: number };
 type PathOp = { kind: 'path'; d: string; color: string; width: number };
 type ChordHitOp = { kind: 'chord-hit'; x: number; y: number; w: number; h: number; section: number; bar: number; chord: number; variant?: number; label: string };
@@ -17,7 +19,8 @@ type SectionHitOp = {kind:'section-hit';x:number;y:number;w:number;h:number;sect
 export type BarHitOp = {kind:'bar-hit'|'bar-number-hit'|'chord-area-hit'|'variant-area-hit'|'rhythm-hit';x:number;y:number;w:number;h:number;section:number;bar:number;number:number;variant?:number;label:string;beats:number;meter:string;rhythmKind?:'rytm'|'offbeat'|'foruttag';numberHole?:{x:number;y:number;w:number;h:number}};
 export type ReuseHitOp = {kind:'reuse-hit';x:number;y:number;w:number;h:number;section:number;label:string};
 export type InstructionHitOp = {kind:'instruction-hit';x:number;y:number;w:number;h:number;section:number;bar?:number;scope:'bar'|'section'|'reuse';formStep?:number;label:string};
-export type DrawOp = InstructionHitOp | BarHitOp | ReuseHitOp | SectionHitOp | ChordHitOp | TextOp | LineOp | RectOp | EllipseOp | PathOp;
+type HighlightHitOp={kind:'highlight-hit';x:number;y:number;w:number;h:number;target:HighlightTarget;label:string};
+export type DrawOp = HighlightHitOp | InstructionHitOp | BarHitOp | ReuseHitOp | SectionHitOp | ChordHitOp | TextOp | LineOp | RectOp | EllipseOp | PathOp;
 export type ChartPage = DrawOp[];
 // Editable adds transparent targets to the same four-column print layout.
 // Keep columns accepted for older callers; it never changes the score's layout.
@@ -32,8 +35,10 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont, options
   const annotationSize = 6, annotationLine = 7;
   const pages: ChartPage[] = [[]];
   let ops = pages[0];
+  let owner:HighlightOwner={};
+  const mark=chartHighlighter(song,regular,bold,editable,()=>({ops,owner}));
   const width = (s: string, size: number, strong = false) => (strong ? bold : regular).widthOfTextAtSize(s, size);
-  const text = (x: number, y: number, value: string, size = 9, strong = false, col = INK) => ops.push({ kind: 'text', x, y, text: value, size, bold: strong, color: col });
+  const text = (x: number, y: number, value: string, size = 9, strong = false, col = INK) => mark('Text',()=>{ops.push({ kind: 'text', x, y, text: value, size, bold: strong, color: col });});
   const fitText = (x: number, y: number, value: string, size: number, max: number, strong = false, col = INK) => text(x, y, value, Math.min(size, size * max / Math.max(1, width(value, size, strong))), strong, col);
   const hasInstruction = (value:string|undefined) => Boolean(value?.trim());
   const instructionHit = (x:number,baseline:number,value:string,size:number,max:number,target:Pick<InstructionHitOp,'section'|'bar'|'scope'|'formStep'>,drawnValue=value,strong=false) => {
@@ -63,24 +68,24 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont, options
     }
     return { offset: offset - 2, maxWidth, lines };
   });
-  const line = (x: number, y: number, x2: number, y2: number, w = .65, col = '#aaaaaa') => ops.push({ kind: 'line', x, y, x2, y2, width: w, color: col });
-  const curve = (d: string, w = .7, col = INK) => ops.push({ kind: 'path', d, width: w, color: col });
-  const ellipse = (x: number, y: number, rx: number, ry: number, fill = INK, stroke = INK, w = .7) => ops.push({ kind: 'ellipse', x, y, rx, ry, fill, color: stroke, width: w });
+  const line = (x: number, y: number, x2: number, y2: number, w = .65, col = '#aaaaaa') => mark('Linje',()=>{ops.push({ kind: 'line', x, y, x2, y2, width: w, color: col });});
+  const curve = (d: string, w = .7, col = INK) => mark('Båge',()=>{ops.push({ kind: 'path', d, width: w, color: col });});
+  const ellipse = (x: number, y: number, rx: number, ry: number, fill = INK, stroke = INK, w = .7) => mark('Symbol',()=>{ops.push({ kind: 'ellipse', x, y, rx, ry, fill, color: stroke, width: w });});
   const circle = (x: number, y: number, radius: number, fill = INK, stroke = INK, w = .7) => ellipse(x, y, radius, radius, fill, stroke, w);
-  const coda = (x: number, y: number) => { circle(x, y, 5, '#ffffff', ACCENT, 1.25); line(x - 8, y, x + 8, y, 1.25, ACCENT); line(x, y - 8, x, y + 8, 1.25, ACCENT); };
-  const fermata = (x: number, y: number) => { curve(`M ${x-6} ${y} C ${x-6} ${y-8} ${x+6} ${y-8} ${x+6} ${y}`, 1.15); circle(x, y-1.8, 1); };
-  const note = (x: number, y: number, duration: 'whole' | 'half' | 'eighth' | 'quarter' | 'sixteenth') => {
+  const coda = (x: number, y: number) => mark('Coda',()=>{ circle(x, y, 5, '#ffffff', ACCENT, 1.25); line(x - 8, y, x + 8, y, 1.25, ACCENT); line(x, y - 8, x, y + 8, 1.25, ACCENT); });
+  const fermata = (x: number, y: number) => mark('Fermat',()=>{ curve(`M ${x-6} ${y} C ${x-6} ${y-8} ${x+6} ${y-8} ${x+6} ${y}`, 1.15); circle(x, y-1.8, 1); });
+  const note = (x: number, y: number, duration: 'whole' | 'half' | 'eighth' | 'quarter' | 'sixteenth') => mark('Not',()=>{
     ellipse(x, y, 2.3, 1.2, duration === 'half' || duration === 'whole' ? '#ffffff' : INK);
     if (duration !== 'whole') line(x + 2, y, x + 2, y - 6, .7, INK);
     if (duration === 'sixteenth') curve(`M ${x+2} ${y-4} C ${x+2} ${y-2} ${x+8} ${y-2} ${x+5} ${y}`);
     if (duration === 'eighth' || duration === 'sixteenth') curve(`M ${x+2} ${y-6} C ${x+2} ${y-4} ${x+8} ${y-4} ${x+5} ${y-2}`);
-  };
+  });
   const tie = (x1: number, x2: number, y: number) => curve(`M ${x1+2} ${y+2} C ${x1+(x2-x1)/3} ${y+6} ${x2-(x2-x1)/3} ${y+6} ${x2-2} ${y+2}`);
-  const repeat = (x: number, y: number, start: boolean, bottom = 32) => {
+  const repeat = (x: number, y: number, start: boolean, bottom = 32) => mark(start?'Reprisstart':'Reprisslut',()=>{
     line(x, y + 4, x, y + bottom, .8, INK);
     line(x + (start ? -4 : 4), y + 4, x + (start ? -4 : 4), y + bottom, 2.2, INK);
     for (const delta of [(bottom+4)/2-4, (bottom+4)/2+4]) circle(x + (start ? 3.5 : -3.5), y + delta, 1.15);
-  };
+  });
   const header = (continuation = false) => {
     let y = 37;
     if (continuation) { fitText(L, y, song.titel, 16, R-L, true); y += 17; }
@@ -113,7 +118,7 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont, options
   let number = 1;
   let meter = song.taktart;
   let house: string | undefined;
-  const nextPage = () => { ops = []; pages.push(ops); y = header(true); };
+  const nextPage = () => { ops = []; pages.push(ops); const previous=owner;owner={};y = header(true);owner=previous; };
 
   const meters = resolveSongMeters(song);
   const sectionRanges = new Map<string, number[]>();
@@ -138,6 +143,7 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont, options
     }
     const extra = instructionLines.length*14;
     if (y+77+extra > PAGE_HEIGHT-30) nextPage();
+    owner=reuseIndex!==undefined?{section:reuseIndex}:{formStep};
     const section = song.delar.findIndex(part=>part.namn===step.del);
     const range = sectionRanges.get(step.del)!;
     ops.push({kind:'rect',x:L,y:y-5,w:R-L,h:66+extra,color:'#f0f3f4'});
@@ -153,6 +159,7 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont, options
     y+=77+extra;
   };
   for (const [sectionIndex, section] of song.delar.entries()) {
+    owner={section:sectionIndex};
     if (section.ateranvand) {
       if(section.sidbrytning)nextPage();
       drawReuse({del:section.ateranvand,ganger:section.ganger,anvisning:section.anvisning},sectionIndex===song.delar.length-1,sectionIndex);
@@ -179,18 +186,19 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont, options
       const overhead = hasHouse ? 8 : 0;
       const labelSpace = first ? 7 : 0;
       const rhythmLabelSpace = row.cells.some(({ bar }) => bar.rytm && hasInstruction(bar.anvisning)) ? 10 : 0;
-      const annotations = new Map(row.cells.map(cell => [cell.barIndex, rhythmTexts(cell.bar, cell.beats)]));
+      const meterInset=(cell:{bar:Bar;barIndex:number})=>cell.bar.taktart||(sectionIndex===song.delar.findIndex(part=>!part.ateranvand)&&cell.barIndex===0)?19:0;
+      const annotations = new Map(row.cells.map(cell => [cell.barIndex, rhythmTexts(cell.bar, cell.beats,undefined,beat=>7+meterInset(cell)+(beat-1)*(CW-14-meterInset(cell))/cell.beats)]));
       const textLines = Math.max(0, ...[...annotations.values()].flatMap(notes => notes.map(note => note.lines.length)));
       const rhythmTextSpace = textLines ? textLines * annotationLine + 3 : 0;
       const rhythmExtra = (row.cells.some(({ bar }) => bar.rytm || bar.slag) ? 18 : 0) + rhythmLabelSpace + rhythmTextSpace;
       const variantCount = Math.max(0, ...row.cells.map(({ bar }) => bar.varianter?.length ?? 0));
-      const variantExtras = Array.from({length:variantCount}, (_, i) => Math.max(0,...row.cells.map(({bar,beats})=> {
+      const variantExtras = Array.from({length:variantCount}, (_, i) => Math.max(0,...row.cells.map(({bar,beats,barIndex})=> {
         const variant = bar.varianter?.[i]; if(!variant)return 0;
         const frameSpace = variant.ackord_nr !== undefined || variant.rytm ? 3 : 0;
         if(!variant.rytm)return frameSpace;
         const starts = chordStartPositions(bar,beats);
         const stop = variant.ackord_nr === undefined ? undefined : starts[variant.ackord_nr] ?? beats+1;
-        const lines = Math.max(0,...rhythmTexts(variant,beats,stop).map(n=>n.lines.length));
+        const lines = Math.max(0,...rhythmTexts(variant,beats,stop,beat=>7+meterInset({bar,barIndex})+(beat-1)*(CW-14-meterInset({bar,barIndex}))/beats).map(n=>n.lines.length));
         return frameSpace + 18 + (lines ? lines*annotationLine+3 : 0);
       })));
       const variantOffsets = variantExtras.map((_,i)=>variantExtras.slice(0,i).reduce((sum,n)=>sum+32+n,0));
@@ -198,6 +206,7 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont, options
       const cellBottom = 32 + extra;
       let continued = false;
       if ((row.pageBreak && ops.length > 4) || y + labelSpace + overhead + 39 + extra > PAGE_HEIGHT-30) { nextPage(); continued = !first; }
+      owner={section:sectionIndex};
       if (first || continued) {
         const partLabel = section.namn + (section.ganger > 1 ? ' × '+section.ganger : '') + (continued ? ' (forts.)' : '');
         fitText(L, y, partLabel, 10, 260, true, ACCENT);
@@ -216,6 +225,7 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont, options
         text(x + 4, y - 5, label, 6.8, true);
       };
       for (const { bar, number: n, col: column, beats, barIndex,meter:cellMeter } of row.cells) {
+        owner={section:sectionIndex,bar:barIndex};
         const x = L + column * CW;
         const target = {section:sectionIndex,bar:barIndex,number:n,beats,meter:cellMeter};
         const syncHit = (left:number,top:number,w:number,h:number,rhythmKind:'offbeat'|'foruttag',label:string) => {
@@ -232,15 +242,22 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont, options
         if (section.skuggad) ops.push({ kind: 'rect', x, y, w: CW, h: cellBottom, color: '#f0f3f4' });
         line(x, y + 4, x, y + cellBottom);
         text(x + 5, y + 8, String(n), 6.8, false, GREY);
-        const beatX = (beat: number) => x + 7 + (beat - 1) * (CW - 14) / beats;
+        const showMeter=!!bar.taktart||(sectionIndex===song.delar.findIndex(part=>!part.ateranvand)&&barIndex===0);
+        const meterSpace=showMeter?19:0;
+        if(showMeter)mark('Taktart',()=>{
+          const [numerator,denominator]=cellMeter.split('/'),numeratorWidth=width(numerator,11,true),denominatorWidth=width(denominator,11,true),symbolWidth=Math.max(numeratorWidth,denominatorWidth);
+          text(x+7+(symbolWidth-numeratorWidth)/2,y+18+rhythmExtra,numerator,11,true);
+          text(x+7+(symbolWidth-denominatorWidth)/2,y+30+rhythmExtra,denominator,11,true);
+        },'taktart');
+        const beatX = (beat: number) => x + 7 + meterSpace + (beat - 1) * (CW - 14 - meterSpace) / beats;
         const drawChords = (value: string, baseline: number, starts: number[] | undefined, baseScale = 1, main = false, variant?: number, stop = beats+1, axis=beatX) => {
           const tokens = value.trim().split(/\s+/).filter(Boolean);
           const chords = tokens.map(parseChord);
           const factors = chords.map((_, i) => main && (bar.synkop?.ackord === i + 1 || (bar.break && !bar.synkop && !bar.rytm && i === 0)) ? .6 : 1);
           const widths = chords.map(c => width(pretty(c.root), 23, true) + width(pretty(c.extension), 10) + (c.bass ? width('/'+pretty(c.bass), 13, true) : 0) + (c.parenthesized ? width('()',20) : 0) + 2);
           const gap = chords.length > 1 ? 12 : 0;
-          const scale = Math.min(baseScale, (CW - 15) / (widths.reduce((sum, w, i) => sum + w*factors[i], 0) + gap * (chords.length-1)));
-          let xx = x + 7;
+          const scale = Math.min(baseScale, (CW - 15 - meterSpace) / (widths.reduce((sum, w, i) => sum + w*factors[i], 0) + gap * (chords.length-1)));
+          let xx = x + 7 + meterSpace;
           const positions: number[] = [];
           chords.forEach((chord, i) => {
             if (starts) xx = axis(starts[i]);
@@ -249,6 +266,7 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont, options
             const factor = starts ? Math.max(.01,Math.min(baseScale * factors[i], available / widths[i])) : scale * factors[i];
             const root = pretty(chord.root), ext = pretty(chord.extension);
             const rootX = xx + (chord.parenthesized ? width('(',20)*factor : 0);
+            mark('Ackord '+tokens[i],()=>{
             if(chord.parenthesized){
               text(xx,baseline,'(',20*factor);
               text(xx+(widths[i]-width(')',20))*factor,baseline,')',20*factor);
@@ -257,6 +275,7 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont, options
             const rw = width(root, 23, true) * factor;
             text(rootX + rw + .5*factor, baseline - 5*factor, ext, 10*factor);
             if (chord.bass) text(rootX + rw + (width(ext,10)+1)*factor, baseline, '/'+pretty(chord.bass), 13*factor, true);
+            },`ackord:${i}`);
             if (main && bar.fermat === i+1) {
               let center=xx+widths[i]*factor/2;
               const fermatY=baseline-19,numberRight=x+5+width(String(n),6.8);
@@ -277,6 +296,7 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont, options
         if(editable)ops.push({kind:'chord-area-hit',x,y:y+10+rhythmExtra,w:CW,h:22,...target,label:`Skriv ackord i ${section.namn}, takt ${n}`});
         const positions = drawChords(bar.ackord, y+29+rhythmExtra, bar.varianter?.some(v=>v.ackord_nr !== undefined) ? chordStartPositions(bar,beats) : bar.slag, 1, true);
         bar.varianter?.forEach((variant, i) => {
+          owner={section:sectionIndex,bar:barIndex,variant:i};
           const label = `${variant.och_foljande ? 'Fr.o.m. ' : ''}${variant.gang}${variant.gang === 2 ? ':a' : ':e'} gången${variant.stamma ? ' · '+variant.stamma : ''}${variant.slag ? ' · slag '+variant.slag.join(', ') : ''}`;
           const base = y + rhythmExtra + variantOffsets[i];
           const variantExtra = variantExtras[i];
@@ -306,12 +326,13 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont, options
               text(bx-2,base+52,label,5,false,GREY);
               note(bx,base+61,durations[event.notvarde]);
             }
-            const annotations=rhythmTexts(variant,beats,variant.ackord_nr === undefined ? undefined : stop);
+            const annotations=rhythmTexts(variant,beats,variant.ackord_nr === undefined ? undefined : stop,beat=>beatX(beat)-x);
             for(const annotation of annotations)annotation.lines.forEach((value,j)=>fitText(x+annotation.offset,base+70+j*annotationLine,value,annotationSize,annotation.maxWidth,false,ACCENT));
             const lines=Math.max(0,...annotations.map(note=>note.lines.length));
             if(editable)ops.push({kind:'rhythm-hit',x:x+4,y:base+46,w:CW-8,h:Math.max(64,lines?72+(lines-1)*annotationLine:0)-46,...target,variant:i,rhythmKind:'rytm',label:`Ändra rytm i variant ${i+1}, ${section.namn}, takt ${n}`});
           }
         });
+        owner={section:sectionIndex,bar:barIndex};
         if (bar.rytm) {
           if (hasInstruction(bar.anvisning)) {
             fitText(x+6,y+17,bar.anvisning!,6.3,CW-12,false,ACCENT);
@@ -353,13 +374,13 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont, options
           }
         } else if (bar.break && !bar.rytm) { note(x+19,y+13.5,'quarter'); text(x+31,y+12.5,'BREAK',6.2,true,ACCENT); }
         const barInstruction=hasInstruction(bar.anvisning)?bar.anvisning:undefined;
-        const instructions = [bar.rytm ? undefined : barInstruction, bar.tonart ? pretty(bar.tonart) : '', bar.taktart, bar.slut ? 'SLUT' : ''].filter(Boolean).join(' · ');
+        const instructions = [bar.rytm ? undefined : barInstruction, bar.tonart ? pretty(bar.tonart) : '', bar.slut ? 'SLUT' : ''].filter(Boolean).join(' · ');
         if (instructions) {
           fitText(x+6,y+39+extra,instructions,6.3,CW-12,false,ACCENT);
           if(!bar.rytm && barInstruction)instructionHit(x+6,y+39+extra,barInstruction,6.3,CW-12,{section:sectionIndex,bar:barIndex,scope:'bar'},instructions);
         }
         if (bar.coda) { coda(x+CW-13,y+9); if (bar.coda === 'hopp') text(x+CW-48,y+8,'Till',5.5,false,ACCENT); }
-        if (bar.segno) { text(x+CW-26,y+12,'S',12,true,ACCENT); line(x+CW-28,y+14,x+CW-14,y,.8,ACCENT); circle(x+CW-28,y+4,1,ACCENT); circle(x+CW-14,y+12,1,ACCENT); }
+        if (bar.segno) mark('Segno',()=>{ text(x+CW-26,y+12,'S',12,true,ACCENT); line(x+CW-28,y+14,x+CW-14,y,.8,ACCENT); circle(x+CW-28,y+4,1,ACCENT); circle(x+CW-14,y+12,1,ACCENT); });
         if (bar.repris_start) repeat(x,y,true,cellBottom);
         if (bar.repris_slut) repeat(x+CW,y,false,cellBottom);
         if (bar.slut) { line(x+CW-3,y+4,x+CW-3,y+cellBottom,.8,INK); line(x+CW,y+4,x+CW,y+cellBottom,2.2,INK); }
@@ -381,11 +402,12 @@ export function layoutChart(song: Song, regular: PDFFont, bold: PDFFont, options
 }
 
 export function pageSvg(page: ChartPage) {
-  const targetOrder: Record<string,number> = {'bar-hit':1,'chord-area-hit':2,'variant-area-hit':2,'reuse-hit':3,'section-hit':4,'chord-hit':5,'bar-number-hit':6,'rhythm-hit':7,'instruction-hit':8};
+  const targetOrder: Record<string,number> = {'bar-hit':1,'chord-area-hit':2,'variant-area-hit':2,'reuse-hit':3,'section-hit':4,'chord-hit':5,'bar-number-hit':6,'rhythm-hit':7,'instruction-hit':8,'highlight-hit':9};
   const editablePage = page.some(op=>op.kind==='bar-hit'||op.kind==='reuse-hit');
   const commands = editablePage ? [...page.filter(op=>!targetOrder[op.kind]),...page.filter(op=>targetOrder[op.kind]).sort((a,b)=>targetOrder[a.kind]-targetOrder[b.kind])] : page;
   const content = commands.map(op => {
     switch(op.kind) {
+      case 'highlight-hit':return `<rect class="highlight-hit" x="${op.x}" y="${op.y}" width="${op.w}" height="${op.h}" fill="transparent" tabindex="-1" role="button" aria-label="Färgmarkera ${xml(op.label)}" data-highlight-target="${xml(JSON.stringify(op.target))}"><title>Färgmarkera ${xml(op.label)}</title></rect>`;
       case 'bar-hit':
       case 'bar-number-hit':
       case 'chord-area-hit':
@@ -403,7 +425,7 @@ export function pageSvg(page: ChartPage) {
       case 'chord-hit': return `<rect class="chord-hit" x="${op.x}" y="${op.y}" width="${op.w}" height="${op.h}" fill="transparent" role="button" tabindex="0" aria-label="${xml(op.label)}" data-section="${op.section}" data-bar="${op.bar}" data-chord="${op.chord}"${op.variant === undefined ? '' : ` data-variant="${op.variant}"`}><title>${xml(op.label)}</title></rect>`;
       case 'text': return `<text x="${op.x}" y="${op.y}" font-family="Harmis" font-size="${op.size}" font-weight="${op.bold ? 700 : 400}" fill="${op.color}" style="font-kerning:none;font-variant-ligatures:none">${xml(op.text)}</text>`;
       case 'line': return `<line x1="${op.x}" y1="${op.y}" x2="${op.x2}" y2="${op.y2}" stroke="${op.color}" stroke-width="${op.width}"/>`;
-      case 'rect': return `<rect x="${op.x}" y="${op.y}" width="${op.w}" height="${op.h}" fill="${op.color}"/>`;
+      case 'rect': return `<rect${op.highlight?' class="score-highlight"':''} x="${op.x}" y="${op.y}" width="${op.w}" height="${op.h}" fill="${op.color}"/>`;
       case 'ellipse': return `<ellipse cx="${op.x}" cy="${op.y}" rx="${op.rx}" ry="${op.ry}" fill="${op.fill}" stroke="${op.color}" stroke-width="${op.width}"/>`;
       case 'path': return `<path d="${op.d}" fill="none" stroke="${op.color}" stroke-width="${op.width}"/>`;
     }
@@ -421,6 +443,7 @@ export async function renderChart(song: Song, format: 'svg' | 'pdf' = 'svg', opt
     const page = pdf.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
     for (const op of commands) {
       switch(op.kind) {
+        case 'highlight-hit':
         case 'bar-hit':
         case 'bar-number-hit':
         case 'chord-area-hit':

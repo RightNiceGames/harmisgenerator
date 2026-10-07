@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowDownToLine, ArrowUpDown, Check, CircleHelp, Columns2, FileMusic, ListMusic, LoaderCircle, Maximize2, Minimize2, Plus, RotateCcw, RotateCw, Save, X, Code2, Eye, PanelRightOpen, Type, BookOpen } from 'lucide-react';
 import { readSong, asBar, pretty, SongError, transposeText } from '@/lib/song';
 import { EditAction, insertFeature, selectedBar, insertReuse, selectedSection } from '@/lib/edit';
-import { LiveViewer, type LiveSession, type LiveSong } from './live-viewer';
+import { LiveViewer, type LiveSession, type LiveSong, type LiveLocation } from './live-viewer';
 import { Library } from './library';
 import { ScoreEditor, ScoreButton, type ScoreEditorHandle } from './score-editor';
 import type { SongEntry } from '@/lib/storage';
@@ -41,31 +41,50 @@ export function Editor({ initialSongs, initialId, initial }: Props) {
   const score = useRef<ScoreEditorHandle>(null),fullRoot=useRef<HTMLElement>(null);
   const [fullscreen,setFullscreen]=useState(false),[fullscreenPending,setFullscreenPending]=useState(false);
   useEffect(()=>{const sync=()=>setFullscreen(document.fullscreenElement===fullRoot.current);document.addEventListener('fullscreenchange',sync);sync();return()=>document.removeEventListener('fullscreenchange',sync);},[]);
-  const [showText,setShowText]=useState(false),[inlineDirty,setInlineDirty]=useState(false),[printPreview,setPrintPreview]=useState(false),[small,setSmall]=useState(false),[panelVisible,setPanelVisible]=useState(true),[libraryOpen,setLibraryOpen]=useState(false);
+  const [showText,setShowText]=useState(false),[inlineDirty,setInlineDirty]=useState(false),[printPreview,setPrintPreview]=useState(false),[small,setSmall]=useState(false),[panelVisible,setPanelVisible]=useState(true),[libraryOpen,setLibraryOpen]=useState(false),[libraryCollapsed,setLibraryCollapsed]=useState(false);
   const [previewMode,setPreviewMode]=useState('');
   const renderMode=printPreview?'print':'edit';
   useEffect(()=>{const media=matchMedia('(max-width:760px)'),sync=()=>setSmall(media.matches);sync();media.addEventListener('change',sync);return()=>media.removeEventListener('change',sync);},[]);
   const [zoom, setZoom] = useState('fit');
   const [twoPages, setTwoPages] = useState(false);
   const [live, setLive] = useState<LiveSession | null>(null);
-  const closeLive = useCallback(() => {
-    setLive(null);
-    if (document.fullscreenElement) void document.exitFullscreen().catch(() => {});
-  }, []);
+  const liveBookmarks=useRef(new Map<string,LiveLocation>()),lastPlaylist=useRef<LiveSong[]|null>(null);
+  const liveDrafts=useRef(new Map<string,{text:string;saved:string;revision:string;history:string[];historyIndex:number}>());
+  const liveReturnFocus=useRef<HTMLElement|null>(null);
+  useEffect(()=>{if(!live&&!loading&&liveReturnFocus.current){liveReturnFocus.current.focus({preventScroll:true});liveReturnFocus.current=null;}},[live,loading]);
+  const [pageRequest,setPageRequest]=useState<{page:number;request:number}|undefined>();
+  const closeLive = useCallback(async(location:LiveLocation) => {
+    liveBookmarks.current.set(location.id,location);setLive(null);setTwoPages(false);setPrintPreview(false);
+    if(document.fullscreenElement)void document.exitFullscreen().catch(()=>{});
+    if(location.id!==id){
+      liveDrafts.current.set(id,{text,saved,revision,history:[...history.current],historyIndex:historyIndex.current});
+      setLoading(true);
+      try{
+        const cached=liveDrafts.current.get(location.id),data=cached??await jsonResponse(await fetch(`/api/songs/${location.id}`));
+        score.current?.clear();editGroup.current=null;setNotice('');setCursor(0);setId(location.id);setText(data.text);setSaved(cached?.saved??data.text);setRevision(data.revision);setPages([]);setPrintPages([]);setPreviewText('');
+        history.current=cached?.history??[data.text];historyIndex.current=cached?.historyIndex??0;setUndoState({back:historyIndex.current>0,forward:historyIndex.current<history.current.length-1});
+      }catch(e){setRequestError(e instanceof Error?e.message:'Kunde inte öppna låten.');return;}finally{setLoading(false);}
+    }
+    setPageRequest({page:location.page,request:Date.now()});
+  },[id,text,saved,revision]);
   async function startLive(name?: string, items?: LiveSong[]) {
     if (busy || items?.length===0) return;
+    liveReturnFocus.current=document.activeElement as HTMLElement;
     const snapshot=score.current?score.current.flush():text;if(snapshot===null)return;
     let song;try{song=readSong(snapshot);}catch{return;}
     // Live is portaled to body and must not be hidden behind the editor's fullscreen subtree.
     try{if(document.fullscreenElement===fullRoot.current)await document.exitFullscreen();}
     catch(e){setRequestError(e instanceof Error?e.message:'Kunde inte lämna helskärm.');return;}
-    const liveSongs=items??[{id,title:song.titel}];
-    setLive({name:name??song.titel,songs:liveSongs,startSong:Math.max(0,liveSongs.findIndex(item=>item.id===id)),override:{id,text:snapshot}});
+    const liveSongs=items??(lastPlaylist.current?.some(item=>item.id===id)?lastPlaylist.current:songs.map(item=>({id:item.id,title:item.title})));
+    lastPlaylist.current=liveSongs;
+    const startSong=Math.max(0,liveSongs.findIndex(item=>item.id===id));
+    const bookmark=liveBookmarks.current.get(liveSongs[startSong].id);
+    setLive({name:name??song.titel,songs:liveSongs,startSong,startPage:liveSongs[startSong].id===id?(score.current?.getPage()??bookmark?.page??0):0,twoPages:bookmark?.twoPages,turnPairs:bookmark?.turnPairs,override:{id,text:snapshot},drafts:Object.fromEntries([...liveDrafts.current].map(([key,value])=>[key,value.text]))});
   }
   async function showLibrary(open:boolean,focusSearch=false){
     try{if(document.fullscreenElement===fullRoot.current)await document.exitFullscreen();}
     catch(e){setRequestError(e instanceof Error?e.message:'Kunde inte lämna helskärm.');return;}
-    setLibraryOpen(open);if(open&&focusSearch)requestAnimationFrame(()=>searchInput.current?.focus());
+    setLibraryOpen(open);if(open)setLibraryCollapsed(false);if(open&&focusSearch)requestAnimationFrame(()=>searchInput.current?.focus());
   }
   async function toggleFullscreen(){
     if(fullscreenPending||busy||score.current?.flush()===null)return;
@@ -135,10 +154,11 @@ export function Editor({ initialSongs, initialId, initial }: Props) {
     return () => { clearTimeout(timer); controller.abort(); };
   }, [text, parsed.song, printPreview, renderMode]);
   useEffect(() => {
-    if (!dirty&&!inlineDirty) return;
+    const pendingLiveDraft=[...liveDrafts.current.values()].some(draft=>draft.text!==draft.saved);
+    if (!dirty&&!inlineDirty&&!pendingLiveDraft) return;
     const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ''; };
     window.addEventListener('beforeunload',warn); return () => window.removeEventListener('beforeunload',warn);
-  }, [dirty,inlineDirty]);
+  }, [dirty,inlineDirty,id]);
   useEffect(() => {
     if (!help) return;
     const handle = (event: KeyboardEvent) => {
@@ -158,7 +178,7 @@ export function Editor({ initialSongs, initialId, initial }: Props) {
     try {
       const response = await fetch(`/api/songs/${id}`,{ method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:snapshot,revision}) });
       const data = await jsonResponse(response);
-      setRevision(data.revision); setSaved(snapshot); setNotice('Sparad i låtbiblioteket');
+      liveDrafts.current.delete(id);setRevision(data.revision); setSaved(snapshot); setNotice('Sparad i låtbiblioteket');
       const song = snapshotSong;
       setSongs(items => items.map(item => item.id === id ? { id,title:song.titel,artist:song.artist,key:song.grundtonart,status:song.status } : item));
     } catch (e) { setRequestError(e instanceof Error ? e.message : 'Kunde inte spara.'); }
@@ -180,11 +200,13 @@ export function Editor({ initialSongs, initialId, initial }: Props) {
     if (!discarded&&(snapshot!==saved||inlineDirty) && !window.confirm('Du har osparade ändringar. Vill du lämna dem och läsa in låtfilen?')) return;
     setLoading(true); setRequestError('');
     try {
-      const data = await jsonResponse(await fetch(`/api/songs/${nextId}`));
-      score.current?.clear();editGroup.current=null;setLibraryOpen(false);setId(nextId); setText(data.text); setSaved(data.text); setRevision(data.revision);
+      const cached=reload?undefined:liveDrafts.current.get(nextId);
+      const data = cached??await jsonResponse(await fetch(`/api/songs/${nextId}`));
+      liveDrafts.current.delete(id);liveDrafts.current.delete(nextId);
+      score.current?.clear();editGroup.current=null;setLibraryOpen(false);setId(nextId); setText(data.text); setSaved(cached?.saved??data.text); setRevision(data.revision);
       if (nextId !== id) { setPages([]);setPrintPages([]); setPreviewText(''); }
       setNotice(''); setTranspose(false); setCursor(0);
-      history.current = [data.text]; historyIndex.current = 0; updateUndo();
+      history.current = cached?.history??[data.text]; historyIndex.current = cached?.historyIndex??0; updateUndo();
       if (editor.current) editor.current.scrollTop = 0;
     } catch (e) { setRequestError(e instanceof Error ? e.message : 'Kunde inte öppna låten.'); }
     finally { setLoading(false); }
@@ -225,13 +247,13 @@ export function Editor({ initialSongs, initialId, initial }: Props) {
     } catch (e) { setRequestError(e instanceof Error ? e.message : 'Kunde inte exportera.'); }
     finally { setExporting(false); }
   }
-  return <div className={`app-shell score-app ${libraryOpen?'library-open':''}`}>
+  return <div className={`app-shell score-app ${libraryOpen?'library-open':''} ${libraryCollapsed?'library-collapsed':''}`}>
     {live&&<LiveViewer session={live} onClose={closeLive}/>}
     <div className="library-region"><Library songs={songs} id={id} busy={busy} openSong={openSong} refresh={refresh} searchInput={searchInput} startLive={startLive}/>{small&&<button className="button secondary library-close" onClick={()=>setLibraryOpen(false)}>Stäng bibliotek</button>}</div>
     <main ref={fullRoot} className="main score-main">
       <h1 className="sr-only">{parsed.song?.titel||current?.title||'Harmisgenerator'}</h1>
       <div className="editor-global-tools">
-        <div className="global-nav-wrap"><div className="global-nav"><ScoreButton label="Visa bibliotek" className="mobile-library" active={libraryOpen} onClick={()=>void showLibrary(!libraryOpen)}><BookOpen/></ScoreButton><ScoreButton label="Form" onClick={()=>score.current?.showPanel('form')}><ListMusic/></ScoreButton><ScoreButton label="Låt" onClick={()=>score.current?.showPanel('song')}><Type/></ScoreButton><ScoreButton label={showText?'Dölj låtfil':'Visa låtfil'} active={showText} onClick={()=>{if(score.current?.flush()!==null)setShowText(v=>!v);}}><Code2/></ScoreButton><ScoreButton label="Transponera" disabled={!parsed.song||busy} onClick={()=>{if(score.current?.flush()===null)return;setTarget((parsed.song?.grundtonart||'C').replace(/m$/,''));setTranspose(v=>!v);}}><ArrowUpDown/></ScoreButton><ScoreButton label="Så fungerar det" onClick={()=>setHelp(true)}><CircleHelp/></ScoreButton></div><span className="global-swipe-hint">↔ Svep</span></div>
+        <div className="global-nav-wrap"><div className="global-nav"><ScoreButton className="mobile-library" label="Visa bibliotek" active={libraryOpen} onClick={()=>void showLibrary(!libraryOpen)}><BookOpen/></ScoreButton><ScoreButton className="desktop-library" label={libraryCollapsed?'Visa bibliotek':'Dölj bibliotek'} active={!libraryCollapsed} onClick={()=>setLibraryCollapsed(v=>!v)}><BookOpen/></ScoreButton><ScoreButton label="Form" onClick={()=>score.current?.showPanel('form')}><ListMusic/></ScoreButton><ScoreButton label="Låt" onClick={()=>score.current?.showPanel('song')}><Type/></ScoreButton><ScoreButton label={showText?'Dölj låtfil':'Visa låtfil'} active={showText} onClick={()=>{if(score.current?.flush()!==null)setShowText(v=>!v);}}><Code2/></ScoreButton><ScoreButton label="Transponera" disabled={!parsed.song||busy} onClick={()=>{if(score.current?.flush()===null)return;setTarget((parsed.song?.grundtonart||'C').replace(/m$/,''));setTranspose(v=>!v);}}><ArrowUpDown/></ScoreButton><ScoreButton label="Så fungerar det" onClick={()=>setHelp(true)}><CircleHelp/></ScoreButton></div><span className="global-swipe-hint">↔ Svep</span></div>
         <div className="global-actions"><ScoreButton label="Ångra" disabled={!undoState.back&&!inlineDirty||busy} onClick={()=>undo()}><RotateCcw/></ScoreButton><ScoreButton label="Gör om" disabled={!undoState.forward||busy} onClick={()=>undo(true)}><RotateCw/></ScoreButton><ScoreButton label="Spara" disabled={(!dirty&&!inlineDirty)||!parsed.song||busy} onClick={()=>void save()}>{saving?<LoaderCircle className="spin"/>:<Save/>}</ScoreButton><ScoreButton label="Exportera PDF" disabled={!parsed.song||busy||exporting} onClick={()=>void exportPdf()}>{exporting?<LoaderCircle className="spin"/>:<ArrowDownToLine/>}</ScoreButton><ScoreButton label={panelVisible?'Fäll in menykolumn':'Visa menykolumn'} active={panelVisible} onClick={()=>score.current?.togglePanel()}><PanelRightOpen/></ScoreButton></div>
       </div>
       {formOpen && <section className="transpose-panel" aria-label="Återanvänd låtdel"><div><strong>Lägg till en återkomst</strong><p>Återkomsten infogas direkt bland låtdelarna på vald plats. Du kan lägga nya partier efter den.</p></div><label>Placering<select aria-label="Infoga efter" value={formAfter} onChange={e=>{setFormAfter(Number(e.target.value));setFormPart('');}}><option value={-1}>Sist i låten</option>{parsed.song?.delar.map((part,i)=><option key={i} value={i}>Efter {i+1}. {part.ateranvand ? `Återanvänd ${part.ateranvand}` : part.namn}</option>)}</select></label><label>Låtdel<select aria-label="Låtdel att återanvända" value={formPart} onChange={e=>setFormPart(e.target.value)}><option value="" disabled>Välj del</option>{parsed.song?.delar.map((part,i)=>!part.ateranvand&&(formAfter<0||i<=formAfter)?<option key={i} value={part.namn}>{part.namn}</option>:null)}</select></label><label>Antal gånger<select aria-label="Antal gånger" value={formTimes} onChange={e=>setFormTimes(Number(e.target.value))}>{Array.from({length:16},(_,i)=><option key={i+1} value={i+1}>{i+1}</option>)}</select></label><label className="form-instruction">Anvisning för denna återkomst<input aria-label="Anvisning för denna återkomst" value={formInstruction} onChange={e=>setFormInstruction(e.target.value)} maxLength={180} placeholder="Till exempel: Instrumentalt (solo)"/></label><button className="button primary" onClick={appendPart} disabled={!parsed.song || busy || !formPart}>Infoga återanvänd del</button><button className="icon-button" aria-label="Stäng återanvändning" onClick={()=>setFormOpen(false)}><X size={18}/></button></section>}
@@ -249,10 +271,10 @@ export function Editor({ initialSongs, initialId, initial }: Props) {
       <div className="score-preview-tools"><span className="live-label"><span className="online-dot"/>{rendering?'Uppdaterar':stale&&pages.length?'Inaktuell':'Uppdaterad'}</span><span>{printPreview?'Utskriftsförhandsgranskning':'Klicka på ackord eller taktnummer'}</span><span className="grow"/><select aria-label="Zoom" className="zoom-select" value={zoom} onChange={e=>setZoom(e.target.value)}><option value="fit">Anpassa</option><option value="100">100 %</option><option value="125">125 %</option></select><ScoreButton label="Liveläge" disabled={!parsed.song||busy} onClick={()=>void startLive()}><Eye/></ScoreButton><ScoreButton label={fullscreen?'Lämna helskärm':'Helskärm'} active={fullscreen} disabled={!parsed.song||busy||fullscreenPending} onClick={()=>void toggleFullscreen()}>{fullscreen?<Minimize2/>:<Maximize2/>}</ScoreButton><ScoreButton label="Visa två sidor sida vid sida" active={twoPages} disabled={!parsed.song||busy||pages.length<2} onClick={()=>{if(score.current?.flush()===null)return;setTwoPages(!twoPages);setPrintPreview(!twoPages);}}><Columns2/></ScoreButton><span className="preview-page-count">{pages.length} {pages.length===1?'sida':'sidor'}</span></div>
       {(parsed.error||renderError)&&pages.length>0&&<div className="stale-message">Senaste fungerande förhandsvisning. Rätta felet för att uppdatera.</div>}
       {renderError&&<p className="parse-error" role="alert">{renderError}</p>}
-      <ScoreEditor key={id} ref={score} text={text} song={parsed.song} pages={pages} printPages={printPages} printPreview={printPreview} previewText={previewText} busy={busy} enabled={!printPreview&&!!parsed.song&&previewMode===renderMode} zoom={zoom} twoPages={twoPages} onEdit={edit} onRollback={rollbackScore} onCursor={setCursor} onDraftChange={setInlineDirty} onNotice={setNotice} onPanelChange={setPanelVisible}
+      <ScoreEditor pageRequest={pageRequest} key={id} ref={score} text={text} song={parsed.song} pages={pages} printPages={printPages} printPreview={printPreview} previewText={previewText} busy={busy} enabled={!printPreview&&!!parsed.song&&previewMode===renderMode} zoom={zoom} twoPages={twoPages} onEdit={edit} onRollback={rollbackScore} onCursor={setCursor} onDraftChange={setInlineDirty} onNotice={setNotice} onPanelChange={setPanelVisible}
       />
       <div className="bottom-status" role="status" aria-live="polite">{notice||(loading?'Öppnar låten…':dirty||inlineDirty?'Osparade ändringar':'Klick markerar ackord · klick igen redigerar')}</div>
-    {help && <div className="modal-backdrop" onClick={() => setHelp(false)}><section className="help-dialog" role="dialog" aria-modal="true" aria-labelledby="help-title" onClick={e => e.stopPropagation()}><button className="icon-button close-help" aria-label="Stäng hjälp" autoFocus onClick={() => setHelp(false)}><X size={20}/></button><div className="eyebrow">FRÅN LÅTFIL TILL NOTSTÄLL</div><h2 id="help-title">Gör harmisen till din.</h2><ol><li><strong>Välj setlista och låt.</strong> Skapa en setlista med plusknappen i biblioteket, eller öppna Alla låtar. Redigera ändrar listans spelordning; A–Ö-knappen sorterar bara visningen. Listan läser filerna i songs-mappen. Uppdatera listan när du har lagt till en fil.</li><li><strong>Redigera på bladet.</strong> Första klicket markerar ett ackord, nästa öppnar taktens ackordrad. Skriv flera ackord med mellanslag. Enter sparar raden, Escape avbryter.</li><li><strong>Välj takt eller del.</strong> Taktnummerraden markerar takten. Kryssrutorna markerar flera takter i samma del. Verktygen visas vid markeringen. Visa låtfil öppnar det avancerade textläget.</li><li><strong>Transponera och spara.</strong> Grundtoner, bastoner och tonart ändras tillsammans. Spara skriver över låtfilen och behåller en lokal säkerhetskopia.</li><li><strong>Exportera PDF.</strong> Exporten använder texten du ser, även innan du sparar. Öppna PDF-filen för att skriva ut den.</li></ol><p className="help-note">Variantackord anger vilken gång alternativet spelas. Ackordslag placerar ackordbyten, t.ex. [1, 4]. Egen rytm anger anslag: i 4/4 betyder slag 1.5 första åttondelens efterslag, 1å; notvarde 8 betyder åttondel. Lägg till text: "Eb" eller annan fritext på en rytmnot för att visa text direkt under noten. Tomma textfält tar ingen extra höjd. Texten ändras inte vid transponering.</p><p className="help-note">Ctrl+S sparar. Ctrl+Z ångrar musikändringar; i ett öppet skrivfält gäller vanlig textånger. Tab avslutar skrivningen på bladet. Ett skrivfel visar radnumret och behåller senaste fungerande förhandsvisning.</p><button className="button primary" onClick={() => setHelp(false)}>Tillbaka till musiken</button></section></div>}
+    {help && <div className="modal-backdrop" onClick={() => setHelp(false)}><section className="help-dialog" role="dialog" aria-modal="true" aria-labelledby="help-title" onClick={e => e.stopPropagation()}><button className="icon-button close-help" aria-label="Stäng hjälp" autoFocus onClick={() => setHelp(false)}><X size={20}/></button><div className="eyebrow">FRÅN LÅTFIL TILL NOTSTÄLL</div><h2 id="help-title">Gör harmisen till din.</h2><ol><li><strong>Välj setlista och låt.</strong> Skapa en setlista med plusknappen i biblioteket, eller öppna Alla låtar. Redigera ändrar listans spelordning; A–Ö-knappen sorterar bara visningen. Listan läser filerna i songs-mappen. Uppdatera listan när du har lagt till en fil.</li><li><strong>Redigera på bladet.</strong> Första klicket markerar ett ackord, nästa öppnar taktens ackordrad. Skriv flera ackord med mellanslag. Enter sparar raden, Escape avbryter.</li><li><strong>Välj takt eller del.</strong> Taktnummerraden markerar takten. Ctrl-klick eller Cmd-klick väljer enskilda takter. Shift-klick väljer ett spann inom samma del. På pekskärm trycker du på taktnumren för att markera fler. Verktygen visas vid markeringen. Visa låtfil öppnar det avancerade textläget.</li><li><strong>Färgmarkera.</strong> Öppna markeringspennan ovanför bladet och välj rött, gult, blått eller grönt. Klicka på ett ackord eller en symbol, eller dra över en del av en text. Suddgummit tar bort elementets färg. Markeringarna sparas med låten och syns även i PDF och Live.</li><li><strong>Transponera och spara.</strong> Grundtoner, bastoner och tonart ändras tillsammans. Spara skriver över låtfilen och behåller en lokal säkerhetskopia.</li><li><strong>Exportera PDF.</strong> Exporten använder texten du ser, även innan du sparar. Öppna PDF-filen för att skriva ut den.</li></ol><p className="help-note">Variantackord anger vilken gång alternativet spelas. Ackordslag placerar ackordbyten, t.ex. [1, 4]. Egen rytm anger anslag: i 4/4 betyder slag 1.5 första åttondelens efterslag, 1å; notvarde 8 betyder åttondel. Lägg till text: "Eb" eller annan fritext på en rytmnot för att visa text direkt under noten. Tomma textfält tar ingen extra höjd. Texten ändras inte vid transponering.</p><p className="help-note">Ctrl+S sparar. Ctrl+Z ångrar musikändringar; i ett öppet skrivfält gäller vanlig textånger. Tab avslutar skrivningen på bladet. Ett skrivfel visar radnumret och behåller senaste fungerande förhandsvisning.</p><button className="button primary" onClick={() => setHelp(false)}>Tillbaka till musiken</button></section></div>}
     </main>
   </div>;
 }

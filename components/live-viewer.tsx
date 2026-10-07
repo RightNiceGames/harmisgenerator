@@ -1,20 +1,21 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Columns2, LoaderCircle, Maximize2, Minimize2, RefreshCw, X } from 'lucide-react';
+import { Columns2, LoaderCircle, Maximize2, Minimize2, RefreshCw, X, SkipBack, SkipForward } from 'lucide-react';
 
 export type LiveSong = {id: string; title: string};
-export type LiveSession = {name: string; songs: LiveSong[]; startSong: number; override?: {id: string; text: string}};
-type Props = {session: LiveSession; onClose: () => void};
+export type LiveLocation = {id:string;page:number;twoPages:boolean;turnPairs:boolean};
+export type LiveSession = {name: string; songs: LiveSong[]; startSong: number; startPage?:number; twoPages?:boolean; turnPairs?:boolean; drafts?:Record<string,string>; override?: {id: string; text: string}};
+type Props = {session: LiveSession; onClose: (location:LiveLocation) => void};
 async function data(response: Response) {
   const result = await response.json();
   if (!response.ok) throw new Error(result.error || 'Kunde inte läsa harmisen.');
   return result;
 }
 export function LiveViewer({session, onClose}: Props) {
-  const [position, setPosition] = useState<{song: number; page: number | null}>({song: session.startSong, page: 0});
-  const [twoPages, setTwoPages] = useState(true), [controls, setControls] = useState(true);
-  const [turnPairs, setTurnPairs] = useState(false);
+  const [position, setPosition] = useState<{song: number; page: number | null}>({song: session.startSong, page: session.startPage??0});
+  const [twoPages, setTwoPages] = useState(session.twoPages??true), [controls, setControls] = useState(true);
+  const [turnPairs, setTurnPairs] = useState(session.turnPairs??false);
   const [fullscreen, setFullscreen] = useState(false), [fullscreenPending, setFullscreenPending] = useState(false);
   const [fullscreenError, setFullscreenError] = useState('');
   const [chart, setChart] = useState<{id: string; pages: string[]} | null>(null);
@@ -26,7 +27,8 @@ export function LiveViewer({session, onClose}: Props) {
   const visibleCount = twoPages ? 2 : 1;
   const step = twoPages && turnPairs ? 2 : 1;
   const lastPage = twoPages && turnPairs ? Math.max(0, Math.floor((pages.length - 1) / 2) * 2) : Math.max(0, pages.length - visibleCount);
-  const page = position.page === null ? lastPage : Math.min(position.page, lastPage);
+  const page = position.page === null ? lastPage : Math.min(position.page, Math.max(0,pages.length-1));
+  const close=useCallback(()=>onClose({id:song.id,page:Math.min(page+visibleCount-1,Math.max(0,pages.length-1)),twoPages,turnPairs}),[onClose,song.id,page,visibleCount,pages.length,twoPages,turnPairs]);
   const loading = !pages.length && !error;
   const atStart = position.song === 0 && page === 0;
   const atEnd = position.song === session.songs.length - 1 && (error || page + visibleCount >= pages.length);
@@ -35,7 +37,7 @@ export function LiveViewer({session, onClose}: Props) {
     let pending = cache.current.get(id);
     if (!pending) {
       pending = (async () => {
-        const text = session.override?.id === id ? session.override.text : (await data(await fetch(`/api/songs/${id}`, {cache:'no-store'}))).text;
+        const text = session.override?.id === id ? session.override.text : session.drafts?.[id]??(await data(await fetch(`/api/songs/${id}`, {cache:'no-store'}))).text;
         const result = await data(await fetch('/api/render', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text})}));
         if (!Array.isArray(result.pages) || !result.pages.length) throw new Error('Harmisen saknar sidor.');
         return result.pages as string[];
@@ -92,7 +94,7 @@ export function LiveViewer({session, onClose}: Props) {
   }, [onClose]);
   useEffect(() => {
     const keyboard = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {event.preventDefault(); event.stopImmediatePropagation(); onClose();}
+      if (event.key === 'Escape') {event.preventDefault(); event.stopImmediatePropagation(); close();}
       else if (['ArrowRight', 'PageDown', 'ArrowLeft', 'PageUp'].includes(event.key)) {
         event.preventDefault(); event.stopImmediatePropagation();
         navigate(event.key === 'ArrowRight' || event.key === 'PageDown' ? 1 : -1);
@@ -105,7 +107,7 @@ export function LiveViewer({session, onClose}: Props) {
     };
     document.addEventListener('keydown', keyboard, true);
     return () => document.removeEventListener('keydown', keyboard, true);
-  }, [navigate, onClose, showControls]);
+  }, [navigate, close, showControls]);
 
   async function toggleFullscreen() {
     if (fullscreenPending) return;
@@ -128,13 +130,16 @@ export function LiveViewer({session, onClose}: Props) {
     <button className="live-turn live-back" aria-label="Föregående sida eller låt" disabled={loading || atStart} onClick={() => navigate(-1)}/>
     <button className="live-turn live-next" aria-label="Nästa sida eller låt" disabled={loading || !!atEnd} onClick={() => navigate(1)}/>
     <div className="live-controls" onFocus={showControls} onBlur={showControls}>
-      <button className="live-control live-exit" aria-label="Avsluta Live-läge" title="Avsluta (Escape)" onClick={onClose}><X size={22}/><span>Lämna Live</span></button>
+      <button className="live-control live-exit" aria-label="Avsluta Live-läge" title="Avsluta (Escape)" onClick={close}><X size={22}/><span>Lämna Live</span></button>
       <div className="live-toolbar">
+        <button className="live-control" aria-label="Föregående låt" disabled={position.song===0} onClick={()=>{setPosition({song:position.song-1,page:0});showControls();}}><SkipBack size={19}/><span>Föregående låt</span></button>
+        <span className="live-song-position">{position.song+1} / {session.songs.length} · {song.title}</span>
+        <button className="live-control" aria-label="Nästa låt" disabled={position.song===session.songs.length-1} onClick={()=>{setPosition({song:position.song+1,page:0});showControls();}}><SkipForward size={19}/><span>Nästa låt</span></button>
         <button className="live-control live-layout" aria-label="Två sidor i Live-läge" aria-pressed={twoPages} title={twoPages ? 'Visa en sida' : 'Visa två sidor'} onClick={() => {
           setPosition({...position, page: twoPages || !turnPairs ? page : Math.floor(page / 2) * 2}); setTwoPages(!twoPages); showControls();
         }}><Columns2 size={20}/><span>{twoPages ? '2 sidor' : '1 sida'}</span></button>
         {twoPages && <button className="live-control live-page-step" aria-label="Byt två sidor åt gången" aria-pressed={turnPairs} title={turnPairs ? 'Byt en sida åt gången' : 'Byt hela sidpar'} onClick={() => {
-          setPosition({...position, page: turnPairs ? page : Math.floor(page / 2) * 2}); setTurnPairs(!turnPairs); showControls();
+          setPosition({...position, page: turnPairs ? Math.min(page,Math.max(0,pages.length-visibleCount)) : Math.floor(page / 2) * 2}); setTurnPairs(!turnPairs); showControls();
         }}><span>{turnPairs ? 'Byt 2 sidor' : 'Byt 1 sida'}</span></button>}
         <button className="live-control live-fullscreen" aria-label={fullscreen ? 'Lämna helskärm' : 'Helskärm'} aria-pressed={fullscreen} disabled={fullscreenPending} onClick={() => void toggleFullscreen()}>{fullscreen ? <Minimize2 size={19}/> : <Maximize2 size={19}/>}<span>{fullscreen ? 'Lämna helskärm' : 'Helskärm'}</span></button>
       </div>

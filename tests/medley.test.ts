@@ -20,7 +20,7 @@ test('medley preserves stored meters, key changes and transitions through export
   assert.match(asBar(solo.takter[3]).anvisning!, /cue/);
   assert.equal(song.delar.find(part => part.namn === 'Tro · Stick / solo')!.takter.length, 8);
   const svg = (await renderChart(song)).pages!.join('');
-  for (const label of ['6/8','4/4','Rubato','Vidare på cue','BREAK','SLUT']) assert.ok(svg.includes(label), label);
+  for (const label of ['6/8','>4</text>','Rubato','Vidare på cue','BREAK','SLUT']) assert.ok(svg.includes(label), label);
   const pdf = await renderChart(song, 'pdf');
   assert.ok(pdf.pdf!.length > 1000);
 });

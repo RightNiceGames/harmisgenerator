@@ -16,7 +16,7 @@ test('rename updates all references, preserving chords, repeat counts and commen
 test('reuse block refers to existing bars and has a clickable section name',async()=>{
  const svg=(await renderChart(readSong(text))).pages!.join('');
  assert.ok(svg.includes('ÅTERANVÄND DEL · AVSLUTNING'));assert.ok(svg.includes('Refräng × 2'));
- assert.ok(svg.includes('takt 2–3. Spela 2 gånger, sedan SLUT.'));assert.ok(!svg.includes('>4</text>'));
+ assert.ok(svg.includes('takt 2–3. Spela 2 gånger, sedan SLUT.'));assert.equal((svg.match(/font-size="6.8"[^>]*>\d+<\/text>/g)??[]).length,3);
  assert.equal((svg.match(/class="section-hit"/g)||[]).length,3);
  const song=readSong(text);song.delar[0].takter=Array.from({length:55},()=> 'C');
  const result=await renderChart(song);assert.ok(result.pages!.length>1);

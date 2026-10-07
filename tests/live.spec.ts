@@ -23,7 +23,7 @@ async function setup(page: Page) {
 }
 
 test('Live slides one page at a time in set order and navigates across songs', async ({page}) => {
-  const {loads,original} = await setup(page);
+  const {loads} = await setup(page);
   const live = page.getByRole('dialog',{name:'Live: Liveset'});
   const figures = live.locator('figure');
   const next = live.getByRole('button',{name:'Nästa sida eller låt'});
@@ -68,7 +68,7 @@ test('Live slides one page at a time in set order and navigates across songs', a
   await expect(live).toHaveCount(0);
   await expect.poll(()=>page.evaluate(()=>!!document.fullscreenElement)).toBe(false);
   expect(await page.locator('.app-shell').evaluate(el=>(el as HTMLElement).inert)).toBe(false);
-  await expect(page.getByRole('textbox',{name:'Låtfilens text'})).toHaveValue(original);
+  await expect(page.getByRole('textbox',{name:'Låtfilens text'})).toHaveValue(source('Låt A',3));
 });
 
 test('controls hide, change page count while retaining the current page, and fullscreen failure keeps Live open', async ({page}) => {
@@ -165,4 +165,24 @@ test('Live starts at the active editor song with its unsaved text and retains ea
   await expect(figures.first()).toHaveAttribute('aria-label','Flykten från vardagen, sida 1');
   await page.keyboard.press('Escape');
   await expect(editor).toHaveValue(source('Aktiv osparad låt',3));
+});
+
+test('explicit song buttons skip pages and Live returns to the right-hand page in the editor',async({page})=>{
+ await setup(page);const live=page.getByRole('dialog',{name:'Live: Liveset'});
+ await live.getByRole('button',{name:'Nästa låt',exact:true}).click();await expect(live.locator('figure')).toHaveAttribute('aria-label','live-b.yaml, sida 1');
+ await live.getByRole('button',{name:'Föregående låt',exact:true}).click();await expect(live.locator('figure').first()).toHaveAttribute('aria-label','live-a.yaml, sida 1');
+ await live.getByRole('button',{name:'Nästa sida eller låt',exact:true}).click();await expect(live.locator('figure').last()).toHaveAttribute('aria-label','live-a.yaml, sida 3');
+ await page.keyboard.press('Escape');await expect(page.locator('.paper')).toHaveCount(3);await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
+ await expect.poll(()=>page.locator('.paper[data-page="2"]').evaluate(el=>{const r=el.getBoundingClientRect(),v=el.closest('.paper-scroll')!.getBoundingClientRect();return Math.abs(r.top-v.top)<4;})).toBe(true);
+ await page.getByRole('button',{name:'Liveläge',exact:true}).click();await expect(page.locator('.live-paper')).toHaveCount(1);await expect(page.locator('.live-paper')).toHaveAttribute('aria-label','live-a.yaml, sida 3');
+ await page.keyboard.press('Escape');
+});
+
+test('switching songs in Live preserves unsaved edits and undo when returning',async({page})=>{
+ await setup(page);await page.keyboard.press('Escape');await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
+ const editor=page.getByRole('textbox',{name:'Låtfilens text'});const original=await editor.inputValue();
+ await editor.fill(original.replace('titel: Låt A','titel: Osparad låt A'));await expect(page.locator('.live-label')).toHaveText('Uppdaterad');
+ await page.getByRole('button',{name:'Liveläge',exact:true}).click();await page.getByRole('button',{name:'Nästa låt',exact:true}).click();await expect(page.locator('.live-paper')).toHaveAttribute('aria-label','live-b.yaml, sida 1');await page.keyboard.press('Escape');await expect(editor).toHaveValue(source('Låt B',1));
+ await page.getByRole('button',{name:'Liveläge',exact:true}).click();await page.getByRole('button',{name:'Föregående låt',exact:true}).click();await expect(page.locator('.live-paper').first()).toContainText('Osparad låt A');await page.keyboard.press('Escape');
+ await expect(editor).toHaveValue(original.replace('titel: Låt A','titel: Osparad låt A'));await page.getByRole('button',{name:'Ångra',exact:true}).click();await expect(editor).toHaveValue(original);
 });

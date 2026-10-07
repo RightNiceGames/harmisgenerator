@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { highlightsSchema } from './highlight';
 import { isScalar, LineCounter, parseDocument, visit } from 'yaml';
 
 const notePattern = /^[A-G](?:#|b|♯|♭)?$/;
@@ -12,6 +13,7 @@ const rhythmSchema = z.array(z.strictObject({
   notvarde: z.union([z.literal(1), z.literal(2), z.literal(4), z.literal(8), z.literal(16)]).default(8),
 })).min(1).max(32);
 const variantSchema = z.strictObject({
+  markeringar:highlightsSchema,
   gang: z.number().int().min(2).max(16),
   och_foljande: z.boolean().optional(),
   ackord: z.string().max(180),
@@ -23,6 +25,7 @@ const variantSchema = z.strictObject({
 export type RhythmNote = z.infer<typeof rhythmSchema>[number];
 
 export const barSchema = z.strictObject({
+  markeringar:highlightsSchema,
   ackord: z.string().max(180),
   slag: startsSchema.optional(),
   rytm: rhythmSchema.optional(),
@@ -41,6 +44,7 @@ export const barSchema = z.strictObject({
 });
 export type Bar = z.infer<typeof barSchema>;
 const sectionSchema = z.strictObject({
+  markeringar:highlightsSchema,
   namn: z.string().max(80).default(''), anvisning: shortText.optional(),
   ateranvand: z.string().min(1).max(80).optional(),
   ganger: z.number().int().min(1).max(16).default(1),
@@ -48,6 +52,7 @@ const sectionSchema = z.strictObject({
   takter: z.array(z.union([z.string().max(180), barSchema])).max(300).default([]),
 });
 export const songSchema = z.strictObject({
+  markeringar:highlightsSchema,
   format: z.literal(1), titel: z.string().min(1).max(120), artist: shortText,
   version: shortText.optional(), upphov: shortText.optional(),
   grundtonart: z.string().regex(keyPattern, 'Ange tonart som C, Bb eller F#m.'),
@@ -56,7 +61,7 @@ export const songSchema = z.strictObject({
   status: z.enum(['utkast', 'granskad']).default('utkast'),
   kallor: z.array(z.strictObject({ url: z.string().url(), beskrivning: z.string().max(600) })).max(20).optional(),
   anteckningar: z.array(z.string().max(1400)).max(30).optional(),
-  spelordning: z.array(z.strictObject({ del: z.string().min(1).max(80), ganger: z.number().int().min(1).max(16).default(1), visa_block: z.boolean().optional(), anvisning: shortText.optional() })).min(1).max(60).optional(),
+  spelordning: z.array(z.strictObject({ markeringar:highlightsSchema, del: z.string().min(1).max(80), ganger: z.number().int().min(1).max(16).default(1), visa_block: z.boolean().optional(), anvisning: shortText.optional() })).min(1).max(60).optional(),
   delar: z.array(sectionSchema).max(60),
 }).superRefine((song, ctx) => {
   const defined = new Set(song.delar.filter(part=>!part.ateranvand).map(part=>part.namn));

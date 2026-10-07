@@ -208,12 +208,12 @@ test('blank instructions and rhythm note text draw nothing and add no spacing in
 });
 
 test('sync targets cover upper note stems while leaving actual number glyphs clickable',async()=>{
- const song=readSong(source([{namn:'A',takter:[{ackord:'C',synkop:{typ:'offbeat',ackord:1}}]}]));
+ const song=readSong(source([{namn:'A',takter:['C',{ackord:'C',synkop:{typ:'offbeat',ackord:1}}]}]));
  await samePrintedScore(song);
  const svg=(await renderChart(song,'svg',{editable:true})).pages![0];
  const group=svg.match(/<g class="rhythm-hit"[^>]*>[\s\S]*?<\/g>/)![0];
  const pieces=[...group.matchAll(/<rect x="([\d.]+)" y="([\d.]+)" width="([\d.]+)" height="([\d.]+)"/g)].map(m=>({x:Number(m[1]),y:Number(m[2]),w:Number(m[3]),h:Number(m[4])}));
- const number=rects(svg,'bar-number-hit')[0],chord=rects(svg,'chord-hit')[0];
+ const number=rects(svg,'bar-number-hit')[1],chord=rects(svg,'chord-hit')[1];
  const rowY=Number(number.y)+1;
  const contains=(x:number,y:number)=>pieces.some(r=>x>=r.x && x<=r.x+r.w && y>=r.y && y<=r.y+r.h);
  const attack=Number(chord.x)+3;
