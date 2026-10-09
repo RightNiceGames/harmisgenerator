@@ -7,6 +7,7 @@ import { LiveViewer, type LiveSession, type LiveSong, type LiveLocation } from '
 import { Library } from './library';
 import { ScoreEditor, ScoreButton, type ScoreEditorHandle } from './score-editor';
 import type { SongEntry } from '@/lib/storage';
+import type { Setlist } from '@/lib/setlists';
 
 type Props = { initialSongs: SongEntry[]; initialId: string; initial: { text: string; revision: string } };
 const musicalTools: { action: EditAction; mark: string; label: string }[] = [
@@ -48,7 +49,8 @@ export function Editor({ initialSongs, initialId, initial }: Props) {
   const [zoom, setZoom] = useState('fit');
   const [twoPages, setTwoPages] = useState(false);
   const [live, setLive] = useState<LiveSession | null>(null);
-  const liveBookmarks=useRef(new Map<string,LiveLocation>()),lastPlaylist=useRef<LiveSong[]|null>(null);
+  const liveBookmarks=useRef(new Map<string,LiveLocation>());
+  const [activeSetlist, setActiveSetlist] = useState<Setlist | null>(null);
   const liveDrafts=useRef(new Map<string,{text:string;saved:string;revision:string;history:string[];historyIndex:number}>());
   const liveReturnFocus=useRef<HTMLElement|null>(null);
   useEffect(()=>{if(!live&&!loading&&liveReturnFocus.current){liveReturnFocus.current.focus({preventScroll:true});liveReturnFocus.current=null;}},[live,loading]);
@@ -68,6 +70,10 @@ export function Editor({ initialSongs, initialId, initial }: Props) {
     setPageRequest({page:location.page,request:Date.now()});
   },[id,text,saved,revision]);
   async function startLive(name?: string, items?: LiveSong[]) {
+    if (!items && activeSetlist) {
+      name = activeSetlist.name;
+      items = activeSetlist.songs.map(songId => ({id:songId,title:songs.find(song => song.id === songId)?.title ?? songId}));
+    }
     if (busy || items?.length===0) return;
     liveReturnFocus.current=document.activeElement as HTMLElement;
     const snapshot=score.current?score.current.flush():text;if(snapshot===null)return;
@@ -75,8 +81,7 @@ export function Editor({ initialSongs, initialId, initial }: Props) {
     // Live is portaled to body and must not be hidden behind the editor's fullscreen subtree.
     try{if(document.fullscreenElement===fullRoot.current)await document.exitFullscreen();}
     catch(e){setRequestError(e instanceof Error?e.message:'Kunde inte lämna helskärm.');return;}
-    const liveSongs=items??(lastPlaylist.current?.some(item=>item.id===id)?lastPlaylist.current:songs.map(item=>({id:item.id,title:item.title})));
-    lastPlaylist.current=liveSongs;
+    const liveSongs=items??songs.map(item=>({id:item.id,title:item.title}));
     const startSong=Math.max(0,liveSongs.findIndex(item=>item.id===id));
     const bookmark=liveBookmarks.current.get(liveSongs[startSong].id);
     setLive({name:name??song.titel,songs:liveSongs,startSong,startPage:liveSongs[startSong].id===id?(score.current?.getPage()??bookmark?.page??0):0,twoPages:bookmark?.twoPages,turnPairs:bookmark?.turnPairs,override:{id,text:snapshot},drafts:Object.fromEntries([...liveDrafts.current].map(([key,value])=>[key,value.text]))});
@@ -249,7 +254,7 @@ export function Editor({ initialSongs, initialId, initial }: Props) {
   }
   return <div className={`app-shell score-app ${libraryOpen?'library-open':''} ${libraryCollapsed?'library-collapsed':''}`}>
     {live&&<LiveViewer session={live} onClose={closeLive}/>}
-    <div className="library-region"><Library songs={songs} id={id} busy={busy} openSong={openSong} refresh={refresh} searchInput={searchInput} startLive={startLive}/>{small&&<button className="button secondary library-close" onClick={()=>setLibraryOpen(false)}>Stäng bibliotek</button>}</div>
+    <div className="library-region"><Library songs={songs} id={id} busy={busy} openSong={openSong} refresh={refresh} searchInput={searchInput} startLive={startLive} onActiveSetlistChange={setActiveSetlist}/>{small&&<button className="button secondary library-close" onClick={()=>setLibraryOpen(false)}>Stäng bibliotek</button>}</div>
     <main ref={fullRoot} className="main score-main">
       <h1 className="sr-only">{parsed.song?.titel||current?.title||'Harmisgenerator'}</h1>
       <div className="editor-global-tools">

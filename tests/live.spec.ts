@@ -1,4 +1,57 @@
 import { test, expect, type Page } from '@playwright/test';
+const orderedSongs = ['vintersaga.yaml','flykten-fran-vardagen.yaml','allt-jag-ser.yaml'];
+async function setupActiveSetlists(page: Page) {
+  const first = {id:'246622b7-d8e4-43d7-ad35-7b4dcb3c6e3',name:'Första setet',songs:orderedSongs};
+  const second = {id:'52f0bcce-e104-4d25-ac31-6594653a7a4b',name:'Andra setet',songs:[...orderedSongs].reverse()};
+  await page.route('**/api/setlists',route=>route.fulfill({json:{lists:[first,second],revision:'0'}}));
+  await page.route(/\/api\/songs\/(vintersaga|flykten-fran-vardagen|allt-jag-ser)\.yaml$/,route=>route.fulfill({json:{text:source('Testlåt',1),revision:'0'}}));
+  await page.goto('/');
+  await expect(page.locator('.paper').first()).toBeVisible();
+  await page.getByRole('button',{name:/Första setet/}).click();
+  return page.getByRole('navigation',{name:'Låtar i vald lista'});
+}
+
+test('editor Live follows the selected setlist despite sorting and search', async ({page}) => {
+  const nav = await setupActiveSetlists(page);
+  await nav.getByRole('button',{name:/Flykten från vardagen/}).click();
+  await page.getByRole('button',{name:'Sortera i bokstavsordning'}).click();
+  await page.getByRole('textbox',{name:'Sök låt eller artist'}).fill('Flykten');
+  await expect(nav.getByRole('button')).toHaveCount(1);
+  await page.getByRole('button',{name:'Liveläge',exact:true}).click();
+  const live = page.getByRole('dialog',{name:'Live: Första setet'});
+  await expect(live.locator('.live-song-position')).toContainText('2 / 3');
+  await expect(live.locator('figure').first()).toHaveAttribute('aria-label',/Flykten från vardagen, sida/);
+  await live.getByRole('button',{name:'Föregående låt',exact:true}).click();
+  await expect(live.locator('figure')).toHaveAttribute('aria-label','Vintersaga, sida 1');
+  await expect(live.getByRole('button',{name:'Föregående låt',exact:true})).toBeDisabled();
+  await page.keyboard.press('ArrowRight');
+  await expect(live.locator('figure').first()).toHaveAttribute('aria-label',/Flykten från vardagen, sida/);
+  await live.getByRole('button',{name:'Nästa låt',exact:true}).click();
+  await expect(live.locator('figure')).toHaveAttribute('aria-label','Allt jag ser, sida 1');
+  await expect(live.getByRole('button',{name:'Nästa låt',exact:true})).toBeDisabled();
+  await page.keyboard.press('ArrowLeft');
+  await expect(live.locator('figure').first()).toHaveAttribute('aria-label',/Flykten från vardagen, sida/);
+});
+
+test('editor Live uses the newly selected setlist instead of the previous session', async ({page}) => {
+  const nav = await setupActiveSetlists(page);
+  await nav.getByRole('button',{name:/Flykten från vardagen/}).click();
+  await page.getByRole('button',{name:'Live',exact:true}).click();
+  await expect(page.getByRole('dialog',{name:'Live: Första setet'}).locator('figure').first()).toBeVisible();
+  await page.keyboard.press('Escape');
+  await page.getByRole('button',{name:'Setlistor',exact:true}).click();
+  await page.getByRole('button',{name:/Andra setet/}).click();
+  await page.getByRole('button',{name:'Liveläge',exact:true}).click();
+  const live = page.getByRole('dialog',{name:'Live: Andra setet'});
+  await expect(live.locator('.live-song-position')).toContainText('2 / 3');
+  await live.getByRole('button',{name:'Nästa låt',exact:true}).click();
+  await expect(live.locator('figure')).toHaveAttribute('aria-label','Vintersaga, sida 1');
+  await live.getByRole('button',{name:'Föregående låt',exact:true}).click();
+  await expect(live.locator('figure').first()).toHaveAttribute('aria-label',/Flykten från vardagen, sida/);
+  await live.getByRole('button',{name:'Föregående låt',exact:true}).click();
+  await expect(live.locator('figure')).toHaveAttribute('aria-label','Allt jag ser, sida 1');
+});
+
 const list = {id:'246622b7-d8e4-43d7-ad35-7b4dcb3c6e3',name:'Liveset',songs:['live-a.yaml','live-b.yaml','live-c.yaml','live-a.yaml']};
 function source(name: string, count: number) {
   return `format: 1\ntitel: ${name}\nartist: Test\ngrundtonart: C\ntaktart: 4/4\ndelar:\n` + Array.from({length:count},(_,i)=>`  - namn: Del ${i+1}\n    ${i ? 'sidbrytning: true\n    ' : ''}takter: [C]\n`).join('');

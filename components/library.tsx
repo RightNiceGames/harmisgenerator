@@ -6,13 +6,13 @@ import type { LiveSong } from './live-viewer';
 import type { Setlist, SetlistLibrary } from '@/lib/setlists';
 import { pretty } from '@/lib/song';
 
-type Props = { songs: SongEntry[]; id: string; busy: boolean; openSong: (id: string) => void; refresh: () => Promise<void>; searchInput: RefObject<HTMLInputElement | null>; startLive: (name: string, songs: LiveSong[]) => void };
+type Props = { songs: SongEntry[]; id: string; busy: boolean; openSong: (id: string) => void; refresh: () => Promise<void>; searchInput: RefObject<HTMLInputElement | null>; startLive: (name: string, songs: LiveSong[]) => void; onActiveSetlistChange: (setlist: Setlist | null) => void };
 async function responseData(response: Response): Promise<SetlistLibrary> {
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || 'Kunde inte läsa setlistorna.');
   return data;
 }
-export function Library({songs, id, busy, openSong, refresh, searchInput, startLive}: Props) {
+export function Library({songs, id, busy, openSong, refresh, searchInput, startLive, onActiveSetlistChange}: Props) {
   const [data, setData] = useState<SetlistLibrary | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [alphabetical, setAlphabetical] = useState(false), [search, setSearch] = useState('');
@@ -27,6 +27,7 @@ export function Library({songs, id, busy, openSong, refresh, searchInput, startL
   useEffect(() => { void load(); }, []);
   useEffect(() => { if (draft) dialog.current?.showModal(); }, [!!draft]);
   const active = data?.lists.find(list => list.id === selected);
+  useEffect(() => { onActiveSetlistChange(active ?? null); }, [active, onActiveSetlistChange]);
   const title = selected === 'all' ? 'Alla låtar' : active?.name ?? 'Setlistan saknas';
   const entries = selected === 'all' ? songs : (active?.songs ?? []).map(songId => songs.find(song => song.id === songId) ?? {id: songId, title: songId, artist: 'Låtfilen saknas', key: '', status: 'fel', error: 'Låtfilen saknas'});
   const ordered = entries.map((song, index) => ({song, index}));
